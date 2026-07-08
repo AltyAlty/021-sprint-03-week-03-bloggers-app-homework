@@ -6,6 +6,7 @@ import { SortDirection } from '../../core/types/pagination/sort-direction';
 import { PostSortFieldQueryInputDTO } from '../routes/input-dto/query/post-sort-field-query.input-dto';
 import { PostDBType } from './types/post-db.type';
 import { injectable } from 'inversify';
+import { PostListDBType } from './types/post-list-db.type';
 
 /*Query-репозиторий для работы с постами в БД.*/
 @injectable()
@@ -22,7 +23,7 @@ export class PostsQueryRepository {
   async findAll(
     queryDTO: GetPostListQueryInputDTO,
     blogId?: string
-  ): Promise<{ items: PostDBType[]; totalCount: number }> {
+  ): Promise<{ items: PostListDBType; totalCount: number }> {
     /*Создаем переменные на основе параметра "queryDTO" при помощи деструктуризации.*/
     const {
       pageNumber,
@@ -46,7 +47,7 @@ export class PostsQueryRepository {
 
     /*Просим коллекцию "postsCollection" найти посты в БД и подсчитать общее количество документов, подходящих под
     фильтр, без учета пагинации.*/
-    const [items, totalCount]: [PostDBType[], number] = await Promise.all([
+    const [items, totalCount]: [PostListDBType, number] = await Promise.all([
       db.postsCollection
         .find(filter)
         .sort({ [sortBy]: sortDirection })

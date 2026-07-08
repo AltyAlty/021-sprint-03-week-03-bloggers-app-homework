@@ -1,10 +1,10 @@
 import { PaginatedBlogListOutputDTO } from '../../routes/output-dto/paginated-blog-list.output-dto';
 import { BlogOutputDTO } from '../../routes/output-dto/blog.output-dto';
-import { BlogDBType } from '../types/blog-db.type';
+import { BlogListDBType } from '../types/blog-list-db.type';
 
 /*Функция для преобразовывания блогов из БД в подготовленные для пагинации блоги.*/
 export const mapToPaginatedBlogListOutputDTO = (
-  blogs: BlogDBType[],
+  blogs: BlogListDBType,
   meta: { pageNumber: number; pageSize: number; totalCount: number }
 ): PaginatedBlogListOutputDTO => {
   return {

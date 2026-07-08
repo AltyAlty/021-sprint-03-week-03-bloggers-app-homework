@@ -15,7 +15,6 @@ import { getSecurityDeviceList } from '../../utils/security-devices/get-security
 import { revokeSessionsExceptCurrentDevice } from '../../utils/security-devices/revoke-sessions-except-current-device.test-util';
 import { JwtAdapter } from '../../../src/auth/adapters/jwt.adapter';
 import { SecurityDeviceListOutputDTO } from '../../../src/security-devices/routes/output-dto/security-device-list.output-dto';
-import { SessionDBType } from '../../../src/auth/repositories/types/session-db.type';
 import { AuthRepository } from '../../../src/auth/repositories/auth.repository';
 import { SecurityDeviceOutputDTO } from '../../../src/security-devices/routes/output-dto/security-device.output-dto';
 import { UserOutputDTO } from '../../../src/users/routes/output-dto/user.output-dto';
@@ -23,6 +22,7 @@ import { revokeSessionByDeviceId } from '../../utils/security-devices/revoke-ses
 import { invalidDeviceIds, validDeviceIds } from '../../test-data/security-devices.test-data';
 import { container } from '../../../src/ioc/container';
 import { TYPES } from '../../../src/ioc/types';
+import { SessionListDBType } from '../../../src/auth/repositories/types/session-list-db.type';
 
 describe('Security Devices API Validation', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -162,7 +162,7 @@ describe('Security Devices API Validation', () => {
     await revokeSessionsExceptCurrentDevice(app, testUserAgent_02, invalidRefreshTokens.RT_08, undefined, testStatus);
     await revokeSessionsExceptCurrentDevice(app, testUserAgent_02, invalidRefreshTokens.RT_09, undefined, testStatus);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session_01 = sessions[0];
     const sessionUserId_01: string = session_01.userId;
     const sessionDeviceId_01: string = session_01.deviceId;
@@ -307,7 +307,7 @@ describe('Security Devices API Validation', () => {
       HttpStatuses.Unauthorized_401
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session_01 = sessions[0];
     const sessionUserId_01: string = session_01.userId;
     const sessionDeviceId_01: string = session_01.deviceId;
@@ -461,7 +461,7 @@ describe('Security Devices API Validation', () => {
       testStatus
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session_01 = sessions[0];
     const sessionUserId_01: string = session_01.userId;
     const sessionDeviceId_01: string = session_01.deviceId;
@@ -607,7 +607,7 @@ describe('Security Devices API Validation', () => {
       true
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session_01 = sessions[0];
     const sessionUserId_01: string = session_01.userId;
     const sessionDeviceId_01: string = session_01.deviceId;
@@ -772,7 +772,7 @@ describe('Security Devices API Validation', () => {
       testStatus
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session_01 = sessions[0];
     const sessionUserId_01: string = session_01.userId;
     const sessionDeviceId_01: string = session_01.deviceId;
@@ -924,7 +924,7 @@ describe('Security Devices API Validation', () => {
       HttpStatuses.NotFound_404
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session_01 = sessions[0];
     const sessionUserId_01: string = session_01.userId;
     const sessionDeviceId_01: string = session_01.deviceId;
@@ -1143,7 +1143,7 @@ describe('Security Devices API Validation', () => {
       testStatus
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session_01 = sessions[0];
     const sessionUserId_01: string = session_01.userId;
     const sessionDeviceId_01: string = session_01.deviceId;
@@ -1289,7 +1289,7 @@ describe('Security Devices API Validation', () => {
       HttpStatuses.Unauthorized_401
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session_01 = sessions[0];
     const sessionUserId_01: string = session_01.userId;
     const sessionDeviceId_01: string = session_01.deviceId;
@@ -1445,7 +1445,7 @@ describe('Security Devices API Validation', () => {
       testStatus
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session_01 = sessions[0];
     const sessionUserId_01: string = session_01.userId;
     const sessionDeviceId_01: string = session_01.deviceId;
@@ -1592,7 +1592,7 @@ describe('Security Devices API Validation', () => {
       true
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session_01 = sessions[0];
     const sessionUserId_01: string = session_01.userId;
     const sessionDeviceId_01: string = session_01.deviceId;

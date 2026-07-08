@@ -6,6 +6,7 @@ import { SortDirection } from '../../core/types/pagination/sort-direction';
 import { UserSortFieldQueryInputDTO } from '../routes/input-dto/query/user-sort-field-query.input-dto';
 import { UserDBType } from './types/user-db.type';
 import { injectable } from 'inversify';
+import { UserListDBType } from './types/user-list-db.type';
 
 /*Query-репозиторий для работы с пользователями в БД.*/
 @injectable()
@@ -19,7 +20,7 @@ export class UsersQueryRepository {
   }
 
   /*Метод для поиска пользователей в БД.*/
-  async findAll(queryDTO: GetUserListQueryInputDTO): Promise<{ items: UserDBType[]; totalCount: number }> {
+  async findAll(queryDTO: GetUserListQueryInputDTO): Promise<{ items: UserListDBType; totalCount: number }> {
     /*Создаем переменные на основе параметра "queryDTO" при помощи деструктуризации.*/
     const {
       pageNumber,
@@ -49,7 +50,7 @@ export class UsersQueryRepository {
 
     /*Просим коллекцию "usersCollection" найти пользователей в БД и подсчитать общее количество документов, подходящих
     под фильтр, без учета пагинации.*/
-    const [items, totalCount]: [UserDBType[], number] = await Promise.all([
+    const [items, totalCount]: [UserListDBType, number] = await Promise.all([
       db.usersCollection
         .find(filter)
         .sort({ [sortBy]: sortDirection })

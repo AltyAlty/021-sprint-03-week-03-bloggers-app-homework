@@ -26,6 +26,7 @@ import { RecoveryCodeDataType } from './types/recovery-code-data.type';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../ioc/types';
 import { lazyInject } from '../../ioc/decorators';
+import { SessionListDBType } from '../repositories/types/session-list-db.type';
 
 /*Сервис для работы с аутентификацией и авторизацией.*/
 @injectable()
@@ -233,7 +234,7 @@ export class AuthService {
   /*Метод для поиска сессий по ID пользователя.*/
   async findAllSessionsByUserId(userId: string): Promise<Result<{ sessionListOutput: SessionListType }>> {
     /*Просим репозиторий "authRepository" найти сессии по ID пользователя в БД.*/
-    const sessionsDB: SessionDBType[] = await this.authRepository.findAllSessionsByUserId(userId);
+    const sessionsDB: SessionListDBType = await this.authRepository.findAllSessionsByUserId(userId);
     /*Преобразовываем сессии из БД в подготовленные для работы внутри приложения сессии.*/
     const sessionListOutput: SessionListType = mapToSessionList(sessionsDB);
     /*Возвращаем ResultObject с преобразованным сессиями.*/

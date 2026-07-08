@@ -9,6 +9,7 @@ import { Result } from '../../core/types/result/result.type';
 import { BlogDBType } from '../repositories/types/blog-db.type';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../ioc/types';
+import { BlogListDBType } from '../repositories/types/blog-list-db.type';
 
 /*Query-сервис для работы с блогами.*/
 @injectable()
@@ -41,7 +42,7 @@ export class BlogsQueryService {
     queryDTO: GetBlogListQueryInputDTO
   ): Promise<Result<{ paginatedBlogListOutput: PaginatedBlogListOutputDTO }>> {
     /*Просим query-репозиторий "blogsQueryRepository" найти блоги в БД.*/
-    const { items, totalCount }: { items: BlogDBType[]; totalCount: number } =
+    const { items, totalCount }: { items: BlogListDBType; totalCount: number } =
       await this.blogsQueryRepository.findAll(queryDTO);
 
     /*Преобразовываем блоги из БД в подготовленные для пагинации блоги.*/

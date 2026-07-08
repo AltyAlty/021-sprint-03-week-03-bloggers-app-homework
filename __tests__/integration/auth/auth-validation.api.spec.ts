@@ -28,13 +28,13 @@ import {
 } from '../../test-data/users.test-data';
 import { delay } from '../../utils/common/delay.test-util';
 import { setTimeout } from 'timers/promises';
-import { SessionDBType } from '../../../src/auth/repositories/types/session-db.type';
 import { AuthRepository } from '../../../src/auth/repositories/auth.repository';
 import { SecurityDeviceListOutputDTO } from '../../../src/security-devices/routes/output-dto/security-device-list.output-dto';
 import { getSecurityDeviceList } from '../../utils/security-devices/get-security-device-list.test-util';
 import { SecurityDeviceOutputDTO } from '../../../src/security-devices/routes/output-dto/security-device.output-dto';
 import { container } from '../../../src/ioc/container';
 import { TYPES } from '../../../src/ioc/types';
+import { SessionListDBType } from '../../../src/auth/repositories/types/session-list-db.type';
 
 describe('Auth API Validation', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -56,7 +56,7 @@ describe('Auth API Validation', () => {
     await loginUserReturnAccessToken(app, { password: invalidUserPasswords.password_04 }, testStatus);
     await loginUserReturnAccessToken(app, { password: invalidUserPasswords.password_05 }, testStatus);
     await loginUserReturnAccessToken(app, { password: invalidUserPasswords.password_06 }, testStatus);
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUser.id);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUser.id);
     expect(sessions).toBeInstanceOf(Array);
     expect(sessions.length).toBe(0);
   }, 15000);
@@ -98,8 +98,8 @@ describe('Auth API Validation', () => {
       testStatus
     );
 
-    const sessions_01: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUser_01.id);
-    const sessions_02: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUser_02.id);
+    const sessions_01: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUser_01.id);
+    const sessions_02: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUser_02.id);
     expect(sessions_01).toBeInstanceOf(Array);
     expect(sessions_01.length).toBe(0);
     expect(sessions_02).toBeInstanceOf(Array);
@@ -115,7 +115,7 @@ describe('Auth API Validation', () => {
     await loginUserReturnAccessAndRefreshTokens(app, invalidUserAgents.userAgent_01, loginUserData, testStatus);
     await loginUserReturnAccessAndRefreshTokens(app, invalidUserAgents.userAgent_02, loginUserData, testStatus);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUser.id);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUser.id);
     expect(sessions).toBeInstanceOf(Array);
     expect(sessions.length).toBe(0);
   });
@@ -132,7 +132,7 @@ describe('Auth API Validation', () => {
       true
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUser.id);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUser.id);
     expect(sessions).toBeInstanceOf(Array);
     expect(sessions.length).toBe(0);
   });
@@ -154,7 +154,7 @@ describe('Auth API Validation', () => {
     await setTimeout(5000);
     await loginUserReturnAccessToken(app, loginUserData);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUser.id);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUser.id);
     expect(sessions).toBeInstanceOf(Array);
     expect(sessions.length).toBe(6);
   }, 15000);
@@ -191,7 +191,7 @@ describe('Auth API Validation', () => {
     await refreshAccessAndRefreshTokens(app, testUserAgent, invalidRefreshTokens.RT_08, undefined, testStatus);
     await refreshAccessAndRefreshTokens(app, testUserAgent, invalidRefreshTokens.RT_09, undefined, testStatus);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;
@@ -258,7 +258,7 @@ describe('Auth API Validation', () => {
       HttpStatuses.Unauthorized_401
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;
@@ -321,7 +321,7 @@ describe('Auth API Validation', () => {
     await refreshAccessAndRefreshTokens(app, invalidUserAgents.userAgent_01, refreshToken, undefined, testStatus);
     await refreshAccessAndRefreshTokens(app, invalidUserAgents.userAgent_02, refreshToken, undefined, testStatus);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;
@@ -389,7 +389,7 @@ describe('Auth API Validation', () => {
       true
     );
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;
@@ -459,7 +459,7 @@ describe('Auth API Validation', () => {
     await revokeSession(app, testUserAgent, invalidRefreshTokens.RT_08, undefined, testStatus);
     await revokeSession(app, testUserAgent, invalidRefreshTokens.RT_09, undefined, testStatus);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;
@@ -520,7 +520,7 @@ describe('Auth API Validation', () => {
 
     await revokeSession(app, testUserAgent, validRefreshTokens.RT_01, undefined, HttpStatuses.Unauthorized_401);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;
@@ -583,7 +583,7 @@ describe('Auth API Validation', () => {
     await revokeSession(app, invalidUserAgents.userAgent_01, refreshToken, undefined, testStatus);
     await revokeSession(app, invalidUserAgents.userAgent_02, refreshToken, undefined, testStatus);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;
@@ -644,7 +644,7 @@ describe('Auth API Validation', () => {
 
     await revokeSession(app, testUserAgent, refreshToken, undefined, HttpStatuses.Unauthorized_401, true);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;

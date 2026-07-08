@@ -11,6 +11,7 @@ import { BlogOutputDTO } from '../../blogs/routes/output-dto/blog.output-dto';
 import { PostDBType } from '../repositories/types/post-db.type';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../ioc/types';
+import { PostListDBType } from '../repositories/types/post-list-db.type';
 
 /*Query-сервис для работы с постами.*/
 @injectable()
@@ -55,10 +56,8 @@ export class PostsQueryService {
     }
 
     /*Просим query-репозиторий "postsQueryRepository" найти посты в БД.*/
-    const { items, totalCount }: { items: PostDBType[]; totalCount: number } = await this.postsQueryRepository.findAll(
-      queryDTO,
-      blogId
-    );
+    const { items, totalCount }: { items: PostListDBType; totalCount: number } =
+      await this.postsQueryRepository.findAll(queryDTO, blogId);
 
     /*Преобразовываем посты из БД в подготовленные для пагинации посты.*/
     const paginatedPostListOutput: PaginatedPostListOutputDTO = mapToPaginatedPostListOutputDTO(items, {

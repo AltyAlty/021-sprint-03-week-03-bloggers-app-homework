@@ -4,10 +4,10 @@ import { SecurityDeviceListOutputDTO } from '../routes/output-dto/security-devic
 import { SessionType } from '../../auth/application/types/session.type';
 import { ResultStatuses } from '../../core/types/result/result-statuses';
 import { Result } from '../../core/types/result/result.type';
-import { SecurityDeviceDBType } from '../repositories/types/security-device-db.type';
 import { mapToSecurityDeviceListOutputDTO } from '../repositories/mappers/map-to-security-device-list-output-dto.util';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../ioc/types';
+import { SecurityDeviceListDBType } from '../repositories/types/security-device-list-db.type';
 
 /*Query-сервис для работы с устройствами пользователей.*/
 @injectable()
@@ -29,7 +29,7 @@ export class SecurityDevicesQueryService {
 
     /*Просим query-репозиторий "securityDevicesQueryRepository" найти устройства пользователя по ID устройств
     пользователя в БД.*/
-    const securityDevicesDB: SecurityDeviceDBType[] =
+    const securityDevicesDB: SecurityDeviceListDBType =
       await this.securityDevicesQueryRepository.findAllByIds(securityDeviceIds);
 
     /*Преобразовываем устройства пользователя из БД в подготовленные для отправки клиенту устройства пользователя.*/

@@ -11,6 +11,7 @@ import { PostOutputDTO } from '../../posts/routes/output-dto/post.output-dto';
 import { CommentDBType } from '../repositories/types/comment-db.type';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../ioc/types';
+import { CommentListDBType } from '../repositories/types/comment-list-db.type';
 
 /*Query-сервис для работы с комментариями.*/
 @injectable()
@@ -53,7 +54,7 @@ export class CommentsQueryService {
     if (postResult.status !== ResultStatuses.Ok) return postResult as Result;
 
     /*Если пост был найден, то просим query-репозиторий "commentsQueryRepository" найти комментарии по ID поста в БД.*/
-    const { items, totalCount }: { items: CommentDBType[]; totalCount: number } =
+    const { items, totalCount }: { items: CommentListDBType; totalCount: number } =
       await this.commentsQueryRepository.findAllByPostId(postId, queryDTO);
 
     /*Преобразовываем комментарии из БД в подготовленные для пагинации комментарии.*/

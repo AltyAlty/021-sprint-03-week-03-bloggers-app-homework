@@ -8,6 +8,7 @@ import { EmailConfirmationDBType } from './types/email-сonfirmation-db.type';
 import { RecoveryCodeDataType } from '../application/types/recovery-code-data.type';
 import { RecoveryCodeDataDBType } from './types/recovery-code-data-db.type';
 import { injectable } from 'inversify';
+import { SessionListDBType } from './types/session-list-db.type';
 
 /*Репозиторий для работы с аутентификацией и авторизацией в БД.*/
 @injectable()
@@ -104,7 +105,7 @@ export class AuthRepository {
   }
 
   /*Метод для поиска сессий по ID пользователя в БД.*/
-  async findAllSessionsByUserId(userId: string): Promise<SessionDBType[]> {
+  async findAllSessionsByUserId(userId: string): Promise<SessionListDBType> {
     /*Просим коллекцию "sessionsCollection" найти сессии по ID пользователя в БД.*/
     return await db.sessionsCollection.find({ userId }).toArray();
   }

@@ -17,11 +17,11 @@ import { setTimeout } from 'timers/promises';
 import { getSecurityDeviceList } from '../../utils/security-devices/get-security-device-list.test-util';
 import { SecurityDeviceListOutputDTO } from '../../../src/security-devices/routes/output-dto/security-device-list.output-dto';
 import { AuthRepository } from '../../../src/auth/repositories/auth.repository';
-import { SessionDBType } from '../../../src/auth/repositories/types/session-db.type';
 import { SecurityDeviceOutputDTO } from '../../../src/security-devices/routes/output-dto/security-device.output-dto';
 import { validUserAgents } from '../../test-data/auth.test-data';
 import { container } from '../../../src/ioc/container';
 import { TYPES } from '../../../src/ioc/types';
+import { SessionListDBType } from '../../../src/auth/repositories/types/session-list-db.type';
 
 describe('Auth API', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -82,7 +82,7 @@ describe('Auth API', () => {
     const decodedRefreshTokenPayloadExp: number | undefined = decodedRefreshTokenPayload?.exp;
     const decodedRefreshTokenPayloadIatDate: Date = new Date(decodedRefreshTokenPayloadIat! * 1000);
     const decodedRefreshTokenPayloadExpDate: Date = new Date(decodedRefreshTokenPayloadExp! * 1000);
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;
@@ -194,7 +194,7 @@ describe('Auth API', () => {
     const decodedRefreshTokenPayloadExp: number | undefined = decodedRefreshTokenPayload?.exp;
     const decodedRefreshTokenPayloadIatDate: Date = new Date(decodedRefreshTokenPayloadIat! * 1000);
     const decodedRefreshTokenPayloadExpDate: Date = new Date(decodedRefreshTokenPayloadExp! * 1000);
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;
@@ -297,7 +297,7 @@ describe('Auth API', () => {
     const decodedOldRefreshTokenPayloadExp: number | undefined = decodedOldRefreshTokenPayload?.exp;
     const decodedOldRefreshTokenPayloadIatDate: Date = new Date(decodedOldRefreshTokenPayloadIat! * 1000);
     const decodedOldRefreshTokenPayloadExpDate: Date = new Date(decodedOldRefreshTokenPayloadExp! * 1000);
-    const oldSessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const oldSessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const oldSession = oldSessions[0];
     const oldSessionUserId: string = oldSession.userId;
     const oldSessionDeviceId: string = oldSession.deviceId;
@@ -365,7 +365,7 @@ describe('Auth API', () => {
     const decodedNewRefreshTokenPayloadExp: number | undefined = decodedNewRefreshTokenPayload?.exp;
     const decodedNewRefreshTokenPayloadIatDate: Date = new Date(decodedNewRefreshTokenPayloadIat! * 1000);
     const decodedNewRefreshTokenPayloadExpDate: Date = new Date(decodedNewRefreshTokenPayloadExp! * 1000);
-    const newSessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const newSessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const updatedSession = newSessions[0];
     const updatedSessionUserId: string = updatedSession.userId;
     const updatedSessionDeviceId: string = updatedSession.deviceId;
@@ -486,7 +486,7 @@ describe('Auth API', () => {
 
     await revokeSession(app, testUserAgent_01, refreshToken_01);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;

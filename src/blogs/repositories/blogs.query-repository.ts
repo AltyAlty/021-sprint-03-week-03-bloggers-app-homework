@@ -6,6 +6,7 @@ import { BlogSortFieldQueryInputDTO } from '../routes/input-dto/query/blog-sort-
 import { SortDirection } from '../../core/types/pagination/sort-direction';
 import { BlogDBType } from './types/blog-db.type';
 import { injectable } from 'inversify';
+import { BlogListDBType } from './types/blog-list-db.type';
 
 /*Query-репозиторий для работы с блогами в БД.*/
 @injectable()
@@ -19,7 +20,7 @@ export class BlogsQueryRepository {
   }
 
   /*Метод для поиска блогов в БД.*/
-  async findAll(queryDTO: GetBlogListQueryInputDTO): Promise<{ items: BlogDBType[]; totalCount: number }> {
+  async findAll(queryDTO: GetBlogListQueryInputDTO): Promise<{ items: BlogListDBType; totalCount: number }> {
     /*Создаем переменные на основе параметра "queryDTO" при помощи деструктуризации.*/
     const {
       pageNumber,
@@ -52,7 +53,7 @@ export class BlogsQueryRepository {
     3. ".skip(skip)": пропускаем нужное количество записей, чтобы взять записи для запрошенной страницы.
     4. ".limit(pageSize)": берем записей не больше размера запрошенной страницы.
     5. ".toArray()": превращаем курсор в обычный массив и возвращаем его.*/
-    const [items, totalCount]: [BlogDBType[], number] = await Promise.all([
+    const [items, totalCount]: [BlogListDBType, number] = await Promise.all([
       db.blogsCollection
         .find(filter)
         .sort({ [sortBy]: sortDirection })

@@ -13,6 +13,7 @@ import { PostDBType } from '../repositories/types/post-db.type';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../ioc/types';
 import { lazyInject } from '../../ioc/decorators';
+import { PostListDBType } from '../repositories/types/post-list-db.type';
 
 /*Сервис для работы с постами.*/
 @injectable()
@@ -108,7 +109,7 @@ export class PostsService {
   /*Метод для удаления постов по ID блога.*/
   async deleteAllByBlogId(blogId: string): Promise<Result<{ deletedPostsCount: number } | null>> {
     /*Просим репозиторий "postsRepository" найти посты в блоге по ID в БД.*/
-    const postsDB: PostDBType[] | null = await this.postsRepository.findAllByBlogId(blogId);
+    const postsDB: PostListDBType | null = await this.postsRepository.findAllByBlogId(blogId);
 
     /*Если посты в блоге были найдены, то удаляем комментарии внутри постов.*/
     if (postsDB) {

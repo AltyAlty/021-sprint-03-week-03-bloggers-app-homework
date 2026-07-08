@@ -9,6 +9,7 @@ import { ResultStatuses } from '../../core/types/result/result-statuses';
 import { UserDBType } from '../repositories/types/user-db.type';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../ioc/types';
+import { UserListDBType } from '../repositories/types/user-list-db.type';
 
 /*Query-сервис для работы с пользователями.*/
 @injectable()
@@ -41,7 +42,7 @@ export class UsersQueryService {
     queryDTO: GetUserListQueryInputDTO
   ): Promise<Result<{ paginatedUserListOutput: PaginatedUserListOutputDTO }>> {
     /*Просим query-репозиторий "usersQueryRepository" найти пользователей в БД.*/
-    const { items, totalCount }: { items: UserDBType[]; totalCount: number } =
+    const { items, totalCount }: { items: UserListDBType; totalCount: number } =
       await this.usersQueryRepository.findAll(queryDTO);
 
     /*Преобразовываем пользователей из БД в подготовленных для пагинации пользователей.*/

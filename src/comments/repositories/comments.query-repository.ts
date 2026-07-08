@@ -6,6 +6,7 @@ import { SortDirection } from '../../core/types/pagination/sort-direction';
 import { CommentSortFieldQueryInputDTO } from '../routes/input-dto/query/comment-sort-field-query.input-dto';
 import { CommentDBType } from './types/comment-db.type';
 import { injectable } from 'inversify';
+import { CommentListDBType } from './types/comment-list-db.type';
 
 /*Query-репозиторий для работы с комментариями в БД.*/
 @injectable()
@@ -22,7 +23,7 @@ export class CommentsQueryRepository {
   async findAllByPostId(
     postId: string,
     queryDTO: GetCommentListByPostIdQueryInputDTO
-  ): Promise<{ items: CommentDBType[]; totalCount: number }> {
+  ): Promise<{ items: CommentListDBType; totalCount: number }> {
     /*Создаем переменные на основе параметра "queryDTO" при помощи деструктуризации.*/
     const {
       pageNumber,
@@ -46,7 +47,7 @@ export class CommentsQueryRepository {
 
     /*Просим коллекцию "commentsCollection" найти комментарии в посте по ID в БД и подсчитать общее количество
     документов, подходящих под фильтр, без учета пагинации.*/
-    const [items, totalCount]: [CommentDBType[], number] = await Promise.all([
+    const [items, totalCount]: [CommentListDBType, number] = await Promise.all([
       db.commentsCollection
         .find(filter)
         .sort({ [sortBy]: sortDirection })

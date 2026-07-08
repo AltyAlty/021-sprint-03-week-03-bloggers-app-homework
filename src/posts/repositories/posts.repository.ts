@@ -4,6 +4,7 @@ import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from 'mongodb';
 import { UpdatePostByIdInputDTO } from '../routes/input-dto/update-post-by-id.input-dto';
 import { PostDBType } from './types/post-db.type';
 import { injectable } from 'inversify';
+import { PostListDBType } from './types/post-list-db.type';
 
 /*Репозиторий для работы с постами в БД.*/
 @injectable()
@@ -25,9 +26,9 @@ export class PostsRepository {
   }
 
   /*Метод для поиска постов по ID блога в БД.*/
-  async findAllByBlogId(blogId: string): Promise<PostDBType[] | null> {
+  async findAllByBlogId(blogId: string): Promise<PostListDBType | null> {
     /*Просим коллекцию "postsCollection" найти посты по ID блога в БД.*/
-    const posts: PostDBType[] = await db.postsCollection.find({ blogId }).toArray();
+    const posts: PostListDBType = await db.postsCollection.find({ blogId }).toArray();
     /*Если посты были найдены, то возвращаем их, иначе возвращаем null.*/
     return !posts || posts.length === 0 ? null : posts;
   }

@@ -49,13 +49,13 @@ import { AuthRepository } from '../../../src/auth/repositories/auth.repository';
 import { AuthService } from '../../../src/auth/application/auth.service';
 import { loginUserReturnAccessAndRefreshTokens } from '../../utils/auth/login-user-return-access-and-refresh-tokens.test-util';
 import { RecoveryCodeDataDBType } from '../../../src/auth/repositories/types/recovery-code-data-db.type';
-import { SessionDBType } from '../../../src/auth/repositories/types/session-db.type';
 import { SecurityDeviceListOutputDTO } from '../../../src/security-devices/routes/output-dto/security-device-list.output-dto';
 import { getSecurityDeviceList } from '../../utils/security-devices/get-security-device-list.test-util';
 import { sendRecoveryPasswordCode } from '../../utils/auth/send-recovery-password-code.test-util';
 import { setNewPasswordByRecoveryCode } from '../../utils/auth/set-new-password-by-recovery-code.test-util';
 import { container } from '../../../src/ioc/container';
 import { TYPES } from '../../../src/ioc/types';
+import { SessionListDBType } from '../../../src/auth/repositories/types/session-list-db.type';
 
 describe('Auth Validation', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -927,7 +927,7 @@ describe('Auth Validation', () => {
     const createdUserDBAfterSendingRecoveryPasswordCode: UserDBType | null =
       await usersRepository.findById(createdUserId);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
 
     const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
       app,
@@ -981,7 +981,7 @@ describe('Auth Validation', () => {
     const createdUserDBAfterSendingRecoveryPasswordCode: UserDBType | null =
       await usersRepository.findById(createdUserId);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
 
     const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
       app,
@@ -1027,7 +1027,7 @@ describe('Auth Validation', () => {
     const createdUserDBAfterSendingRecoveryPasswordCode: UserDBType | null =
       await usersRepository.findById(createdUserId);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
 
     const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
       app,
@@ -1072,7 +1072,7 @@ describe('Auth Validation', () => {
     const createdUserDBAfterSendingRecoveryPasswordCode: UserDBType | null =
       await usersRepository.findById(createdUserId);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
 
     const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
       app,
@@ -1126,7 +1126,7 @@ describe('Auth Validation', () => {
     const createdUserDBAfterSendingRecoveryPasswordCode: UserDBType | null =
       await usersRepository.findById(createdUserId);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
 
     const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
       app,
@@ -1278,7 +1278,7 @@ describe('Auth Validation', () => {
     );
 
     const createdUserDBAfterSettingNewPassword: UserDBType | null = await usersRepository.findById(createdUserId);
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
 
     const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
       app,
@@ -1390,7 +1390,7 @@ describe('Auth Validation', () => {
     );
 
     const createdUserDBAfterSettingNewPassword: UserDBType | null = await usersRepository.findById(createdUserId);
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
 
     const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
       app,
@@ -1440,7 +1440,7 @@ describe('Auth Validation', () => {
     );
 
     const createdUserDBAfterSettingNewPassword: UserDBType | null = await usersRepository.findById(createdUserId);
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
 
     const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
       app,
@@ -1498,7 +1498,7 @@ describe('Auth Validation', () => {
     );
 
     const createdUserDBAfterSettingNewPassword: UserDBType | null = await usersRepository.findById(createdUserId);
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
 
     const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
       app,
@@ -1546,7 +1546,7 @@ describe('Auth Validation', () => {
     );
 
     const createdUserDBAfterSettingNewPassword: UserDBType | null = await usersRepository.findById(createdUserId);
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
 
     const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
       app,
@@ -1670,7 +1670,7 @@ describe('Auth Validation', () => {
     });
 
     const createdUserDBAfterSettingNewPassword: UserDBType | null = await usersRepository.findById(createdUserId);
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     await getSecurityDeviceList(app, testUserAgent, refreshToken, undefined, HttpStatuses.Unauthorized_401);
     expect(createdUserDB?.passwordHash).not.toBe(createdUserDBAfterSettingNewPassword?.passwordHash);
     expect(sessions).toBeInstanceOf(Array);

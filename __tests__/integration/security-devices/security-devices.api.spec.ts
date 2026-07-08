@@ -10,12 +10,12 @@ import { getSecurityDeviceList } from '../../utils/security-devices/get-security
 import { createUser } from '../../utils/users/create-user.test-util';
 import { revokeSessionsExceptCurrentDevice } from '../../utils/security-devices/revoke-sessions-except-current-device.test-util';
 import { revokeSessionByDeviceId } from '../../utils/security-devices/revoke-session-by-device-id.test-util';
-import { SessionDBType } from '../../../src/auth/repositories/types/session-db.type';
 import { AuthRepository } from '../../../src/auth/repositories/auth.repository';
 import { UserOutputDTO } from '../../../src/users/routes/output-dto/user.output-dto';
 import { SecurityDeviceOutputDTO } from '../../../src/security-devices/routes/output-dto/security-device.output-dto';
 import { container } from '../../../src/ioc/container';
 import { TYPES } from '../../../src/ioc/types';
+import { SessionListDBType } from '../../../src/auth/repositories/types/session-list-db.type';
 
 describe('Security Devices API', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -118,7 +118,7 @@ describe('Security Devices API', () => {
 
     await revokeSessionsExceptCurrentDevice(app, testUserAgent_02, refreshToken);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session = sessions[0];
     const sessionUserId: string = session.userId;
     const sessionDeviceId: string = session.deviceId;
@@ -208,7 +208,7 @@ describe('Security Devices API', () => {
 
     await revokeSessionByDeviceId(app, testUserAgent_02, decodedRefreshTokenPayloadDeviceId_02!, refreshToken_02);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     const session_01 = sessions[0];
     const sessionUserId_01: string = session_01.userId;
     const sessionDeviceId_01: string = session_01.deviceId;

@@ -1,11 +1,11 @@
-import { SecurityDeviceDBType } from '../types/security-device-db.type';
 import { SecurityDeviceListOutputDTO } from '../../routes/output-dto/security-device-list.output-dto';
 import { SecurityDeviceOutputDTO } from '../../routes/output-dto/security-device.output-dto';
+import { SecurityDeviceListDBType } from '../types/security-device-list-db.type';
 
-/*Функция для преобразования устройств пользователя из БД в подготовленное для отправки клиенту устройства
+/*Функция для преобразования устройств пользователя из БД в подготовленные для отправки клиенту устройства
 пользователя.*/
 export const mapToSecurityDeviceListOutputDTO = (
-  securityDevices: SecurityDeviceDBType[]
+  securityDevices: SecurityDeviceListDBType
 ): SecurityDeviceListOutputDTO => {
   return securityDevices.map((securityDevice): SecurityDeviceOutputDTO => ({
     deviceId: securityDevice.deviceId,

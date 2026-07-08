@@ -27,7 +27,6 @@ import { AuthRepository } from '../../../src/auth/repositories/auth.repository';
 import { UserOutputDTO } from '../../../src/users/routes/output-dto/user.output-dto';
 import { createUser } from '../../utils/users/create-user.test-util';
 import { RecoveryCodeDataDBType } from '../../../src/auth/repositories/types/recovery-code-data-db.type';
-import { SessionDBType } from '../../../src/auth/repositories/types/session-db.type';
 import { setNewPasswordByRecoveryCode } from '../../utils/auth/set-new-password-by-recovery-code.test-util';
 import { validUserPasswords } from '../../test-data/users.test-data';
 import { SecurityDeviceListOutputDTO } from '../../../src/security-devices/routes/output-dto/security-device-list.output-dto';
@@ -36,6 +35,7 @@ import { loginUserReturnAccessAndRefreshTokens } from '../../utils/auth/login-us
 import { HttpStatuses } from '../../../src/core/types/http-statuses';
 import { container } from '../../../src/ioc/container';
 import { TYPES } from '../../../src/ioc/types';
+import { SessionListDBType } from '../../../src/auth/repositories/types/session-list-db.type';
 
 describe('Auth', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -219,7 +219,7 @@ describe('Auth', () => {
     const createdUserDBAfterSendingRecoveryPasswordCode: UserDBType | null =
       await usersRepository.findById(createdUserId);
 
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
 
     const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
       app,
@@ -281,7 +281,7 @@ describe('Auth', () => {
     });
 
     const createdUserDBAfterSettingNewPassword: UserDBType | null = await usersRepository.findById(createdUserId);
-    const sessions: SessionDBType[] = await authRepository.findAllSessionsByUserId(createdUserId);
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
     await getSecurityDeviceList(app, testUserAgent, refreshToken, undefined, HttpStatuses.Unauthorized_401);
     expect(createdUserDB?.passwordHash).not.toBe(createdUserDBAfterSettingNewPassword?.passwordHash);
     expect(sessions).toBeInstanceOf(Array);
