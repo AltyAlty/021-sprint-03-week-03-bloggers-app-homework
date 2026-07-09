@@ -1,9 +1,18 @@
-import { CommentatorInfoType } from '../../application/types/comment.type';
+import { CommentType } from '../../application/types/comment.type';
+
+/*Тип для поля "likeStatus" в типе "CommentOutputDTO".*/
+export enum commentLikeStatusOutputDTO {
+  None = 'None',
+  Like = 'Like',
+  Dislike = 'Dislike',
+}
 
 /*Output DTO для комментария.*/
-export type CommentOutputDTO = {
+export type CommentOutputDTO = Omit<CommentType, 'postId'> & {
   id: string;
-  content: string;
-  commentatorInfo: CommentatorInfoType;
-  createdAt: Date;
+  likesInfo: {
+    likesCount: number;
+    dislikesCount: number;
+    myStatus: commentLikeStatusOutputDTO;
+  };
 };

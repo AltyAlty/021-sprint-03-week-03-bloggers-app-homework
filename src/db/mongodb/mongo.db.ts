@@ -8,6 +8,7 @@ import { SessionModel } from '../../auth/repositories/models/session.model';
 import { SecurityDeviceModel } from '../../security-devices/repositories/models/security-device.model';
 import { RequestRateLimitLogModel } from '../../auth/repositories/models/request-rate-limit-log.model';
 import { RecoveryCodeDataModel } from '../../auth/repositories/models/recovery-code-data.model';
+import { CommentLikeDataModel } from '../../comments/repositories/models/comment-like-data.model';
 
 /*Объект для работы с MongoDB.*/
 export const db = {
@@ -30,6 +31,7 @@ export const db = {
         SecurityDeviceModel.syncIndexes(),
         RequestRateLimitLogModel.syncIndexes(),
         RecoveryCodeDataModel.syncIndexes(),
+        CommentLikeDataModel.syncIndexes(),
       ]);
     } catch (error: unknown) {
       await mongoose.disconnect();
@@ -57,6 +59,7 @@ export const db = {
         SecurityDeviceModel.deleteMany({}),
         RequestRateLimitLogModel.deleteMany({}),
         RecoveryCodeDataModel.deleteMany({}),
+        CommentLikeDataModel.deleteMany({}),
       ]);
 
       /*Удаляем коллекции и индексы.*/

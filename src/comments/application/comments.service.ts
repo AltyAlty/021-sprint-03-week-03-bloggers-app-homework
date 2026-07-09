@@ -12,6 +12,9 @@ import { CommentDBType } from '../repositories/types/comment-db.type';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../ioc/types';
 import { lazyInject } from '../../ioc/decorators';
+import { CommentLikeStatusInputDTO } from '../routes/input-dto/like-comment-by-id.input-dto';
+import { CommentLikeDataDBType } from '../repositories/types/comment-like-data-db.type';
+import { CommentLikeStatus } from './types/comment-like-data.type';
 
 /*Сервис для работы с комментариями.*/
 @injectable()
@@ -41,6 +44,10 @@ export class CommentsService {
       postId: postId,
       commentatorInfo: { userId, userLogin: userResult.data!.userOutput.login },
       createdAt: new Date(),
+      likesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+      },
     };
 
     /*Просим репозиторий "commentsRepository" создать комментарий в БД.*/
@@ -80,6 +87,136 @@ export class CommentsService {
     await this.commentsRepository.updateById(id, dto);
 
     /*Возвращаем ResultObject с информацией об изменении комментария.*/
+    return { status: ResultStatuses.NoContent, data: {}, extensions: [] };
+  }
+
+  /*Метод для лайка комментария по ID.*/
+  async likeCommentById(
+    commentId: string,
+    userId: string,
+    likeStatus: CommentLikeStatusInputDTO
+  ): Promise<Result<{} | null>> {
+    /*Просим репозиторий "commentsRepository" найти комментарий по ID в БД.*/
+    const commentDB: CommentDBType | null = await this.commentsRepository.findById(commentId);
+
+    /*Если комментарий не был найден, то возвращаем ResultObject с информацией об этом.*/
+    if (!commentDB) {
+      return {
+        status: ResultStatuses.NotFound,
+        data: null,
+        errorMessage: 'Not Found',
+        extensions: [{ field: 'id', message: 'Comment not found' }],
+      };
+    }
+
+    /*Если комментарий был найден, то просим репозиторий "commentsRepository" найти данные о лайке для комментария по ID
+    комментария и ID пользователя в БД.*/
+    const commentLikeDB: CommentLikeDataDBType | null =
+      await this.commentsRepository.findCommentLikeDataByCommentIdAndUserId(commentId, userId);
+
+    /*Возвращаем ResultObject с информацией о лайке комментария если:
+    1. Данные о лайке были найдены, содержат статус "Like" и пользователь хочет поставить лайк.
+    2. Данные о лайке были найдены, содержат статус "Dislike" и пользователь хочет поставить дизлайк.*/
+    if (commentLikeDB && (commentLikeDB.likeStatus as string) === (likeStatus as string)) {
+      /*Возвращаем ResultObject с информацией о лайке комментария.*/
+      return { status: ResultStatuses.NoContent, data: {}, extensions: [] };
+    }
+
+    /*Возвращаем ResultObject с информацией о некорректном теле запроса если данные о лайке не были найдены и
+    пользователь хочет убрать лайк/дизлайк.*/
+    if (!commentLikeDB && likeStatus === CommentLikeStatusInputDTO.None) {
+      return {
+        status: ResultStatuses.BadRequest,
+        data: null,
+        errorMessage: 'Bad Request',
+        extensions: [{ field: 'likeStatus', message: 'Incorrect like status' }],
+      };
+    }
+
+    /*Если пользователь хочет убрать лайк/дизлайк.*/
+    if (likeStatus === CommentLikeStatusInputDTO.None) {
+      /*Просим репозиторий "commentsRepository" удалить данные о лайке по ID комментария и ID пользователя в БД.*/
+      await this.commentsRepository.deleteCommentLikeDataByCommentIdAndUserId(commentId, userId);
+
+      /*Просим репозиторий "commentsRepository" изменить количество лайков/дизлайков у комментария по ID в БД:
+      1. Если уже стоял лайк, то уменьшить количество лайков на 1.
+      2. Если уже стоял дизлайк, то уменьшить количество дизлайков на 1.*/
+      if ((commentLikeDB?.likeStatus as string) === (CommentLikeStatusInputDTO.Like as string)) {
+        await this.commentsRepository.updateCommentLikesById(commentId, -1, 0);
+      } else {
+        await this.commentsRepository.updateCommentLikesById(commentId, 0, -1);
+      }
+    }
+
+    /*Если пользователь хочет поставить лайк.*/
+    if (likeStatus === CommentLikeStatusInputDTO.Like) {
+      /*Если еще не был поставлен лайк/дизлайк.*/
+      if (!commentLikeDB) {
+        /*Просим репозиторий "commentsRepository" создать данные о лайке комментария в БД.*/
+        await this.commentsRepository.createCommentLikeData({
+          commentId,
+          userId,
+          likeStatus: likeStatus as unknown as CommentLikeStatus,
+        });
+
+        /*Просим репозиторий "commentsRepository" изменить количество лайков/дизлайков у комментария по ID в БД:
+        1. Увеличить количество лайков на 1.
+        2. Не менять количество дизлайков.*/
+        await this.commentsRepository.updateCommentLikesById(commentId, 1, 0);
+      }
+
+      /*Если уже стоял дизлайк.*/
+      if ((commentLikeDB?.likeStatus as string) === (CommentLikeStatusInputDTO.Dislike as string)) {
+        /*Просим репозиторий "commentsRepository" изменить данные о лайке комментария по ID комментария и ID
+        пользователя в БД.*/
+        await this.commentsRepository.updateCommentLikeDataByCommentIdAndUserId(
+          commentId,
+          userId,
+          likeStatus as unknown as CommentLikeStatus
+        );
+
+        /*Просим репозиторий "commentsRepository" изменить количество лайков/дизлайков у комментария по ID в БД:
+        1. Увеличить количество лайков на 1.
+        2. Уменьшить количество дизлайков на 1.*/
+        await this.commentsRepository.updateCommentLikesById(commentId, 1, -1);
+      }
+    }
+
+    /*Если пользователь хочет поставить дизлайк.*/
+    if (likeStatus === CommentLikeStatusInputDTO.Dislike) {
+      /*Если еще не был поставлен лайк/дизлайк.*/
+      if (!commentLikeDB) {
+        /*Просим репозиторий "commentsRepository" создать данные о лайке комментария в БД.*/
+        await this.commentsRepository.createCommentLikeData({
+          commentId,
+          userId,
+          likeStatus: likeStatus as unknown as CommentLikeStatus,
+        });
+
+        /*Просим репозиторий "commentsRepository" изменить количество лайков/дизлайков у комментария по ID в БД:
+        1. Не менять количество лайков.
+        2. Увеличить количество дизлайков на 1.*/
+        await this.commentsRepository.updateCommentLikesById(commentId, 0, 1);
+      }
+
+      /*Если уже стоял лайк.*/
+      if ((commentLikeDB?.likeStatus as string) === (CommentLikeStatusInputDTO.Like as string)) {
+        /*Просим репозиторий "commentsRepository" изменить данные о лайке комментария по ID комментария и ID
+        пользователя в БД.*/
+        await this.commentsRepository.updateCommentLikeDataByCommentIdAndUserId(
+          commentId,
+          userId,
+          likeStatus as unknown as CommentLikeStatus
+        );
+
+        /*Просим репозиторий "commentsRepository" изменить количество лайков/дизлайков у комментария по ID в БД:
+        1. Уменьшить количество лайков на 1.
+        2. Увеличить количество дизлайков на 1.*/
+        await this.commentsRepository.updateCommentLikesById(commentId, -1, 1);
+      }
+    }
+
+    /*Возвращаем ResultObject с информацией о лайке комментария.*/
     return { status: ResultStatuses.NoContent, data: {}, extensions: [] };
   }
 

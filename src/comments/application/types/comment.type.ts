@@ -10,4 +10,8 @@ export type CommentType = {
   postId: string;
   commentatorInfo: CommentatorInfoType;
   createdAt: Date;
+  likesInfo: {
+    likesCount: number;
+    dislikesCount: number;
+  };
 };

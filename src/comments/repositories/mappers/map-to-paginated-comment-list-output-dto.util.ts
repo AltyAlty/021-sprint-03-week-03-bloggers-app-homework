@@ -1,10 +1,10 @@
 import { PaginatedCommentListOutputDTO } from '../../routes/output-dto/paginated-comment-list.output-dto';
-import { CommentOutputDTO } from '../../routes/output-dto/comment.output-dto';
-import { CommentListDBType } from '../types/comment-list-db.type';
+import { CommentListOutputDTO } from '../../routes/output-dto/comment-list.output-dto';
 
-/*Функция для преобразования комментариев из БД в подготовленные для пагинации комментарии.*/
+/*Функция для преобразования комментариев подготовленных для отправки клиенту без пагинации в подготовленные для
+пагинации комментарии.*/
 export const mapToPaginatedCommentListOutputDTO = (
-  comments: CommentListDBType,
+  comments: CommentListOutputDTO,
   meta: { pageNumber: number; pageSize: number; totalCount: number }
 ): PaginatedCommentListOutputDTO => {
   return {
@@ -12,11 +12,6 @@ export const mapToPaginatedCommentListOutputDTO = (
     page: meta.pageNumber,
     pageSize: meta.pageSize,
     totalCount: meta.totalCount,
-    items: comments.map((comment): CommentOutputDTO => ({
-      id: comment._id.toString(),
-      content: comment.content,
-      commentatorInfo: comment.commentatorInfo,
-      createdAt: comment.createdAt,
-    })),
+    items: comments,
   };
 };

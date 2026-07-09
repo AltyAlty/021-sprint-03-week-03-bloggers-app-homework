@@ -1,6 +1,7 @@
 /*Выдаем каждой сущности уникальный символ, чтобы использовать для типизации вместо самих классов. Это позволяет классам
 общаться, не зная об устройстве друг друга, что, в свою очередь, позволяет подменять классы при тестировании.
 Обязательно нужно указывать в отдельном файле для избежания циклической зависимости.*/
+
 export const TYPES = {
   Argon2Adapter: Symbol('Argon2Adapter'),
   BcryptAdapter: Symbol('BcryptAdapter'),
@@ -11,6 +12,7 @@ export const TYPES = {
   BasicAuthGuardMiddleware: Symbol('BasicAuthGuardMiddleware'),
   RefreshTokenGuardMiddleware: Symbol('RefreshTokenGuardMiddleware'),
   RequestRateLimitGuardMiddleware: Symbol('RequestRateLimitGuardMiddleware'),
+  OptionalAccessTokenGuardMiddleware: Symbol('OptionalAccessTokenGuardMiddleware'),
 
   AuthController: Symbol('AuthController'),
   SecurityDevicesController: Symbol('SecurityDevicesController'),

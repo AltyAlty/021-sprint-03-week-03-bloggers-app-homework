@@ -42,6 +42,22 @@ const CommentSchema = new mongoose.Schema<CommentType>({
     immutable: true,
     default: Date.now,
   },
+
+  likesInfo: {
+    likesCount: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0,
+    },
+
+    dislikesCount: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0,
+    },
+  },
 });
 
 /*Модель для комментария в БД.*/

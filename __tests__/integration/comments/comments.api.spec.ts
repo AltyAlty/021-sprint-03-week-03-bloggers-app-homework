@@ -57,6 +57,7 @@ describe('Comments API', () => {
       content: updateCommentData.content,
       commentatorInfo: createdComment.commentatorInfo,
       createdAt: createdComment.createdAt,
+      likesInfo: createdComment.likesInfo,
     });
   });
 

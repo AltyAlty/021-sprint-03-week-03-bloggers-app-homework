@@ -37,6 +37,7 @@ import { AccessTokenGuardMiddleware } from '../auth/middlewares/guard-middleware
 import { BasicAuthGuardMiddleware } from '../auth/middlewares/guard-middlewares/basic-auth.guard-middleware';
 import { RefreshTokenGuardMiddleware } from '../auth/middlewares/guard-middlewares/refresh-token.guard-middleware';
 import { RequestRateLimitGuardMiddleware } from '../auth/middlewares/guard-middlewares/request-rate-limit.guard-middleware';
+import { OptionalAccessTokenGuardMiddleware } from '../auth/middlewares/guard-middlewares/optional-access-token.guard-middleware';
 
 /*Заполняем IoC-контейнер. Классам указываем, чтобы создавалось только по одному экземпляру класса (паттерн синглтон)
 для корректной работы тестов. Обязательно нужно указывать в отдельном файле для избежания циклической зависимости.*/
@@ -65,6 +66,11 @@ container
 container
   .bind<RequestRateLimitGuardMiddleware>(TYPES.RequestRateLimitGuardMiddleware)
   .to(RequestRateLimitGuardMiddleware)
+  .inSingletonScope();
+
+container
+  .bind<OptionalAccessTokenGuardMiddleware>(TYPES.OptionalAccessTokenGuardMiddleware)
+  .to(OptionalAccessTokenGuardMiddleware)
   .inSingletonScope();
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -155,6 +161,14 @@ const requestRateLimitGuardMiddlewareInstance = container.get<RequestRateLimitGu
 
 export const requestRateLimitGuardMiddleware = requestRateLimitGuardMiddlewareInstance.execute.bind(
   requestRateLimitGuardMiddlewareInstance
+);
+
+const optionalAccessTokenGuardMiddlewareInstance = container.get<OptionalAccessTokenGuardMiddleware>(
+  TYPES.OptionalAccessTokenGuardMiddleware
+);
+
+export const optionalAccessTokenGuardMiddleware = optionalAccessTokenGuardMiddlewareInstance.execute.bind(
+  optionalAccessTokenGuardMiddlewareInstance
 );
 
 /*--------------------------------------------------------------------------------------------------------------------*/

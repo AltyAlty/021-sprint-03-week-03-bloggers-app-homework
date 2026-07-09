@@ -1,7 +1,4 @@
+import { UserType } from '../../application/types/user.type';
+
 /*Output DTO для пользователя.*/
-export type UserOutputDTO = {
-  id: string;
-  login: string;
-  email: string;
-  createdAt: Date;
-};
+export type UserOutputDTO = Omit<UserType, 'passwordHash' | 'isConfirmed'> & { id: string };

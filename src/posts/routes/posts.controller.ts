@@ -46,6 +46,8 @@ export class PostsController {
     try {
       /*Получаем ID поста.*/
       const postId: string = req.params.postId;
+      /*Получаем ID пользователя.*/
+      const userId: string | undefined = req.userId?.id;
 
       /*Санитизируем query-параметры и добавляем к ним дефолтные настройки пагинации.*/
       const sanitizedQueryInputWithDefaultPaginationSettings = getSanitizedQueryInputWithDefaultPaginationSettings<
@@ -55,7 +57,11 @@ export class PostsController {
 
       /*Просим query-сервис "commentsQueryService" найти комментарии в посте по ID.*/
       const paginatedCommentListResult: Result<{ paginatedCommentListOutput: PaginatedCommentListOutputDTO } | null> =
-        await this.commentsQueryService.findAllByPostId(postId, sanitizedQueryInputWithDefaultPaginationSettings);
+        await this.commentsQueryService.findAllByPostId(
+          postId,
+          sanitizedQueryInputWithDefaultPaginationSettings,
+          userId
+        );
 
       /*Получаем HTTP-статус операции по поиску комментариев в посте по ID.*/
       const paginatedCommentListResultHttpStatus: HttpStatuses = mapResultCodeToHttpStatus(
@@ -100,10 +106,10 @@ export class PostsController {
         return res.status(createdCommentResultHttpStatus).send(createdCommentResult.extensions);
       }
 
-      /*Если комментарий был создан в посте, то просим query-сервис "commentsQueryService" найти созданный комментарий по
-      ID.*/
+      /*Если комментарий был создан в посте, то просим query-сервис "commentsQueryService" найти созданный комментарий
+      по ID.*/
       const commentResult: Result<{ commentOutput: CommentOutputDTO } | null> =
-        await this.commentsQueryService.findById(createdCommentResult.data!.createdCommentId);
+        await this.commentsQueryService.findById(createdCommentResult.data!.createdCommentId, userId);
 
       /*Получаем HTTP-статус операции по поиску созданного комментария по ID.*/
       const commentResultHttpStatus: HttpStatuses = mapResultCodeToHttpStatus(commentResult.status);

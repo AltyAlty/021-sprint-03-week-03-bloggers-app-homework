@@ -7,7 +7,12 @@ import { PostSortFieldQueryInputDTO } from './input-dto/query/post-sort-field-qu
 import { CommentSortFieldQueryInputDTO } from '../../comments/routes/input-dto/query/comment-sort-field-query.input-dto';
 import { createCommentForPostInputValidation } from '../../comments/validation/comments-input-validation.middlewares';
 import { SETTINGS } from '../../core/settings/settings';
-import { accessTokenGuardMiddleware, basicAuthGuardMiddleware, postsController } from '../../ioc/composition-root';
+import {
+  accessTokenGuardMiddleware,
+  basicAuthGuardMiddleware,
+  optionalAccessTokenGuardMiddleware,
+  postsController,
+} from '../../ioc/composition-root';
 
 /*Роутер из Express для работы с постами.*/
 export const postsRouter: Router = Router({});
@@ -17,6 +22,7 @@ postsRouter
   /*001. GET-запрос по получению комментариев с пагинацией в посте по ID, используя URI-параметры и query-параметры.*/
   .get(
     SETTINGS.GET_COMMENT_LIST_BY_POST_ID_PATH,
+    optionalAccessTokenGuardMiddleware,
     postIdValidation,
     paginationValidationMiddleware(CommentSortFieldQueryInputDTO),
     inputValidationResultMiddleware,

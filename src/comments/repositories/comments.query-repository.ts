@@ -7,6 +7,8 @@ import { CommentDBType } from './types/comment-db.type';
 import { injectable } from 'inversify';
 import { CommentListDBType } from './types/comment-list-db.type';
 import { CommentModel } from './models/comment.model';
+import { CommentLikeDataDBType } from './types/comment-like-data-db.type';
+import { CommentLikeDataModel } from './models/comment-like-data.model';
 
 /*Query-репозиторий для работы с комментариями в БД.*/
 @injectable()
@@ -58,5 +60,20 @@ export class CommentsQueryRepository {
 
     /*Возвращаем данные по комментариям.*/
     return { items, totalCount };
+  }
+
+  /*Метод для поиска данных о лайке комментария по ID комментария и ID пользователя в БД.*/
+  async findCommentLikeDataByCommentIdAndUserId(
+    commentId: string,
+    userId: string
+  ): Promise<CommentLikeDataDBType | null> {
+    /*Просим модель "CommentLikeDataModel" найти данные о лайке комментария по ID комментария и ID пользователя в БД.*/
+    const commentLikeData: CommentLikeDataDBType | null = await CommentLikeDataModel.findOne({
+      commentId,
+      userId,
+    }).lean();
+
+    /*Если данные о лайке комментария были найдены, то возвращаем их, иначе null.*/
+    return commentLikeData ?? null;
   }
 }

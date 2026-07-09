@@ -1,9 +1,4 @@
+import { BlogType } from '../../application/types/blog.type';
+
 /*Output DTO для блога.*/
-export type BlogOutputDTO = {
-  id: string;
-  name: string;
-  description: string;
-  websiteUrl: string;
-  createdAt: Date;
-  isMembership: boolean;
-};
+export type BlogOutputDTO = BlogType & { id: string };

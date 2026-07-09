@@ -12,6 +12,8 @@ import { GetCommentByIdUriInputDTO } from './input-dto/uri/get-comment-by-id-uri
 import { CommentOutputDTO } from './output-dto/comment.output-dto';
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../ioc/types';
+import { LikeCommentByIdUriInputDTO } from './input-dto/uri/like-comment-by-id-uri.input-dto';
+import { LikeCommentByIdInputDTO, CommentLikeStatusInputDTO } from './input-dto/like-comment-by-id.input-dto';
 
 /*Контроллер для работы с комментариями.*/
 @injectable()
@@ -91,10 +93,12 @@ export class CommentsController {
     try {
       /*Получаем ID комментария.*/
       const commentId: string = req.params.id;
+      /*Получаем ID пользователя.*/
+      const userId: string | undefined = req.userId?.id;
 
       /*Просим query-сервис "commentsQueryService" найти комментарий по ID.*/
       const commentResult: Result<{ commentOutput: CommentOutputDTO } | null> =
-        await this.commentsQueryService.findById(commentId);
+        await this.commentsQueryService.findById(commentId, userId);
 
       /*Получаем HTTP-статус операции по поиску комментария по ID.*/
       const commentResultHttpStatus: HttpStatuses = mapResultCodeToHttpStatus(commentResult.status);
@@ -106,6 +110,42 @@ export class CommentsController {
 
       /*Если комментарий был найден, то отправляем его клиенту.*/
       return res.status(commentResultHttpStatus).send(commentResult.data!.commentOutput);
+    } catch (error: unknown) {
+      /*Если была перехвачена ошибка, то обрабатываем ее.*/
+      return errorsHandler(error, res);
+    }
+  }
+
+  /*Метод-обработчик для PUT-запросов по лайку комментария по ID, используя URI-параметры.*/
+  async likeCommentByIdHandler(
+    req: Request<LikeCommentByIdUriInputDTO, {}, LikeCommentByIdInputDTO>,
+    res: Response<void | ExtensionType[]>
+  ): Promise<void | Response<void | ExtensionType[]>> {
+    try {
+      /*Получаем ID комментария.*/
+      const commentId: string = req.params.id;
+      /*Получаем ID пользователя.*/
+      const userId: string = req.userId!.id;
+      /*Получаем статус лайка комментария.*/
+      const likeStatus: CommentLikeStatusInputDTO = req.body.likeStatus!;
+
+      /*Просим сервис "commentsService" добавить лайк комментарию по ID.*/
+      const likedCommentResult: Result<{} | null> = await this.commentsService.likeCommentById(
+        commentId,
+        userId,
+        likeStatus
+      );
+
+      /*Получаем HTTP-статус операции по добавлению лайка комментарию по ID.*/
+      const likedCommentResultHttpStatus: HttpStatuses = mapResultCodeToHttpStatus(likedCommentResult.status);
+
+      /*Если лайк комментарию не был добавлен, то сообщаем об этом клиенту.*/
+      if (likedCommentResultHttpStatus !== HttpStatuses.NoContent_204) {
+        return res.status(likedCommentResultHttpStatus).send(likedCommentResult.extensions);
+      }
+
+      /*Если лайк комментарию был добавлен, то сообщаем об этом клиенту.*/
+      return res.sendStatus(likedCommentResultHttpStatus);
     } catch (error: unknown) {
       /*Если была перехвачена ошибка, то обрабатываем ее.*/
       return errorsHandler(error, res);
