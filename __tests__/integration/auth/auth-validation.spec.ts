@@ -560,11 +560,11 @@ describe('Auth Validation', () => {
     const createdUserResult: Result<{ createdUserId: string }> = await usersService.create(createUserData, true);
     const createdUserId: string = createdUserResult.data.createdUserId;
 
-    await authService.createEmailConfirmation(
-      createdUserId,
-      expiredUserEmailConfirmationData.confirmationCode,
-      expiredUserEmailConfirmationData.expirationDate
-    );
+    await authService.createEmailConfirmation({
+      userId: createdUserId,
+      confirmationCode: expiredUserEmailConfirmationData.confirmationCode,
+      expirationDate: expiredUserEmailConfirmationData.expirationDate,
+    });
 
     const confirmUserByCodeResponse: any = await confirmUserByCode(
       app,
@@ -1426,11 +1426,11 @@ describe('Auth Validation', () => {
       password: createUserData.password,
     });
 
-    await authRepository.createRecoveryPasswordCodeData(
-      createdUserId,
-      expiredRecoveryCodeData.recoveryCode,
-      expiredRecoveryCodeData.expirationDate
-    );
+    await authRepository.createRecoveryPasswordCodeData({
+      userId: createdUserId,
+      recoveryCode: expiredRecoveryCodeData.recoveryCode,
+      expirationDate: expiredRecoveryCodeData.expirationDate,
+    });
 
     const setNewPasswordByRecoveryCodeResponse: any = await setNewPasswordByRecoveryCode(
       app,

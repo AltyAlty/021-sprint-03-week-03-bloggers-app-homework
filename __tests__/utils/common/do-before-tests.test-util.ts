@@ -5,35 +5,6 @@ import { SETTINGS } from '../../../src/core/settings/settings';
 import { clearDB } from '../db/clear-db.test-util';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-/*Функция для предварительных действий перед запуском тестов.*/
-export const doBeforeTests = (): Express => {
-  /*Создаем экземпляр приложения Express.*/
-  const app: Express = express();
-  /*Настраиваем экземпляр приложения Express при помощи функции "setupApp()".*/
-  setupApp(app);
-
-  /*Указываем, что перед запуском тестового набора будет запускаться и очищаться БД.*/
-  beforeAll(async () => {
-    await db.runDB(SETTINGS.MONGO_URL, SETTINGS.TEST_DB_NAME);
-    await clearDB(app);
-  });
-
-  /*Указываем, что перед запуском каждого теста будут очищаться БД, моки и шпионы.*/
-  beforeEach(async () => {
-    await clearDB(app);
-    jest.clearAllMocks();
-  });
-
-  /*Указываем, что после того как тестовый набор отработает, будет очищать и отключаться от БД.*/
-  afterAll(async () => {
-    await clearDB(app);
-    await db.stopDB();
-  });
-
-  /*Возвращаем настроенный экземпляр приложения Express.*/
-  return app;
-};
-
 /*Функция для предварительных действий перед запуском тестов, используя моковый сервер.*/
 export const doBeforeTestsWithMongoMemoryServer = (): Express => {
   /*Создаем экземпляр приложения Express.*/
@@ -61,6 +32,35 @@ export const doBeforeTestsWithMongoMemoryServer = (): Express => {
     await db.dropDB();
     await db.stopDB();
     if (mongoServer) await mongoServer.stop();
+  });
+
+  /*Возвращаем настроенный экземпляр приложения Express.*/
+  return app;
+};
+
+/*Функция для предварительных действий перед запуском тестов.*/
+export const doBeforeTests = (): Express => {
+  /*Создаем экземпляр приложения Express.*/
+  const app: Express = express();
+  /*Настраиваем экземпляр приложения Express при помощи функции "setupApp()".*/
+  setupApp(app);
+
+  /*Указываем, что перед запуском тестового набора будет запускаться и очищаться БД.*/
+  beforeAll(async () => {
+    await db.runDB(SETTINGS.MONGO_URL, SETTINGS.TEST_DB_NAME);
+    await clearDB(app);
+  });
+
+  /*Указываем, что перед запуском каждого теста будут очищаться БД, моки и шпионы.*/
+  beforeEach(async () => {
+    await clearDB(app);
+    jest.clearAllMocks();
+  });
+
+  /*Указываем, что после того как тестовый набор отработает, будет очищать и отключаться от БД.*/
+  afterAll(async () => {
+    await clearDB(app);
+    await db.stopDB();
   });
 
   /*Возвращаем настроенный экземпляр приложения Express.*/

@@ -1,5 +1,4 @@
-import { DeleteResult, InsertOneResult, UpdateResult } from 'mongodb';
-import { db } from '../../db/mongodb/mongo.db';
+import { DeleteResult } from 'mongodb';
 import { SessionType } from '../application/types/session.type';
 import { SessionDBType } from './types/session-db.type';
 import { RequestRateLimitLogType } from '../application/types/request-rate-limit-log.type';
@@ -9,85 +8,58 @@ import { RecoveryCodeDataType } from '../application/types/recovery-code-data.ty
 import { RecoveryCodeDataDBType } from './types/recovery-code-data-db.type';
 import { injectable } from 'inversify';
 import { SessionListDBType } from './types/session-list-db.type';
+import { SessionModel } from './models/session.model';
+import { HydratedDocument } from 'mongoose';
+import { EmailConfirmationModel } from './models/email-сonfirmation.model';
+import { RequestRateLimitLogModel } from './models/request-rate-limit-log.model';
+import { RecoveryCodeDataModel } from './models/recovery-code-data.model';
 
 /*Репозиторий для работы с аутентификацией и авторизацией в БД.*/
 @injectable()
 export class AuthRepository {
   /*Метод для добавления сессии в БД.*/
-  async createSession(
-    userId: string,
-    deviceId: string,
-    deviceName: string,
-    ip: string,
-    iat: Date,
-    exp: Date
-  ): Promise<string> {
-    /*Просим коллекцию "sessionsCollection" создать сессию в БД.*/
-    const insertResult: InsertOneResult<SessionType> = await db.sessionsCollection.insertOne({
-      userId,
-      deviceId,
-      deviceName,
-      ip,
-      iat,
-      exp,
-    });
-
+  async createSession(newSession: SessionType): Promise<string> {
+    /*Просим модель "SessionModel" создать сессию в БД.*/
+    const session: HydratedDocument<SessionType> = new SessionModel(newSession);
+    await session.save();
     /*Возвращаем ID созданной сессии.*/
-    return insertResult.insertedId.toString();
+    return session._id.toString();
   }
 
   /*Метод для создания данных о подтверждении регистрации пользователя в БД.*/
-  async createEmailConfirmation(userId: string, confirmationCode: string, expirationDate: Date): Promise<string> {
-    /*Просим коллекцию "emailConfirmationsCollection" создать данные о подтверждении регистрации пользователя в БД.*/
-    const insertResult: InsertOneResult<EmailConfirmationType> = await db.emailConfirmationsCollection.insertOne({
-      userId,
-      confirmationCode,
-      expirationDate,
-    });
-
+  async createEmailConfirmation(newEmailConfirmation: EmailConfirmationType): Promise<string> {
+    /*Просим модель "EmailConfirmationModel" создать данные о подтверждении регистрации пользователя в БД.*/
+    const emailConfirmation: HydratedDocument<EmailConfirmationType> = new EmailConfirmationModel(newEmailConfirmation);
+    await emailConfirmation.save();
     /*Возвращаем ID созданных данных о подтверждении регистрации пользователя.*/
-    return insertResult.insertedId.toString();
+    return emailConfirmation._id.toString();
   }
 
   /*Метод для добавления записи в журнал лимитов запросов в БД.*/
-  async createRequestRateLimitLog(requestRateLimitLog: RequestRateLimitLogType): Promise<string> {
-    /*Просим коллекцию "requestRateLimitLogsCollection" создать запись в журнале лимитов запросов в БД.*/
-    const insertResult: InsertOneResult<RequestRateLimitLogType> =
-      await db.requestRateLimitLogsCollection.insertOne(requestRateLimitLog);
+  async createRequestRateLimitLog(newRequestRateLimitLog: RequestRateLimitLogType): Promise<string> {
+    /*Просим модель "RequestRateLimitLogModel" создать запись в журнале лимитов запросов в БД.*/
+    const requestRateLimitLog: HydratedDocument<RequestRateLimitLogType> = new RequestRateLimitLogModel(
+      newRequestRateLimitLog
+    );
 
+    await requestRateLimitLog.save();
     /*Возвращаем ID созданной записи в журнале лимитов запросов.*/
-    return insertResult.insertedId.toString();
-  }
-
-  /*Метод для подсчета количества записей в журнале лимитов запросов за указанный период по IP-адресу и URL в БД.*/
-  async countRequestRateLimitLogsByIpAndUrl(ip: string, url: string, seconds: number): Promise<number> {
-    /*Просим коллекцию "requestRateLimitLogsCollection" подсчитать количество записей в журнале лимитов запросов за
-    указанный период по IP-адресу и URL в БД.*/
-    return db.requestRateLimitLogsCollection.countDocuments({
-      ip: ip,
-      url: url,
-      timestamp: { $gte: new Date(Date.now() - seconds * 1000) },
-    });
+    return requestRateLimitLog._id.toString();
   }
 
   /*Метод для создания данных о коде восстановления пароля пользователя в БД.*/
-  async createRecoveryPasswordCodeData(userId: string, recoveryCode: string, expirationDate: Date): Promise<string> {
-    /*Просим коллекцию "recoveryPasswordCodesDataCollection" создать данные о коде восстановления пароля пользователя в
-    БД.*/
-    const insertResult: InsertOneResult<RecoveryCodeDataType> = await db.recoveryPasswordCodesDataCollection.insertOne({
-      userId,
-      recoveryCode,
-      expirationDate,
-    });
-
+  async createRecoveryPasswordCodeData(newRequestRateLimitLog: RecoveryCodeDataType): Promise<string> {
+    /*Просим модель "RecoveryCodeDataModel" создать данные о коде восстановления пароля пользователя в БД.*/
+    const recoveryCodeData: HydratedDocument<RecoveryCodeDataType> = new RecoveryCodeDataModel(newRequestRateLimitLog);
+    await recoveryCodeData.save();
     /*Возвращаем ID созданных данных о коде восстановления пароля пользователя.*/
-    return insertResult.insertedId.toString();
+    return recoveryCodeData._id.toString();
   }
 
   /*Метод для поиска сессии по ID пользователя и ID устройства пользователя в БД.*/
   async findSessionByUserIdAndDeviceId(userId: string, deviceId: string): Promise<SessionDBType | null> {
-    /*Просим коллекцию "sessionsCollection" найти сессию по ID устройства пользователя в БД.*/
-    const session: SessionDBType | null = await db.sessionsCollection.findOne({ userId, deviceId });
+    /*Просим модель "SessionModel" найти сессию по ID пользователя и ID устройства пользователя в БД.*/
+    const session: SessionDBType | null = await SessionModel.findOne({ userId, deviceId }).lean();
     /*Если сессия была найдена, то возвращаем ее, иначе возвращаем null.*/
     return session ?? null;
   }
@@ -98,25 +70,25 @@ export class AuthRepository {
     deviceId: string,
     iat: Date
   ): Promise<SessionDBType | null> {
-    /*Просим коллекцию "sessionsCollection" найти сессию по дате выдачи RT в БД.*/
-    const session: SessionDBType | null = await db.sessionsCollection.findOne({ userId, deviceId, iat });
+    /*Просим модель "SessionModel" найти сессию по ID пользователя, ID устройства пользователя и дате выдачи RT в БД.*/
+    const session: SessionDBType | null = await SessionModel.findOne({ userId, deviceId, iat }).lean();
     /*Если сессия была найдена, то возвращаем ее, иначе возвращаем null.*/
     return session ?? null;
   }
 
   /*Метод для поиска сессий по ID пользователя в БД.*/
   async findAllSessionsByUserId(userId: string): Promise<SessionListDBType> {
-    /*Просим коллекцию "sessionsCollection" найти сессии по ID пользователя в БД.*/
-    return await db.sessionsCollection.find({ userId }).toArray();
+    /*Просим модель "SessionModel" найти сессии по ID пользователя в БД.*/
+    return await SessionModel.find({ userId }).lean();
   }
 
   /*Метод для поиска данных о подтверждении регистрации пользователя по коду подтверждения в БД.*/
-  async findEmailConfirmationByCode(code: string): Promise<EmailConfirmationDBType | null> {
-    /*Просим коллекцию "emailConfirmationsCollection" найти данные о подтверждении регистрации пользователя по коду
-    подтверждения в БД.*/
-    const emailConfirmation: EmailConfirmationDBType | null = await db.emailConfirmationsCollection.findOne({
-      confirmationCode: code,
-    });
+  async findEmailConfirmationByCode(confirmationCode: string): Promise<EmailConfirmationDBType | null> {
+    /*Просим модель "EmailConfirmationModel" найти данные о подтверждении регистрации пользователя по коду подтверждения
+    в БД.*/
+    const emailConfirmation: EmailConfirmationDBType | null = await EmailConfirmationModel.findOne({
+      confirmationCode,
+    }).lean();
 
     /*Если данные о подтверждении регистрации пользователя были найдены, то возвращаем их, иначе возвращаем null.*/
     return emailConfirmation ?? null;
@@ -124,20 +96,30 @@ export class AuthRepository {
 
   /*Метод для поиска данных о подтверждении регистрации пользователя по ID пользователя в БД.*/
   async findEmailConfirmationByUserId(userId: string): Promise<EmailConfirmationDBType | null> {
-    /*Просим коллекцию "emailConfirmationsCollection" найти данные о подтверждении регистрации пользователя по ID
-    пользователя в БД.*/
-    const emailConfirmation: EmailConfirmationDBType | null = await db.emailConfirmationsCollection.findOne({ userId });
+    /*Просим модель "EmailConfirmationModel" найти данные о подтверждении регистрации пользователя по ID пользователя в
+    БД.*/
+    const emailConfirmation: EmailConfirmationDBType | null = await EmailConfirmationModel.findOne({ userId }).lean();
     /*Если данные о подтверждении регистрации пользователя были найдены, то возвращаем их, иначе возвращаем null.*/
     return emailConfirmation ?? null;
   }
 
+  /*Метод для подсчета количества записей в журнале лимитов запросов за указанный период по IP-адресу и URL в БД.*/
+  async countRequestRateLimitLogsByIpAndUrl(ip: string, url: string, seconds: number): Promise<number> {
+    /*Просим модель "RequestRateLimitLogModel" подсчитать количество записей в журнале лимитов запросов за указанный
+    период по IP-адресу и URL в БД.*/
+    return RequestRateLimitLogModel.countDocuments({
+      ip,
+      url,
+      timestamp: { $gte: new Date(Date.now() - seconds * 1000) },
+    });
+  }
+
   /*Метод для поиска данных о коде восстановления пароля пользователя по коду в БД.*/
   async findRecoveryPasswordCodeDataByCode(recoveryCode: string): Promise<RecoveryCodeDataDBType | null> {
-    /*Просим коллекцию "recoveryPasswordCodesDataCollection" найти данные о коде восстановления пароля пользователя по
-    коду в БД.*/
-    const recoveryCodeData: RecoveryCodeDataDBType | null = await db.recoveryPasswordCodesDataCollection.findOne({
+    /*Просим модель "RecoveryCodeDataModel" найти данные о коде восстановления пароля пользователя по коду в БД.*/
+    const recoveryCodeData: RecoveryCodeDataDBType | null = await RecoveryCodeDataModel.findOne({
       recoveryCode,
-    });
+    }).lean();
 
     /*Если данные о коде восстановления пароля пользователя были найдены, то возвращаем их, иначе возвращаем null.*/
     return recoveryCodeData ?? null;
@@ -145,26 +127,26 @@ export class AuthRepository {
 
   /*Метод для поиска данных о коде восстановления пароля пользователя по ID пользователя в БД.*/
   async findRecoveryPasswordCodeDataByUserId(userId: string): Promise<RecoveryCodeDataDBType | null> {
-    /*Просим коллекцию "recoveryPasswordCodesDataCollection" найти данные о коде восстановления пароля пользователя по
-    ID пользователя в БД.*/
-    const recoveryCodeData: RecoveryCodeDataDBType | null = await db.recoveryPasswordCodesDataCollection.findOne({
-      userId,
-    });
-
+    /*Просим модель "RecoveryCodeDataModel" найти данные о коде восстановления пароля пользователя по ID пользователя в
+    БД.*/
+    const recoveryCodeData: RecoveryCodeDataDBType | null = await RecoveryCodeDataModel.findOne({ userId }).lean();
     /*Если данные о коде восстановления пароля пользователя были найдены, то возвращаем их, иначе возвращаем null.*/
     return recoveryCodeData ?? null;
   }
 
   /*Метод для изменения сессии по дате создания RT в БД.*/
-  async updateSessionByIat(currentIat: Date, iat: Date, exp: Date, ip: string): Promise<number> {
-    /*Просим коллекцию "sessionsCollection" изменить сессию по дате создания RT в БД.*/
-    const updateResult: UpdateResult<SessionType> = await db.sessionsCollection.updateOne(
-      { iat: currentIat },
-      { $set: { iat, exp, ip } }
-    );
-
-    /*Возвращаем количество сессий, попавших под фильтр.*/
-    return updateResult.matchedCount;
+  async updateSessionByIat(currentIat: Date, ip: string, iat: Date, exp: Date): Promise<number> {
+    /*Просим модель "SessionModel" найти сессию по дате создания RT в БД.*/
+    const session: HydratedDocument<SessionType> | null = await SessionModel.findOne({ iat: currentIat });
+    /*Если сессия не была найдена, то сообщаем, что она не была изменена.*/
+    if (!session) return 0;
+    /*Если сессия была найдена, то изменяем ее в БД.*/
+    session.ip = ip;
+    session.iat = iat;
+    session.exp = exp;
+    await session.save();
+    /*Сообщаем, что сессию была изменена.*/
+    return 1;
   }
 
   /*Метод для изменения данных о подтверждении регистрации пользователя по ID пользователя в БД.*/
@@ -173,77 +155,103 @@ export class AuthRepository {
     confirmationCode: string,
     expirationDate: Date
   ): Promise<number> {
-    /*Просим коллекцию "emailConfirmationsCollection" изменить данные для подтверждения регистрации пользователя по ID
-    пользователя в БД.*/
-    const updateResult: UpdateResult = await db.emailConfirmationsCollection.updateOne(
-      { userId },
-      { $set: { confirmationCode: confirmationCode, expirationDate: expirationDate } }
-    );
+    /*Просим модель "EmailConfirmationModel" найти данные о подтверждении регистрации пользователя по ID пользователя в
+    БД.*/
+    const emailConfirmation: HydratedDocument<EmailConfirmationType> | null = await EmailConfirmationModel.findOne({
+      userId,
+    });
 
-    /*Возвращаем количество данных о подтверждении регистрации пользователя, попавших под фильтр.*/
-    return updateResult.matchedCount;
+    /*Если данные о подтверждении регистрации пользователя не были найдены, то сообщаем, что они не были изменены.*/
+    if (!emailConfirmation) return 0;
+    /*Если данные о подтверждении регистрации пользователя были найдены, то изменяем их в БД.*/
+    emailConfirmation.confirmationCode = confirmationCode;
+    emailConfirmation.expirationDate = expirationDate;
+    await emailConfirmation.save();
+    /*Сообщаем, что данные о подтверждении регистрации пользователя были изменены.*/
+    return 1;
   }
 
   /*Метод для удаления сессии по дате создания RT в БД.*/
   async deleteSessionByIat(iat: Date): Promise<number> {
-    /*Просим коллекцию "sessionsCollection" удалить сессию по дате создания RT в БД.*/
-    const deleteResult: DeleteResult = await db.sessionsCollection.deleteOne({ iat });
-    /*Возвращаем количество удаленных сессий.*/
-    return deleteResult.deletedCount;
+    /*Просим модель "SessionModel" найти сессию по дате создания RT в БД.*/
+    const session: HydratedDocument<SessionType> | null = await SessionModel.findOne({ iat });
+    /*Если сессия не была найдена, то сообщаем, что она не была удалена.*/
+    if (!session) return 0;
+    /*Если сессия была найдена, то удаляем ее в БД.*/
+    const result: DeleteResult = await session.deleteOne();
+    /*Сообщаем, что сессия была удалена.*/
+    return result.deletedCount;
   }
 
   /*Метод для удаления сессии по ID пользователя и ID устройства пользователя в БД.*/
   async deleteSessionByUserIdAndDeviceId(userId: string, deviceId: string): Promise<number> {
-    /*Просим коллекцию "sessionsCollection" удалить сессию по ID пользователя и ID устройства пользователя в БД.*/
-    const deleteResult: DeleteResult = await db.sessionsCollection.deleteOne({ userId, deviceId });
-    /*Возвращаем количество удаленных сессий.*/
-    return deleteResult.deletedCount;
+    /*Просим модель "SessionModel" найти сессию по ID пользователя и ID устройства пользователя RT в БД.*/
+    const session: HydratedDocument<SessionType> | null = await SessionModel.findOne({ userId, deviceId });
+    /*Если сессия не была найдена, то сообщаем, что она не была удалена.*/
+    if (!session) return 0;
+    /*Если сессия была найдена, то удаляем ее в БД.*/
+    const result: DeleteResult = await session.deleteOne();
+    /*Сообщаем, что сессия была удалена.*/
+    return result.deletedCount;
   }
 
   /*Метод для удаления всех сессий пользователя, кроме текущей, в БД.*/
   async deleteSessionsExceptCurrentDevice(userId: string, deviceId: string): Promise<number> {
-    /*Просим коллекцию "sessionsCollection" удалить все сессии пользователя, кроме текущей, в БД.*/
-    const deleteResult: DeleteResult = await db.sessionsCollection.deleteMany({
-      userId: userId,
-      deviceId: { $ne: deviceId },
-    });
-
-    /*Возвращаем количество удаленных сессий.*/
-    return deleteResult.deletedCount;
+    /*Просим модель "SessionModel" удалить все сессии пользователя, кроме текущей, в БД.*/
+    const result: DeleteResult = await SessionModel.deleteMany({ userId, deviceId: { $ne: deviceId } });
+    /*Возвращаем количество удаленных устройств пользователя.*/
+    return result.deletedCount ?? 0;
   }
 
   /*Метод для удаления всех сессий пользователя по ID пользователя в БД.*/
   async deleteAllSessionsByUserId(userId: string): Promise<number> {
-    /*Просим коллекцию "sessionsCollection" удалить все сессии пользователя по ID пользователя в БД.*/
-    const deleteResult: DeleteResult = await db.sessionsCollection.deleteMany({ userId });
-    /*Возвращаем количество удаленных сессий.*/
-    return deleteResult.deletedCount;
+    /*Просим модель "SessionModel" удалить все сессии пользователя по ID пользователя в БД.*/
+    const result: DeleteResult = await SessionModel.deleteMany({ userId });
+    /*Возвращаем количество удаленных устройств пользователя.*/
+    return result.deletedCount ?? 0;
   }
 
   /*Метод для удаления данных о подтверждении регистрации пользователя по ID пользователя в БД.*/
   async deleteEmailConfirmationByUserId(userId: string): Promise<number> {
-    /*Просим коллекцию "emailConfirmationsCollection" удалить данные о подтверждении регистрации пользователя по ID
-    пользователя в БД.*/
-    const deleteResult: DeleteResult = await db.emailConfirmationsCollection.deleteOne({ userId });
-    /*Возвращаем количество удаленных данных о подтверждении регистрации пользователя.*/
-    return deleteResult.deletedCount;
+    /*Просим модель "EmailConfirmationModel" найти данные о подтверждении регистрации пользователя по ID пользователя в
+    БД.*/
+    const emailConfirmation: HydratedDocument<SessionType> | null = await EmailConfirmationModel.findOne({ userId });
+    /*Если данные о подтверждении регистрации пользователя не были найдены, то сообщаем, что они не были удалены.*/
+    if (!emailConfirmation) return 0;
+    /*Если данные о подтверждении регистрации пользователя были найдены, то удаляем их в БД.*/
+    const result: DeleteResult = await emailConfirmation.deleteOne();
+    /*Сообщаем, что данные о подтверждении регистрации пользователя были удалены.*/
+    return result.deletedCount;
   }
 
   /*Метод для удаления данных о коде восстановления пароля пользователя по коду в БД.*/
   async deleteRecoveryCodeDataByCode(recoveryCode: string): Promise<number> {
-    /*Просим коллекцию "recoveryPasswordCodesDataCollection" удалить данные о коде восстановления пароля пользователя по
-    коду в БД.*/
-    const deleteResult: DeleteResult = await db.recoveryPasswordCodesDataCollection.deleteOne({ recoveryCode });
-    /*Возвращаем количество удаленных данных о коде восстановления пароля пользователя.*/
-    return deleteResult.deletedCount;
+    /*Просим модель "RecoveryCodeDataModel" найти данные о коде восстановления пароля пользователя по коду в БД.*/
+    const recoveryCodeData: HydratedDocument<RecoveryCodeDataType> | null = await RecoveryCodeDataModel.findOne({
+      recoveryCode,
+    });
+
+    /*Если данные о коде восстановления пароля пользователя не были найдены, то сообщаем, что они не были удалены.*/
+    if (!recoveryCodeData) return 0;
+    /*Если данные о коде восстановления пароля пользователя были найдены, то удаляем их в БД.*/
+    const result: DeleteResult = await recoveryCodeData.deleteOne();
+    /*Сообщаем, что данные о коде восстановления пароля пользователя были удалены.*/
+    return result.deletedCount;
   }
 
   /*Метод для удаления данных о всех кодах восстановления пароля пользователя по ID пользователя в БД.*/
   async deleteAllRecoveryCodesDataByUserId(userId: string): Promise<number> {
-    /*Просим коллекцию "recoveryPasswordCodesDataCollection" удалить данные о всех кодах восстановления пароля
-    пользователя по ID пользователя в БД.*/
-    const deleteResult: DeleteResult = await db.recoveryPasswordCodesDataCollection.deleteMany({ userId });
-    /*Возвращаем количество удаленных данных о коде восстановления пароля пользователя.*/
-    return deleteResult.deletedCount;
+    /*Просим модель "RecoveryCodeDataModel" найти данные о коде восстановления пароля пользователя по ID пользователя в
+    БД.*/
+    const recoveryCodeData: HydratedDocument<RecoveryCodeDataType> | null = await RecoveryCodeDataModel.findOne({
+      userId,
+    });
+
+    /*Если данные о коде восстановления пароля пользователя не были найдены, то сообщаем, что они не были удалены.*/
+    if (!recoveryCodeData) return 0;
+    /*Если данные о коде восстановления пароля пользователя были найдены, то удаляем их в БД.*/
+    const result: DeleteResult = await recoveryCodeData.deleteOne();
+    /*Сообщаем, что данные о коде восстановления пароля пользователя были удалены.*/
+    return result.deletedCount;
   }
 }

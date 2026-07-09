@@ -1,21 +1,21 @@
-import { Filter, ObjectId } from 'mongodb';
+import { Filter } from 'mongodb';
 import { UserType } from '../application/types/user.type';
-import { db } from '../../db/mongodb/mongo.db';
 import { GetUserListQueryInputDTO } from '../routes/input-dto/query/get-user-list-query.input-dto';
 import { SortDirection } from '../../core/types/pagination/sort-direction';
 import { UserSortFieldQueryInputDTO } from '../routes/input-dto/query/user-sort-field-query.input-dto';
 import { UserDBType } from './types/user-db.type';
 import { injectable } from 'inversify';
 import { UserListDBType } from './types/user-list-db.type';
+import { UserModel } from './models/user.model';
 
 /*Query-репозиторий для работы с пользователями в БД.*/
 @injectable()
 export class UsersQueryRepository {
   /*Метод для поиска пользователя по ID в БД.*/
   async findById(id: string): Promise<UserDBType | null> {
-    /*Просим коллекцию "usersCollection" найти пользователя по ID в БД.*/
-    const user: UserDBType | null = await db.usersCollection.findOne({ _id: new ObjectId(id) });
-    /*Если пользователь был найден, то возвращаем его, иначе возвращаем null.*/
+    /*Просим модель "UserModel" найти пользователя по ID в БД.*/
+    const user: UserDBType | null = await UserModel.findById(id).lean();
+    /*Если пользователь был найден, то возвращаем его, иначе null.*/
     return user ?? null;
   }
 
@@ -48,16 +48,15 @@ export class UsersQueryRepository {
     if (searchEmailTerm) conditions.push({ email: { $regex: searchEmailTerm, $options: 'i' } });
     const filter: Filter<UserType> = conditions.length > 0 ? { $or: conditions } : {};
 
-    /*Просим коллекцию "usersCollection" найти пользователей в БД и подсчитать общее количество документов, подходящих
-    под фильтр, без учета пагинации.*/
+    /*Просим модель "UserModel" найти пользователей в БД и подсчитать общее количество документов, подходящих под
+    фильтр, без учета пагинации.*/
     const [items, totalCount]: [UserListDBType, number] = await Promise.all([
-      db.usersCollection
-        .find(filter)
+      UserModel.find(filter)
         .sort({ [sortBy]: sortDirection })
         .skip(skip)
         .limit(pageSize)
-        .toArray(),
-      db.usersCollection.countDocuments(filter),
+        .lean(),
+      UserModel.countDocuments(filter),
     ]);
 
     /*Возвращаем данные по пользователям.*/

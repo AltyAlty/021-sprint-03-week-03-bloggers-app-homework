@@ -129,9 +129,9 @@ export class AuthController {
   ): Promise<void | Response<void | ExtensionType[]>> {
     try {
       /*Получаем код подтверждения регистрации пользователя.*/
-      const code: string = req.body.code;
+      const confirmationCode: string = req.body.code;
       /*Просим сервис "usersService" подтвердить регистрацию пользователя по коду.*/
-      const confirmEmailResult: Result<{} | null> = await this.usersService.confirmByCode(code);
+      const confirmEmailResult: Result<{} | null> = await this.usersService.confirmByCode(confirmationCode);
       /*Получаем HTTP-статус операции по подтверждению регистрации пользователя по коду.*/
       const confirmEmailResultHttpStatus: HttpStatuses = mapResultCodeToHttpStatus(confirmEmailResult.status);
 

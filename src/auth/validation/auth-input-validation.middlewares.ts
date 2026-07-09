@@ -93,10 +93,13 @@ export const confirmationCodeValidation: ValidationChain = body('code')
   .withMessage('Field "code" must not be empty')
   .matches(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)
   .withMessage('Field "code" is invalid')
-  .custom(async (code: string) => {
+  .custom(async (confirmationCode: string) => {
     const authRepository = container.get<AuthRepository>(TYPES.AuthRepository);
     const usersRepository = container.get<UsersRepository>(TYPES.UsersRepository);
-    const emailConfirmationDB: EmailConfirmationDBType | null = await authRepository.findEmailConfirmationByCode(code);
+
+    const emailConfirmationDB: EmailConfirmationDBType | null =
+      await authRepository.findEmailConfirmationByCode(confirmationCode);
+
     if (!emailConfirmationDB) throw new Error('Field "code" is invalid');
     if (emailConfirmationDB.expirationDate <= new Date()) throw new Error('Confirmation code is expired');
     const userDB: UserDBType | null = await usersRepository.findById(emailConfirmationDB.userId);

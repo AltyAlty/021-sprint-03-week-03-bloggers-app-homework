@@ -1,20 +1,20 @@
 import { GetBlogListQueryInputDTO } from '../routes/input-dto/query/get-blog-list-query.input-dto';
-import { Filter, ObjectId } from 'mongodb';
+import { Filter } from 'mongodb';
 import { BlogType } from '../application/types/blog.type';
-import { db } from '../../db/mongodb/mongo.db';
 import { BlogSortFieldQueryInputDTO } from '../routes/input-dto/query/blog-sort-field-query.input-dto';
 import { SortDirection } from '../../core/types/pagination/sort-direction';
 import { BlogDBType } from './types/blog-db.type';
 import { injectable } from 'inversify';
 import { BlogListDBType } from './types/blog-list-db.type';
+import { BlogModel } from './models/blog.model';
 
 /*Query-репозиторий для работы с блогами в БД.*/
 @injectable()
 export class BlogsQueryRepository {
   /*Метод для поиска блога по ID в БД.*/
   async findById(id: string): Promise<BlogDBType | null> {
-    /*Просим коллекцию "blogsCollection" найти блог по ID в БД.*/
-    const blog: BlogDBType | null = await db.blogsCollection.findOne({ _id: new ObjectId(id) });
+    /*Просим модель "BlogModel" найти блог по ID в БД.*/
+    const blog: BlogDBType | null = await BlogModel.findById(id).lean();
     /*Если блог был найден, то возвращаем его, иначе возвращаем null.*/
     return blog ?? null;
   }
@@ -46,23 +46,21 @@ export class BlogsQueryRepository {
     без учета регистра.*/
     if (searchNameTerm) filter.name = { $regex: searchNameTerm, $options: 'i' };
 
-    /*Просим коллекцию "blogsCollection" найти блоги в БД:
+    /*Просим модель "BlogModel" найти блоги в БД:
     1. ".find(filter)": выбираем документы по собранному фильтру.
     2. ".sort({ [sortBy]: sortDirection })": сортируем по полю сортировки, которое берется динамически из переменной
     "sortBy", а направление сортировки из переменной "sortDirection".
     3. ".skip(skip)": пропускаем нужное количество записей, чтобы взять записи для запрошенной страницы.
     4. ".limit(pageSize)": берем записей не больше размера запрошенной страницы.
-    5. ".toArray()": превращаем курсор в обычный массив и возвращаем его.*/
+    5. ".lean()": превращаем курсор в обычный массив и возвращаем его.*/
     const [items, totalCount]: [BlogListDBType, number] = await Promise.all([
-      db.blogsCollection
-        .find(filter)
+      BlogModel.find(filter)
         .sort({ [sortBy]: sortDirection })
         .skip(skip)
         .limit(pageSize)
-        .toArray(),
-      /*Просим коллекцию "blogsCollection" подсчитать общее количество документов, подходящих под фильтр, без учета
-      пагинации.*/
-      db.blogsCollection.countDocuments(filter),
+        .lean(),
+      /*Просим модель "BlogModel" подсчитать общее количество документов, подходящих под фильтр, без учета пагинации.*/
+      BlogModel.countDocuments(filter),
     ]);
 
     /*Возвращаем данные по блогам.*/

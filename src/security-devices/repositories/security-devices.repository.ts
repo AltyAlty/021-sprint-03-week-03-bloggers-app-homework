@@ -1,64 +1,78 @@
 import { SecurityDeviceType } from '../application/types/security-device.type';
-import { db } from '../../db/mongodb/mongo.db';
-import { DeleteResult, InsertOneResult, UpdateResult } from 'mongodb';
+import { DeleteResult } from 'mongodb';
 import { SecurityDeviceDBType } from './types/security-device-db.type';
 import { injectable } from 'inversify';
+import { SecurityDeviceModel } from './models/security-device.model';
+import { HydratedDocument } from 'mongoose';
 
 /*Репозиторий для работы с устройствами пользователей в БД.*/
 @injectable()
 export class SecurityDevicesRepository {
   /*Метод для добавления устройства пользователя в БД.*/
-  async create(securityDevice: SecurityDeviceType): Promise<string> {
-    /*Просим коллекцию "securityDevicesCollection" создать устройство пользователя в БД.*/
-    const insertResult: InsertOneResult<SecurityDeviceType> = await db.securityDevicesCollection.insertOne({
-      ...securityDevice,
-    });
-
+  async create(newSecurityDevice: SecurityDeviceType): Promise<string> {
+    /*Просим модель "SecurityDeviceModel" создать устройство пользователя в БД.*/
+    const securityDevice: HydratedDocument<SecurityDeviceType> = new SecurityDeviceModel(newSecurityDevice);
+    await securityDevice.save();
     /*Возвращаем ID созданного устройства пользователя.*/
-    return insertResult.insertedId.toString();
+    return securityDevice.deviceId;
   }
 
   /*Метод для поиска устройства пользователя по ID в БД.*/
   async findById(id: string): Promise<SecurityDeviceDBType | null> {
-    /*Просим коллекцию "securityDevicesCollection" найти устройство пользователя по ID в БД.*/
-    const securityDevice: SecurityDeviceDBType | null = await db.securityDevicesCollection.findOne({ deviceId: id });
+    /*Просим модель "SecurityDeviceModel" найти устройство пользователя по ID в БД.*/
+    const securityDevice: SecurityDeviceDBType | null = await SecurityDeviceModel.findOne({
+      deviceId: id,
+    }).lean();
+
     /*Если устройство пользователя было найдено, то возвращаем его, иначе возвращаем null.*/
     return securityDevice ?? null;
   }
 
   /*Метод для изменения устройства пользователя по ID в БД.*/
   async updateById(id: string, ip: string, lastActiveDate: Date): Promise<number> {
-    /*Просим коллекцию "securityDevicesCollection" изменить устройство пользователя по ID в БД.*/
-    const updateResult: UpdateResult<SecurityDeviceType> = await db.securityDevicesCollection.updateOne(
-      { deviceId: id },
-      { $set: { ip, lastActiveDate } }
-    );
+    /*Просим модель "SecurityDeviceModel" найти устройство пользователя по ID в БД.*/
+    const securityDevice: HydratedDocument<SecurityDeviceType> | null = await SecurityDeviceModel.findOne({
+      deviceId: id,
+    });
 
-    /*Возвращаем количество измененных устройств пользователя.*/
-    return updateResult.matchedCount;
+    /*Если устройство пользователя не было найдено, то сообщаем, что оно не было изменено.*/
+    if (!securityDevice) return 0;
+    /*Если устройство пользователя было найдено, то изменяем его в БД.*/
+    securityDevice.ip = ip;
+    securityDevice.lastActiveDate = lastActiveDate;
+    await securityDevice.save();
+    /*Сообщаем, что устройство пользователя было изменено.*/
+    return 1;
   }
 
   /*Метод для удаления устройства пользователя по ID устройства в БД.*/
   async deleteById(id: string): Promise<number> {
-    /*Просим коллекцию "securityDevicesCollection" удалить устройство пользователя по ID устройства в БД.*/
-    const deleteResult: DeleteResult = await db.securityDevicesCollection.deleteOne({ deviceId: id });
-    /*Возвращаем количество удаленных устройств пользователя.*/
-    return deleteResult.deletedCount;
+    /*Просим модель "SecurityDeviceModel" найти устройство пользователя по ID в БД.*/
+    const securityDevice: HydratedDocument<SecurityDeviceType> | null = await SecurityDeviceModel.findOne({
+      deviceId: id,
+    });
+
+    /*Если устройство пользователя не было найдено, то сообщаем, что оно не было удалено.*/
+    if (!securityDevice) return 0;
+    /*Если устройство пользователя было найдено, то удаляем его в БД.*/
+    const result: DeleteResult = await securityDevice.deleteOne();
+    /*Сообщаем, что устройство пользователя было удалено.*/
+    return result.deletedCount;
   }
 
   /*Метод для удаления всех устройств пользователя, кроме текущего, в БД.*/
   async deleteAllExceptCurrentDevice(id: string): Promise<number> {
-    /*Просим коллекцию "securityDevicesCollection" удалить все устройства пользователя, кроме текущего, в БД.*/
-    const deleteResult: DeleteResult = await db.securityDevicesCollection.deleteMany({ deviceId: { $ne: id } });
+    /*Просим модель "SecurityDeviceModel" удалить все устройства пользователя, кроме текущего, в БД.*/
+    const result: DeleteResult = await SecurityDeviceModel.deleteMany({ deviceId: { $ne: id } });
     /*Возвращаем количество удаленных устройств пользователя.*/
-    return deleteResult.deletedCount;
+    return result.deletedCount ?? 0;
   }
 
   /*Метод для удаления всех устройств пользователя по ID пользователя в БД.*/
   async deleteAllByUserId(userId: string): Promise<number> {
-    /*Просим коллекцию "securityDevicesCollection" удалить все устройства пользователя по ID пользователя в БД.*/
-    const deleteResult: DeleteResult = await db.securityDevicesCollection.deleteMany({ userId });
+    /*Просим модель "SecurityDeviceModel" удалить все устройства пользователя по ID пользователя в БД.*/
+    const result: DeleteResult = await SecurityDeviceModel.deleteMany({ userId });
     /*Возвращаем количество удаленных устройств пользователя.*/
-    return deleteResult.deletedCount;
+    return result.deletedCount ?? 0;
   }
 }

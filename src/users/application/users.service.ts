@@ -107,10 +107,10 @@ export class UsersService {
   }
 
   /*Метод для подтверждения регистрации пользователя по коду.*/
-  async confirmByCode(code: string): Promise<Result<{} | null>> {
+  async confirmByCode(confirmationCode: string): Promise<Result<{} | null>> {
     /*Просим сервис "authService" найти данные о подтверждении регистрации пользователя по коду подтверждения.*/
     const emailConfirmationResult: Result<{ emailConfirmationOutput: EmailConfirmationType } | null> =
-      await this.authService.findEmailConfirmationByCode(code);
+      await this.authService.findEmailConfirmationByCode(confirmationCode);
 
     /*Если данные о подтверждении регистрации пользователя не были найдены, то возвращаем ResultObject с информацией об
     этом.*/

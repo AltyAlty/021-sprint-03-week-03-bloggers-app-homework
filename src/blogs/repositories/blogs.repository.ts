@@ -1,46 +1,55 @@
-import { DeleteResult, InsertOneResult, ObjectId, UpdateResult } from 'mongodb';
-import { db } from '../../db/mongodb/mongo.db';
 import { BlogType } from '../application/types/blog.type';
 import { UpdateBlogByIdInputDTO } from '../routes/input-dto/update-blog-by-id.input-dto';
 import { BlogDBType } from './types/blog-db.type';
 import { injectable } from 'inversify';
+import { BlogModel } from './models/blog.model';
+import { HydratedDocument } from 'mongoose';
+import { DeleteResult } from 'mongodb';
 
 /*Репозиторий для работы с блогами в БД.*/
 @injectable()
 export class BlogsRepository {
   /*Метод для добавления блога в БД.*/
   async create(newBlog: BlogType): Promise<string> {
-    /*Просим коллекцию "blogsCollection" создать блог в БД.*/
-    const insertResult: InsertOneResult<BlogType> = await db.blogsCollection.insertOne(newBlog);
+    /*Просим модель "BlogModel" создать блог в БД.*/
+    const blog: HydratedDocument<BlogType> = new BlogModel(newBlog);
+    await blog.save();
     /*Возвращаем ID созданного блога.*/
-    return insertResult.insertedId.toString();
+    return blog._id.toString();
   }
 
   /*Метод для поиска блога по ID в БД.*/
   async findById(id: string): Promise<BlogDBType | null> {
-    /*Просим коллекцию "blogsCollection" найти блог по ID в БД.*/
-    const blog: BlogDBType | null = await db.blogsCollection.findOne({ _id: new ObjectId(id) });
+    /*Просим модель "BlogModel" найти блог по ID в БД.*/
+    const blog: BlogDBType | null = await BlogModel.findById(id).lean();
     /*Если блог был найден, то возвращаем его, иначе возвращаем null.*/
     return blog ?? null;
   }
 
   /*Метод для изменения блога по ID в БД.*/
   async updateById(id: string, dto: UpdateBlogByIdInputDTO): Promise<number> {
-    /*Просим коллекцию "blogsCollection" изменить блог по ID в БД.*/
-    const updateResult: UpdateResult<BlogType> = await db.blogsCollection.updateOne(
-      { _id: new ObjectId(id) },
-      { $set: { name: dto.name, description: dto.description, websiteUrl: dto.websiteUrl } }
-    );
-
-    /*Возвращаем количество блогов, попавших под фильтр.*/
-    return updateResult.matchedCount;
+    /*Просим модель "BlogModel" найти блог по ID в БД.*/
+    const blog: HydratedDocument<BlogType> | null = await BlogModel.findById(id);
+    /*Если блог не был найден, то сообщаем, что он не был изменен.*/
+    if (!blog) return 0;
+    /*Если блог был найден, то изменяем его в БД.*/
+    blog.name = dto.name;
+    blog.description = dto.description;
+    blog.websiteUrl = dto.websiteUrl;
+    await blog.save();
+    /*Сообщаем, что блог был изменен.*/
+    return 1;
   }
 
   /*Метод для удаления блога по ID в БД.*/
   async deleteById(id: string): Promise<number> {
-    /*Просим коллекцию "blogsCollection" удалить блог по ID в БД.*/
-    const deleteResult: DeleteResult = await db.blogsCollection.deleteOne({ _id: new ObjectId(id) });
-    /*Возвращаем количество удаленных блогов.*/
-    return deleteResult.deletedCount;
+    /*Просим модель "BlogModel" найти блог по ID в БД.*/
+    const blog: HydratedDocument<BlogType> | null = await BlogModel.findById(id);
+    /*Если блог не был найден, то сообщаем, что он не был удален.*/
+    if (!blog) return 0;
+    /*Если блог был найден, то удаляем его в БД.*/
+    const result: DeleteResult = await blog.deleteOne();
+    /*Сообщаем, что блог был удален.*/
+    return result.deletedCount;
   }
 }

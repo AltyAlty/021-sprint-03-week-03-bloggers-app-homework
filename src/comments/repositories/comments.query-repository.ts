@@ -1,21 +1,21 @@
-import { Filter, ObjectId } from 'mongodb';
+import { Filter } from 'mongodb';
 import { CommentType } from '../application/types/comment.type';
-import { db } from '../../db/mongodb/mongo.db';
 import { GetCommentListByPostIdQueryInputDTO } from '../routes/input-dto/query/get-comment-list-by-post-id-query.input-dto';
 import { SortDirection } from '../../core/types/pagination/sort-direction';
 import { CommentSortFieldQueryInputDTO } from '../routes/input-dto/query/comment-sort-field-query.input-dto';
 import { CommentDBType } from './types/comment-db.type';
 import { injectable } from 'inversify';
 import { CommentListDBType } from './types/comment-list-db.type';
+import { CommentModel } from './models/comment.model';
 
 /*Query-репозиторий для работы с комментариями в БД.*/
 @injectable()
 export class CommentsQueryRepository {
   /*Метод для поиска комментария по ID в БД.*/
   async findById(id: string): Promise<CommentDBType | null> {
-    /*Просим коллекцию "commentsCollection" найти комментарий по ID в БД.*/
-    const comment: CommentDBType | null = await db.commentsCollection.findOne({ _id: new ObjectId(id) });
-    /*Если комментарий был найден, то возвращаем его, иначе возвращаем null.*/
+    /*Просим модель "CommentModel" найти комментарий по ID в БД.*/
+    const comment: CommentDBType | null = await CommentModel.findById(id).lean();
+    /*Если комментарий был найден, то возвращаем его, иначе null.*/
     return comment ?? null;
   }
 
@@ -45,16 +45,15 @@ export class CommentsQueryRepository {
     /*Добавляем в фильтр ID поста.*/
     filter.postId = postId;
 
-    /*Просим коллекцию "commentsCollection" найти комментарии в посте по ID в БД и подсчитать общее количество
-    документов, подходящих под фильтр, без учета пагинации.*/
+    /*Просим модель "CommentModel" найти комментарии в посте по ID в БД и подсчитать общее количество документов,
+    подходящих под фильтр, без учета пагинации.*/
     const [items, totalCount]: [CommentListDBType, number] = await Promise.all([
-      db.commentsCollection
-        .find(filter)
+      CommentModel.find(filter)
         .sort({ [sortBy]: sortDirection })
         .skip(skip)
         .limit(pageSize)
-        .toArray(),
-      db.commentsCollection.countDocuments(filter),
+        .lean(),
+      CommentModel.countDocuments(filter),
     ]);
 
     /*Возвращаем данные по комментариям.*/

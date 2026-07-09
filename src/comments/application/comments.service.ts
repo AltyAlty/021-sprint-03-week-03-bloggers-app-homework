@@ -129,13 +129,8 @@ export class CommentsService {
   }
 
   /*Метод для удаления комментариев по ID пользователя.*/
-  async deleteAllByUserId(userId: string): Promise<Result<{ deletedCommentsCount: number } | null>> {
-    /*Просим сервис "usersService" найти пользователя по ID.*/
-    const userResult: Result<{ userOutput: UserOutputDTO } | null> = await this.usersService.findById(userId);
-    /*Если пользователь не был найден, то возвращаем ResultObject с информацией об этом.*/
-    if (userResult.status !== ResultStatuses.Ok) return userResult as Result;
-    /*Если пользователь был найден, то просим репозиторий "commentsRepository" удалить комментарии по ID пользователя в
-    БД.*/
+  async deleteAllByUserId(userId: string): Promise<Result<{ deletedCommentsCount: number }>> {
+    /*Просим репозиторий "commentsRepository" удалить комментарии по ID пользователя в БД.*/
     const deletedCommentsCount: number = await this.commentsRepository.deleteAllByUserId(userId);
     /*Возвращаем ResultObject с информацией об удалении комментариев.*/
     return { status: ResultStatuses.NoContent, data: { deletedCommentsCount }, extensions: [] };

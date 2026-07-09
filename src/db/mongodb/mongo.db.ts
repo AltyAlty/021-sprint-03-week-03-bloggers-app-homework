@@ -1,97 +1,45 @@
-import { Collection, Db, MongoClient } from 'mongodb';
-import { SETTINGS } from '../../core/settings/settings';
-import { BlogType } from '../../blogs/application/types/blog.type';
-import { PostType } from '../../posts/application/types/post.type';
-import { UserType } from '../../users/application/types/user.type';
-import { CommentType } from '../../comments/application/types/comment.type';
-import { SessionType } from '../../auth/application/types/session.type';
-import { SecurityDeviceType } from '../../security-devices/application/types/security-device.type';
-import { RequestRateLimitLogType } from '../../auth/application/types/request-rate-limit-log.type';
-import { EmailConfirmationType } from '../../auth/application/types/email-сonfirmation.type';
-import { RecoveryCodeDataType } from '../../auth/application/types/recovery-code-data.type';
+import mongoose from 'mongoose';
+import { BlogModel } from '../../blogs/repositories/models/blog.model';
+import { PostModel } from '../../posts/repositories/models/post.model';
+import { CommentModel } from '../../comments/repositories/models/comment.model';
+import { UserModel } from '../../users/repositories/models/user.model';
+import { EmailConfirmationModel } from '../../auth/repositories/models/email-сonfirmation.model';
+import { SessionModel } from '../../auth/repositories/models/session.model';
+import { SecurityDeviceModel } from '../../security-devices/repositories/models/security-device.model';
+import { RequestRateLimitLogModel } from '../../auth/repositories/models/request-rate-limit-log.model';
+import { RecoveryCodeDataModel } from '../../auth/repositories/models/recovery-code-data.model';
 
 /*Объект для работы с MongoDB.*/
 export const db = {
-  /*Клиент для MongoDB.*/
-  client: {} as MongoClient,
-
-  /*БД для подключения клиента для MongoDB.*/
-  db: {} as Db,
-
-  /*Коллекции.*/
-  blogsCollection: {} as Collection<BlogType>,
-  postsCollection: {} as Collection<PostType>,
-  commentsCollection: {} as Collection<CommentType>,
-  usersCollection: {} as Collection<UserType>,
-  emailConfirmationsCollection: {} as Collection<EmailConfirmationType>,
-  sessionsCollection: {} as Collection<SessionType>,
-  securityDevicesCollection: {} as Collection<SecurityDeviceType>,
-  requestRateLimitLogsCollection: {} as Collection<RequestRateLimitLogType>,
-  recoveryPasswordCodesDataCollection: {} as Collection<RecoveryCodeDataType>,
-
   /*Метод для подключения к серверу MongoDB.*/
   async runDB(url: string, dbName: string): Promise<void> {
     try {
-      /*Создаем клиент для MongoDB.*/
-      this.client = new MongoClient(url);
-      /*Присоединяем клиента для MongoDB к серверу и проверяем соединение.*/
-      await this.client.connect();
-      /*Указываем БД, к которой будет подключаться клиент для MongoDB.*/
-      this.db = this.client.db(dbName);
-      await this.db.command({ ping: 1 });
-      // console.log('✅ Successfully connected to a MongoDB server');
-      /*Создаем коллекции в указанной БД.*/
-      this.blogsCollection = this.db.collection<BlogType>(SETTINGS.BLOGS_COLLECTION_NAME);
-      this.postsCollection = this.db.collection<PostType>(SETTINGS.POSTS_COLLECTION_NAME);
-      this.commentsCollection = this.db.collection<CommentType>(SETTINGS.COMMENTS_COLLECTION_NAME);
-      this.usersCollection = this.db.collection<UserType>(SETTINGS.USERS_COLLECTION_NAME);
+      /*Присоединяемся к серверу MongoDB и проверяем соединение.*/
+      await mongoose.connect(url, { dbName });
+      await mongoose.connection.db?.command({ ping: 1 });
 
-      this.emailConfirmationsCollection = this.db.collection<EmailConfirmationType>(
-        SETTINGS.EMAIL_CONFIRMATIONS_COLLECTION_NAME
-      );
-
-      await this.emailConfirmationsCollection.createIndex(
-        { expirationDate: 1 },
-        { expireAfterSeconds: SETTINGS.COMPLETE_REGISTRATION_CODE_EXPIRATION_TIME_IN_DB_IN_SECONDS }
-      );
-
-      this.sessionsCollection = this.db.collection<SessionType>(SETTINGS.SESSIONS_COLLECTION_NAME);
-      await this.sessionsCollection.createIndex({ exp: 1 }, { expireAfterSeconds: 0 });
-
-      this.securityDevicesCollection = this.db.collection<SecurityDeviceType>(
-        SETTINGS.SECURITY_DEVICES_COLLECTION_NAME
-      );
-
-      this.requestRateLimitLogsCollection = this.db.collection<RequestRateLimitLogType>(
-        SETTINGS.REQUEST_RATE_LIMIT_LOGS_COLLECTION_NAME
-      );
-
-      await this.requestRateLimitLogsCollection.createIndex(
-        { timestamp: 1 },
-        { expireAfterSeconds: SETTINGS.REQUEST_RATE_LIMIT_LOG_EXPIRATION_TIME_IN_SECONDS }
-      );
-
-      /*Используем составной индекс, чтобы ускорить работу метода "countDocuments()".*/
-      await this.requestRateLimitLogsCollection.createIndex({ ip: 1, url: 1, timestamp: -1 });
-
-      this.recoveryPasswordCodesDataCollection = this.db.collection<RecoveryCodeDataType>(
-        SETTINGS.RECOVERY_PASSWORD_CODES_DATA_COLLECTION_NAME
-      );
-
-      await this.recoveryPasswordCodesDataCollection.createIndex(
-        { expirationDate: 1 },
-        { expireAfterSeconds: SETTINGS.PASSWORD_RECOVERY_CODE_EXPIRATION_TIME_IN_DB_IN_SECONDS }
-      );
+      /*При помощи метода "syncIndexes()" создаем и обновляем индексы в БД на основе метаданных об индексах, указанных в
+      схемах. Если в схеме не было указано индексов, то метод "syncIndexes()" ничего не сделает.*/
+      await Promise.all([
+        BlogModel.syncIndexes(),
+        PostModel.syncIndexes(),
+        CommentModel.syncIndexes(),
+        UserModel.syncIndexes(),
+        EmailConfirmationModel.syncIndexes(),
+        SessionModel.syncIndexes(),
+        SecurityDeviceModel.syncIndexes(),
+        RequestRateLimitLogModel.syncIndexes(),
+        RecoveryCodeDataModel.syncIndexes(),
+      ]);
     } catch (error: unknown) {
-      if (this.client) await this.client.close();
+      await mongoose.disconnect();
       throw new Error(`❌ Cannot connect to a MongoDB server: ${error}`);
     }
   },
 
   /*Метод для отключения от сервера MongoDB.*/
   async stopDB(): Promise<void> {
-    if (!this.client) throw new Error(`❌ No MongoDB clients`);
-    await this.client.close();
+    await mongoose.disconnect();
     // console.log('✅ Connection successfully closed');
   },
 
@@ -100,23 +48,22 @@ export const db = {
     try {
       /*Очищаем коллекции.*/
       await Promise.all([
-        this.blogsCollection.deleteMany(),
-        this.postsCollection.deleteMany(),
-        this.commentsCollection.deleteMany(),
-        this.usersCollection.deleteMany(),
-        this.emailConfirmationsCollection.deleteMany(),
-        this.sessionsCollection.deleteMany(),
-        this.securityDevicesCollection.deleteMany(),
-        this.requestRateLimitLogsCollection.deleteMany(),
+        BlogModel.deleteMany({}),
+        PostModel.deleteMany({}),
+        CommentModel.deleteMany({}),
+        UserModel.deleteMany({}),
+        EmailConfirmationModel.deleteMany({}),
+        SessionModel.deleteMany({}),
+        SecurityDeviceModel.deleteMany({}),
+        RequestRateLimitLogModel.deleteMany({}),
+        RecoveryCodeDataModel.deleteMany({}),
       ]);
+
+      /*Удаляем коллекции и индексы.*/
+      await mongoose.connection.dropDatabase();
     } catch (error: unknown) {
       console.error(`❌ Error while dropping DB: ${error}`);
-
-      try {
-        await this.stopDB();
-      } catch (stopDBError) {
-        console.error(`❌ Error while stopping DB: ${stopDBError}`);
-      }
+      await this.stopDB();
     }
   },
 };

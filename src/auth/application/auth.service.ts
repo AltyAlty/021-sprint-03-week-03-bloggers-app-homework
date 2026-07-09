@@ -89,8 +89,17 @@ export class AuthService {
     const { iat: refreshTokenIat, exp: refreshTokenExp }: { iat: number; exp: number } = refreshTokenPayload;
     const refreshTokenIatDate: Date = new Date(refreshTokenIat * 1000);
     const refreshTokenExpDate: Date = new Date(refreshTokenExp * 1000);
+
     /*Просим репозиторий "authRepository" добавить сессию в БД.*/
-    await this.authRepository.createSession(userId, deviceId, deviceName, ip, refreshTokenIatDate, refreshTokenExpDate);
+    await this.authRepository.createSession({
+      userId,
+      deviceId,
+      deviceName,
+      ip,
+      iat: refreshTokenIatDate,
+      exp: refreshTokenExpDate,
+    });
+
     /*Просим сервис "securityDevicesService" добавить устройство пользователя.*/
     await this.securityDevicesService.create({ deviceId, title: deviceName, ip, lastActiveDate: refreshTokenIatDate });
     /*Возвращаем ResultObject с AT и RT.*/
@@ -107,8 +116,13 @@ export class AuthService {
     const createUserResult: Result<{ createdUserId: string }> = await this.usersService.create(dto, true);
     /*Получаем ID созданного пользователя.*/
     const createdUserId: string = createUserResult.data.createdUserId;
+
     /*Просим сервис "authService" создать данные о подтверждении регистрации пользователя.*/
-    await this.createEmailConfirmation(createdUserId, newUserConfirmationCode, newUserExpirationDate);
+    await this.createEmailConfirmation({
+      userId: createdUserId,
+      confirmationCode: newUserConfirmationCode,
+      expirationDate: newUserExpirationDate,
+    });
 
     /*Просим адаптер "nodemailerAdapter" отправить письмо о подтверждении регистрации пользователя.*/
     this.nodemailerAdapter
@@ -172,12 +186,13 @@ export class AuthService {
     const { iat: refreshTokenIat, exp: refreshTokenExp }: { iat: number; exp: number } = refreshTokenPayload;
     const refreshTokenIatDate: Date = new Date(refreshTokenIat * 1000);
     const refreshTokenExpDate: Date = new Date(refreshTokenExp * 1000);
+
     /*Просим репозиторий "authRepository" изменить сессию по дате создания RT в БД.*/
     await this.authRepository.updateSessionByIat(
       currentRefreshTokenIatDate,
+      ip,
       refreshTokenIatDate,
-      refreshTokenExpDate,
-      ip
+      refreshTokenExpDate
     );
 
     /*Просим сервис "securityDevicesService" изменить устройство пользователя по ID.*/
@@ -194,9 +209,14 @@ export class AuthService {
   }
 
   /*Метод для создания данных о подтверждении регистрации пользователя.*/
-  async createEmailConfirmation(userId: string, confirmationCode: string, expirationDate: Date): Promise<Result<{}>> {
+  async createEmailConfirmation(emailConfirmation: EmailConfirmationType): Promise<Result<{}>> {
     /*Просим репозиторий "authRepository" создать данные о подтверждении регистрации пользователя в БД.*/
-    await this.authRepository.createEmailConfirmation(userId, confirmationCode, expirationDate);
+    await this.authRepository.createEmailConfirmation({
+      userId: emailConfirmation.userId,
+      confirmationCode: emailConfirmation.confirmationCode,
+      expirationDate: emailConfirmation.expirationDate,
+    });
+
     /*Возвращаем ResultObject с информацией о создании данных о подтверждении регистрации пользователя.*/
     return { status: ResultStatuses.Created, data: {}, extensions: [] };
   }
@@ -219,8 +239,13 @@ export class AuthService {
     const recoveryCode: string = randomUUID();
     /*Генерируем дату истечения кода восстановления пароля пользователя.*/
     const recoveryCodeExpirationDate: Date = add(new Date(), SETTINGS.PASSWORD_RECOVERY_CODE_EXPIRATION_TIME);
+
     /*Просим репозиторий "authRepository" создать данные о коде восстановления пароля пользователя в БД.*/
-    await this.authRepository.createRecoveryPasswordCodeData(userId, recoveryCode, recoveryCodeExpirationDate);
+    await this.authRepository.createRecoveryPasswordCodeData({
+      userId,
+      recoveryCode,
+      expirationDate: recoveryCodeExpirationDate,
+    });
 
     /*Просим адаптер "nodemailerAdapter" отправить письмо с кодом восстановления пароля пользователя.*/
     this.nodemailerAdapter
@@ -243,12 +268,12 @@ export class AuthService {
 
   /*Метод для поиска данных о подтверждении регистрации пользователя по коду подтверждения.*/
   async findEmailConfirmationByCode(
-    code: string
+    confirmationCode: string
   ): Promise<Result<{ emailConfirmationOutput: EmailConfirmationType } | null>> {
     /*Просим репозиторий "authRepository" найти данные о подтверждении регистрации пользователя по коду подтверждения в
     БД.*/
     const emailConfirmationDB: EmailConfirmationDBType | null =
-      await this.authRepository.findEmailConfirmationByCode(code);
+      await this.authRepository.findEmailConfirmationByCode(confirmationCode);
 
     /*Если данные о подтверждении регистрации пользователя не были найдены, то возвращаем ResultObject с информацией об
     этом.*/
@@ -320,8 +345,13 @@ export class AuthService {
 
     /*Если пользователь был найден, то получаем ID пользователя.*/
     const userId: string = userResult.data!.userOutputWithIsConfirmedAndPasswordHash.id;
+
     /*Просим сервис "authService" изменить данные о подтверждении регистрации пользователя по ID пользователя.*/
-    await this.updateEmailConfirmationByUserId(userId, newUserConfirmationCode, newUserExpirationDate);
+    await this.updateEmailConfirmationByUserId({
+      userId,
+      confirmationCode: newUserConfirmationCode,
+      expirationDate: newUserExpirationDate,
+    });
 
     /*Просим адаптер "nodemailerAdapter" повторно отправить письмо о подтверждении регистрации пользователя.*/
     this.nodemailerAdapter
@@ -338,22 +368,24 @@ export class AuthService {
   }
 
   /*Метод для изменения данных о подтверждении регистрации пользователя по ID пользователя.*/
-  async updateEmailConfirmationByUserId(
-    userId: string,
-    confirmationCode: string,
-    expirationDate: Date
-  ): Promise<Result<{}>> {
+  async updateEmailConfirmationByUserId(emailConfirmation: EmailConfirmationType): Promise<Result<{}>> {
     /*Просим репозиторий "authRepository" изменить данные для подтверждения регистрации пользователя по ID пользователя
     в БД.*/
     const updatedEmailConfirmationCount: number = await this.authRepository.updateEmailConfirmationByUserId(
-      userId,
-      confirmationCode,
-      expirationDate
+      emailConfirmation.userId,
+      emailConfirmation.confirmationCode,
+      emailConfirmation.expirationDate
     );
 
     /*Если данные о подтверждении регистрации пользователя не были найдены, то просим сервис "authService" создать
     данные о подтверждении регистрации пользователя.*/
-    if (updatedEmailConfirmationCount < 1) await this.createEmailConfirmation(userId, confirmationCode, expirationDate);
+    if (updatedEmailConfirmationCount < 1)
+      await this.createEmailConfirmation({
+        userId: emailConfirmation.userId,
+        confirmationCode: emailConfirmation.confirmationCode,
+        expirationDate: emailConfirmation.expirationDate,
+      });
+
     /*Возвращаем ResultObject с информацией об изменении данных о подтверждении регистрации пользователя.*/
     return { status: ResultStatuses.NoContent, data: {}, extensions: [] };
   }
