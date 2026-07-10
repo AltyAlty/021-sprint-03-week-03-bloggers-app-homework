@@ -224,14 +224,11 @@ export class AuthService {
   /*Метод для отправки письма с кодом восстановления пароля пользователя.*/
   async sendRecoveryPasswordCode(email: string): Promise<Result<{}>> {
     /*Просим сервис "usersService" найти пользователя по email.*/
-    const userResult: Result<{
-      userOutputWithIsConfirmedAndPasswordHash: UserOutputDTO & { isConfirmed: boolean; passwordHash: string };
-    } | null> = await this.usersService.findByLoginOrEmail(email);
-
+    const userResult: Result<{ userOutput: UserOutputDTO } | null> = await this.usersService.findByEmail(email);
     /*Если пользователь не был найден, то возвращаем ResultObject с информацией об этом.*/
     if (userResult.status !== ResultStatuses.Ok) return { status: ResultStatuses.NoContent, data: {}, extensions: [] };
     /*Если пользователь был найден, то получаем ID пользователя.*/
-    const userId: string = userResult.data!.userOutputWithIsConfirmedAndPasswordHash.id;
+    const userId: string = userResult.data!.userOutput.id;
     /*Просим репозиторий "authRepository" удалить данные о всех кодах восстановления пароля пользователя по ID
     пользователя в БД.*/
     await this.authRepository.deleteAllRecoveryCodesDataByUserId(userId);
@@ -327,11 +324,8 @@ export class AuthService {
     const newUserConfirmationCode: string = randomUUID();
     /*Генерируем дату истечения кода подтверждения регистрации пользователя.*/
     const newUserExpirationDate: Date = add(new Date(), SETTINGS.COMPLETE_REGISTRATION_CODE_EXPIRATION_TIME);
-
     /*Просим сервис "usersService" найти пользователя по email.*/
-    const userResult: Result<{
-      userOutputWithIsConfirmedAndPasswordHash: UserOutputDTO & { isConfirmed: boolean; passwordHash: string };
-    } | null> = await this.usersService.findByLoginOrEmail(email);
+    const userResult: Result<{ userOutput: UserOutputDTO } | null> = await this.usersService.findByEmail(email);
 
     /*Если пользователь не был найден, то возвращаем ResultObject с информацией об этом.*/
     if (userResult.status !== ResultStatuses.Ok) {
@@ -344,7 +338,7 @@ export class AuthService {
     }
 
     /*Если пользователь был найден, то получаем ID пользователя.*/
-    const userId: string = userResult.data!.userOutputWithIsConfirmedAndPasswordHash.id;
+    const userId: string = userResult.data!.userOutput.id;
 
     /*Просим сервис "authService" изменить данные о подтверждении регистрации пользователя по ID пользователя.*/
     await this.updateEmailConfirmationByUserId({

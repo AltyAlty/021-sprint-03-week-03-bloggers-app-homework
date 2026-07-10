@@ -6,15 +6,51 @@ import { container } from '../../ioc/container';
 import { TYPES } from '../../ioc/types';
 import { AuthRepository } from '../repositories/auth.repository';
 import { UsersRepository } from '../../users/repositories/users.repository';
+import { normalizeEmail } from '../../core/utils/email/normalize-email.util';
 
-const loginOrEmailValidation: ValidationChain = body('loginOrEmail')
+/*Функция для валидации логина.*/
+const validateLoginValue = (value: unknown): string => {
+  if (!value) throw new Error('Login is required');
+  if (typeof value !== 'string') throw new Error('Login must be a string');
+  const trimmed = value.trim();
+  if (trimmed.length === 0) throw new Error('Login must not be empty');
+  if (trimmed.length < 3 || trimmed.length > 10) throw new Error('Login must be between 3 and 10 characters');
+
+  if (!/^[a-zA-Z0-9_-]*$/.test(trimmed)) {
+    throw new Error('Login can only contain letters, numbers, underscores and hyphens');
+  }
+
+  return trimmed;
+};
+
+/*Функция для валидации email.*/
+export function validateEmailValue(value: unknown): string {
+  if (!value) throw new Error('Email is required');
+  if (typeof value !== 'string') throw new Error('Email must be a string');
+  const trimmed = value.trim();
+  if (trimmed.length === 0) throw new Error('Email must not be empty');
+  if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(trimmed)) throw new Error('Email is invalid');
+  return trimmed;
+}
+
+export const loginOrEmailValidation = body('loginOrEmail')
   .exists()
   .withMessage('Field "loginOrEmail" is required')
   .isString()
   .withMessage('Field "loginOrEmail" must be a string')
   .trim()
   .notEmpty()
-  .withMessage('Field "loginOrEmail" must not be empty');
+  .withMessage('Field "loginOrEmail" must not be empty')
+  .custom(value => {
+    /*Проверяем является ли поле "loginOrEmail" email-ом.*/
+    const isEmail = value.includes('@') && value.includes('.');
+
+    /*Валидируем поле "loginOrEmail" либо как email, либо как логин.*/
+    if (isEmail) validateEmailValue(normalizeEmail(value));
+    else validateLoginValue(value);
+
+    return true;
+  });
 
 const passwordValidation: ValidationChain = body('password')
   .exists()
@@ -129,7 +165,7 @@ export const registrationEmailResendingValidation: ValidationChain = body('email
   .withMessage('Field "email" is invalid')
   .custom(async (email: string) => {
     const usersRepository = container.get<UsersRepository>(TYPES.UsersRepository);
-    const userDB: UserDBType | null = await usersRepository.findByEmail(email);
+    const userDB: UserDBType | null = await usersRepository.findByEmail(normalizeEmail(email));
     if (!userDB) throw new Error('Field "email" is invalid');
     if (userDB.isConfirmed) throw new Error('Registration has already been confirmed');
     return true;
@@ -138,7 +174,6 @@ export const registrationEmailResendingValidation: ValidationChain = body('email
 /*Комбинируем вышеуказанные middlewares в один middleware для использования его при проверке запросов по аутентификации
 пользователя.*/
 export const authUserInputValidation = [loginOrEmailValidation, passwordValidation];
-
 /*Комбинируем вышеуказанные middlewares в один middleware для использования его при проверке запросов по установлению
 нового пароля пользователя по коду восстановления.*/
 export const setNewPasswordByRecoveryCodeInputValidation = [newPasswordValidation, recoveryCodeValidation];

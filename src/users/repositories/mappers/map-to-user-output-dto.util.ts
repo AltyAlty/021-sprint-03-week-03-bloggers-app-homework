@@ -6,7 +6,7 @@ export const mapToUserOutputDTO = (user: UserDBType): UserOutputDTO => {
   return {
     id: user._id.toString(),
     login: user.login,
-    email: user.email,
+    email: user.originalEmail,
     createdAt: user.createdAt,
   };
 };

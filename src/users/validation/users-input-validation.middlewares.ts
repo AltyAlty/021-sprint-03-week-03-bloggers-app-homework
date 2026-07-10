@@ -3,6 +3,7 @@ import { UserDBType } from '../repositories/types/user-db.type';
 import { container } from '../../ioc/container';
 import { UsersRepository } from '../repositories/users.repository';
 import { TYPES } from '../../ioc/types';
+import { normalizeEmail } from '../../core/utils/email/normalize-email.util';
 
 /*Middleware для проверки, что поле "login":
 1. Существует в запросе.
@@ -65,7 +66,7 @@ const emailValidation: ValidationChain = body('email')
     const usersRepository = container.get<UsersRepository>(TYPES.UsersRepository);
     /*Просим репозиторий "usersRepository" найти пользователя по email в БД. Если пользователь будет найден, то это
     будет означать, что email не уникальный. В таком случае выкидываем ошибку с информацией об этом.*/
-    const user: UserDBType | null = await usersRepository.findByEmail(email);
+    const user: UserDBType | null = await usersRepository.findByEmail(normalizeEmail(email));
     if (user) throw new Error('Field "email" must be unique');
     return true;
   });

@@ -35,6 +35,7 @@ import { SecurityDeviceOutputDTO } from '../../../src/security-devices/routes/ou
 import { container } from '../../../src/ioc/container';
 import { TYPES } from '../../../src/ioc/types';
 import { SessionListDBType } from '../../../src/auth/repositories/types/session-list-db.type';
+import { loginUser } from '../../utils/auth/login-user.test-util';
 
 describe('Auth API Validation', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -45,21 +46,94 @@ describe('Auth API Validation', () => {
     const createdUser: UserOutputDTO = await createUser(app, getCreateUserInputDTO());
     const testStatus: HttpStatuses = HttpStatuses.BadRequest_400;
 
-    await loginUserReturnAccessToken(app, { loginOrEmail: invalidUserLoginsOrEmails.loginOrEmail_01 }, testStatus);
-    await loginUserReturnAccessToken(app, { loginOrEmail: invalidUserLoginsOrEmails.loginOrEmail_02 }, testStatus);
-    await loginUserReturnAccessToken(app, { loginOrEmail: invalidUserLoginsOrEmails.loginOrEmail_03 }, testStatus);
-    await loginUserReturnAccessToken(app, { password: invalidUserPasswords.password_01 }, testStatus);
-    await loginUserReturnAccessToken(app, { password: invalidUserPasswords.password_02 }, testStatus);
+    const loginUserResponse_01: any = await loginUser(
+      app,
+      { loginOrEmail: invalidUserLoginsOrEmails.loginOrEmail_01 },
+      testStatus
+    );
+
+    const loginUserResponse_02: any = await loginUser(
+      app,
+      { loginOrEmail: invalidUserLoginsOrEmails.loginOrEmail_02 },
+      testStatus
+    );
+
+    const loginUserResponse_03: any = await loginUser(
+      app,
+      { loginOrEmail: invalidUserLoginsOrEmails.loginOrEmail_03 },
+      testStatus
+    );
+
+    const loginUserResponse_04: any = await loginUser(
+      app,
+      { loginOrEmail: invalidUserLoginsOrEmails.loginOrEmail_04 },
+      testStatus
+    );
+
+    const loginUserResponse_05: any = await loginUser(
+      app,
+      { loginOrEmail: invalidUserLoginsOrEmails.loginOrEmail_05 },
+      testStatus
+    );
+
     await delay(5000);
     await setTimeout(5000);
-    await loginUserReturnAccessToken(app, { password: invalidUserPasswords.password_03 }, testStatus);
-    await loginUserReturnAccessToken(app, { password: invalidUserPasswords.password_04 }, testStatus);
-    await loginUserReturnAccessToken(app, { password: invalidUserPasswords.password_05 }, testStatus);
-    await loginUserReturnAccessToken(app, { password: invalidUserPasswords.password_06 }, testStatus);
+
+    const loginUserResponse_06: any = await loginUser(
+      app,
+      { loginOrEmail: invalidUserLoginsOrEmails.loginOrEmail_06 },
+      testStatus
+    );
+
+    const loginUserResponse_07: any = await loginUser(
+      app,
+      { loginOrEmail: invalidUserLoginsOrEmails.loginOrEmail_07 },
+      testStatus
+    );
+
+    const loginUserResponse_08: any = await loginUser(app, { password: invalidUserPasswords.password_01 }, testStatus);
+    const loginUserResponse_09: any = await loginUser(app, { password: invalidUserPasswords.password_02 }, testStatus);
+    const loginUserResponse_10: any = await loginUser(app, { password: invalidUserPasswords.password_03 }, testStatus);
+    await delay(5000);
+    await setTimeout(5000);
+    const loginUserResponse_11: any = await loginUser(app, { password: invalidUserPasswords.password_04 }, testStatus);
+    const loginUserResponse_12: any = await loginUser(app, { password: invalidUserPasswords.password_05 }, testStatus);
+    const loginUserResponse_13: any = await loginUser(app, { password: invalidUserPasswords.password_06 }, testStatus);
+
     const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUser.id);
     expect(sessions).toBeInstanceOf(Array);
     expect(sessions.length).toBe(0);
-  }, 15000);
+    expect(loginUserResponse_01.errorsMessages[0].field).toBe('loginOrEmail');
+    expect(loginUserResponse_01.errorsMessages[0].message).toBe('Field "loginOrEmail" must not be empty');
+    expect(loginUserResponse_02.errorsMessages[0].field).toBe('loginOrEmail');
+    expect(loginUserResponse_02.errorsMessages[0].message).toBe('Field "loginOrEmail" must not be empty');
+    expect(loginUserResponse_03.errorsMessages[0].field).toBe('loginOrEmail');
+    expect(loginUserResponse_03.errorsMessages[0].message).toBe('Login must be between 3 and 10 characters');
+    expect(loginUserResponse_04.errorsMessages[0].field).toBe('loginOrEmail');
+
+    expect(loginUserResponse_04.errorsMessages[0].message).toBe(
+      'Login can only contain letters, numbers, underscores and hyphens'
+    );
+
+    expect(loginUserResponse_05.errorsMessages[0].field).toBe('loginOrEmail');
+    expect(loginUserResponse_05.errorsMessages[0].message).toBe('Login must be between 3 and 10 characters');
+    expect(loginUserResponse_06.errorsMessages[0].field).toBe('loginOrEmail');
+    expect(loginUserResponse_06.errorsMessages[0].message).toBe('Field "loginOrEmail" must be a string');
+    expect(loginUserResponse_07.errorsMessages[0].field).toBe('loginOrEmail');
+    expect(loginUserResponse_07.errorsMessages[0].message).toBe('Login must be between 3 and 10 characters');
+    expect(loginUserResponse_08.errorsMessages[0].field).toBe('password');
+    expect(loginUserResponse_08.errorsMessages[0].message).toBe('Field "password" must not be empty');
+    expect(loginUserResponse_09.errorsMessages[0].field).toBe('password');
+    expect(loginUserResponse_09.errorsMessages[0].message).toBe('Field "password" must not be empty');
+    expect(loginUserResponse_10.errorsMessages[0].field).toBe('password');
+    expect(loginUserResponse_10.errorsMessages[0].message).toBe('Field "password" must be between 6 and 20 characters');
+    expect(loginUserResponse_11.errorsMessages[0].field).toBe('password');
+    expect(loginUserResponse_11.errorsMessages[0].message).toBe('Field "password" must be between 6 and 20 characters');
+    expect(loginUserResponse_12.errorsMessages[0].field).toBe('password');
+    expect(loginUserResponse_12.errorsMessages[0].message).toBe('Field "password" must be between 6 and 20 characters');
+    expect(loginUserResponse_13.errorsMessages[0].field).toBe('password');
+    expect(loginUserResponse_13.errorsMessages[0].message).toBe('Field "password" must be a string');
+  }, 25000);
 
   it('❌ 002 should not authenticate a user when incorrect credentials passed; 001. POST /api/auth/login', async () => {
     const createUserData_01: CreateUserInputDTO = getCreateUserInputDTO();

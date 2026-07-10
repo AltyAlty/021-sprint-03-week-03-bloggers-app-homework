@@ -4,6 +4,7 @@ import { UserDBType } from './types/user-db.type';
 import { injectable } from 'inversify';
 import { UserModel } from './models/user.model';
 import { HydratedDocument } from 'mongoose';
+import { normalizeEmail } from '../../core/utils/email/normalize-email.util';
 
 /*Репозиторий для работы с пользователями в БД.*/
 @injectable()
@@ -37,7 +38,7 @@ export class UsersRepository {
   async findByLoginOrEmail(loginOrEmail: string): Promise<UserDBType | null> {
     /*Просим модель "UserModel" найти пользователя по логину/email в БД.*/
     const user: UserDBType | null = await UserModel.findOne({
-      $or: [{ email: loginOrEmail }, { login: loginOrEmail }],
+      $or: [{ email: normalizeEmail(loginOrEmail) }, { login: loginOrEmail }],
     }).lean();
 
     /*Если пользователь был найден, то возвращаем его, иначе null.*/

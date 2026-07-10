@@ -15,7 +15,7 @@ export const mapToPaginatedUserListOutputDTO = (
     items: users.map((user): UserOutputDTO => ({
       id: user._id.toString(),
       login: user.login,
-      email: user.email,
+      email: user.originalEmail,
       createdAt: user.createdAt,
     })),
   };

@@ -65,7 +65,11 @@ export const invalidUserEmails = {
 export const invalidUserLoginsOrEmails = {
   loginOrEmail_01: '',
   loginOrEmail_02: '   ',
-  loginOrEmail_03: null,
+  loginOrEmail_03: '0123456789111111',
+  loginOrEmail_04: '!@#$%^&*()',
+  loginOrEmail_05: 'ab',
+  loginOrEmail_06: null,
+  loginOrEmail_07: 'user#example.com',
 };
 
 export const validUserPasswords = { password_01: 'zxc321QWE654' };

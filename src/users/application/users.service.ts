@@ -14,6 +14,7 @@ import { RecoveryCodeDataType } from '../../auth/application/types/recovery-code
 import { inject, injectable } from 'inversify';
 import { TYPES } from '../../ioc/types';
 import { lazyInject } from '../../ioc/decorators';
+import { normalizeEmail } from '../../core/utils/email/normalize-email.util';
 
 /*Сервис для работы с пользователями.*/
 @injectable()
@@ -36,7 +37,8 @@ export class UsersService {
     /*Создаем объект с данными нового пользователя.*/
     const newUser: UserType = {
       login,
-      email,
+      email: normalizeEmail(email),
+      originalEmail: email,
       passwordHash,
       createdAt: new Date(),
       isConfirmed: !isUserRegistering,
@@ -60,6 +62,27 @@ export class UsersService {
         data: null,
         errorMessage: 'Not Found',
         extensions: [{ field: 'id', message: 'User not found' }],
+      };
+    }
+
+    /*Если пользователь был найден, то преобразовываем пользователя из БД в подготовленного для отправки пользователя.*/
+    const userOutput: UserOutputDTO = mapToUserOutputDTO(userDB);
+    /*Возвращаем ResultObject с преобразованным пользователем.*/
+    return { status: ResultStatuses.Ok, data: { userOutput }, extensions: [] };
+  }
+
+  /*Метод для поиска пользователя по email.*/
+  async findByEmail(email: string): Promise<Result<{ userOutput: UserOutputDTO } | null>> {
+    /*Просим репозиторий "usersRepository" найти пользователя по email в БД.*/
+    const userDB: UserDBType | null = await this.usersRepository.findByEmail(normalizeEmail(email));
+
+    /*Если пользователь не был найден, то возвращаем ResultObject с информацией об этом.*/
+    if (!userDB) {
+      return {
+        status: ResultStatuses.NotFound,
+        data: null,
+        errorMessage: 'Not Found',
+        extensions: [{ field: 'email', message: 'User not found' }],
       };
     }
 
