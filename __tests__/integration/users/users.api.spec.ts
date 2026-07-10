@@ -18,6 +18,7 @@ import { getCommentListByPostId } from '../../utils/posts/get-comment-list-by-po
 import { getCommentById } from '../../utils/comments/get-comment-by-id.test-util';
 import { PaginatedCommentListOutputDTO } from '../../../src/comments/routes/output-dto/paginated-comment-list.output-dto';
 import { validUserData, validUsersPaginationSettings } from '../../test-data/users.test-data';
+import { validUserAgents } from '../../test-data/auth.test-data';
 
 describe('Users API', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -86,8 +87,22 @@ describe('Users API', () => {
       password: createUserData.password,
     });
 
-    const createdComment_01: CommentOutputDTO = await createCommentForPost(app, createdPostId, accessToken);
-    const createdComment_02: CommentOutputDTO = await createCommentForPost(app, createdPostId, accessToken);
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    const createdComment_01: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPostId,
+      accessToken
+    );
+
+    const createdComment_02: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPostId,
+      accessToken
+    );
+
     const testStatus: HttpStatuses = HttpStatuses.NotFound_404;
 
     await deleteUserById(app, createdUser.id);
@@ -97,12 +112,18 @@ describe('Users API', () => {
     expect(getUserListResponse.items.length).toBe(0);
     expect(getUserListResponse.totalCount).toBe(0);
     await getPostById(app, createdPostId);
-    await getCommentById(app, createdComment_01.id, testStatus);
-    await getCommentById(app, createdComment_02.id, testStatus);
+    await getCommentById(app, testUserAgent, createdComment_01.id, undefined, testStatus, false, true);
+    await getCommentById(app, testUserAgent, createdComment_02.id, undefined, testStatus, false, true);
 
     const getCommentListByPostIdResponse: PaginatedCommentListOutputDTO = await getCommentListByPostId(
       app,
-      createdPostId
+      testUserAgent,
+      createdPostId,
+      undefined,
+      undefined,
+      undefined,
+      false,
+      true
     );
 
     expect(getCommentListByPostIdResponse.items).toBeInstanceOf(Array);

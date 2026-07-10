@@ -9,7 +9,8 @@ export const revokeSessionsExceptCurrentDevice = async (
   refreshToken?: string | any,
   refreshTokenCookieString?: string | any,
   expectedStatus?: HttpStatuses,
-  noUserAgent?: boolean
+  noUserAgent?: boolean,
+  noRefreshToken?: boolean
 ): Promise<any> => {
   const testRefreshTokenCookieString: string =
     refreshTokenCookieString ?? `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure`;
@@ -18,16 +19,29 @@ export const revokeSessionsExceptCurrentDevice = async (
   let revokeSessionsExceptCurrentDeviceResponse;
 
   if (noUserAgent) {
-    revokeSessionsExceptCurrentDeviceResponse = await request(app)
-      .del(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.REVOKE_SESSIONS_EXCEPT_CURRENT_DEVICE_PATH}`)
-      .set('Cookie', testRefreshTokenCookieString)
-      .expect(testStatus);
+    if (noRefreshToken) {
+      revokeSessionsExceptCurrentDeviceResponse = await request(app)
+        .del(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.REVOKE_SESSIONS_EXCEPT_CURRENT_DEVICE_PATH}`)
+        .expect(testStatus);
+    } else {
+      revokeSessionsExceptCurrentDeviceResponse = await request(app)
+        .del(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.REVOKE_SESSIONS_EXCEPT_CURRENT_DEVICE_PATH}`)
+        .set('Cookie', testRefreshTokenCookieString)
+        .expect(testStatus);
+    }
   } else {
-    revokeSessionsExceptCurrentDeviceResponse = await request(app)
-      .del(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.REVOKE_SESSIONS_EXCEPT_CURRENT_DEVICE_PATH}`)
-      .set('Cookie', testRefreshTokenCookieString)
-      .set('User-Agent', userAgent)
-      .expect(testStatus);
+    if (noRefreshToken) {
+      revokeSessionsExceptCurrentDeviceResponse = await request(app)
+        .del(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.REVOKE_SESSIONS_EXCEPT_CURRENT_DEVICE_PATH}`)
+        .set('User-Agent', userAgent)
+        .expect(testStatus);
+    } else {
+      revokeSessionsExceptCurrentDeviceResponse = await request(app)
+        .del(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.REVOKE_SESSIONS_EXCEPT_CURRENT_DEVICE_PATH}`)
+        .set('User-Agent', userAgent)
+        .set('Cookie', testRefreshTokenCookieString)
+        .expect(testStatus);
+    }
   }
 
   return revokeSessionsExceptCurrentDeviceResponse.body;

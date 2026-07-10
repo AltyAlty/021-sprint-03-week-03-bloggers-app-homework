@@ -114,23 +114,12 @@ export class CommentsService {
     const commentLikeDB: CommentLikeDataDBType | null =
       await this.commentsRepository.findCommentLikeDataByCommentIdAndUserId(commentId, userId);
 
-    /*Возвращаем ResultObject с информацией о лайке комментария если:
-    1. Данные о лайке были найдены, содержат статус "Like" и пользователь хочет поставить лайк.
-    2. Данные о лайке были найдены, содержат статус "Dislike" и пользователь хочет поставить дизлайк.*/
-    if (commentLikeDB && (commentLikeDB.likeStatus as string) === (likeStatus as string)) {
-      /*Возвращаем ResultObject с информацией о лайке комментария.*/
+    /*Если пользователь пытается установить повторный статус лайка, то возвращаем ResultObject с информацией об этом.*/
+    if (
+      (commentLikeDB && (commentLikeDB.likeStatus as string) === (likeStatus as string)) ||
+      (!commentLikeDB && likeStatus === CommentLikeStatusInputDTO.None)
+    ) {
       return { status: ResultStatuses.NoContent, data: {}, extensions: [] };
-    }
-
-    /*Возвращаем ResultObject с информацией о некорректном теле запроса если данные о лайке не были найдены и
-    пользователь хочет убрать лайк/дизлайк.*/
-    if (!commentLikeDB && likeStatus === CommentLikeStatusInputDTO.None) {
-      return {
-        status: ResultStatuses.BadRequest,
-        data: null,
-        errorMessage: 'Bad Request',
-        extensions: [{ field: 'likeStatus', message: 'Incorrect like status' }],
-      };
     }
 
     /*Если пользователь хочет убрать лайк/дизлайк.*/

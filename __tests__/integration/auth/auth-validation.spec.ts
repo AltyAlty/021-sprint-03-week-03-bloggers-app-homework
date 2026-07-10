@@ -610,7 +610,8 @@ describe('Auth Validation', () => {
   it('❌ 012 should not confirm user registration when a user agent not passed; 004. POST /api/auth/registration-confirmation', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     const createdUserLogin: string = createUserData.login;
-    await registerUser(app, validUserAgents.userAgent_01, createUserData);
+    const testUserAgent: string = validUserAgents.userAgent_01;
+    await registerUser(app, testUserAgent, createUserData);
     const createdUserDB: UserDBType | null = await usersRepository.findByLoginOrEmail(createdUserLogin);
     const createdUserId: string = String(createdUserDB?._id);
 
@@ -619,7 +620,7 @@ describe('Auth Validation', () => {
 
     await confirmUserByCode(
       app,
-      validUserAgents.userAgent_01,
+      testUserAgent,
       emailConfirmationDB?.confirmationCode,
       HttpStatuses.Unauthorized_401,
       true
@@ -636,7 +637,8 @@ describe('Auth Validation', () => {
   it('❌ 013 should not confirm user registration when more than 5 requests to the same URL during the last 10 seconds have been made; 004. POST /api/auth/registration-confirmation', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     const createdUserLogin: string = createUserData.login;
-    await registerUser(app, validUserAgents.userAgent_01, createUserData);
+    const testUserAgent: string = validUserAgents.userAgent_01;
+    await registerUser(app, testUserAgent, createUserData);
     const createdUserDB: UserDBType | null = await usersRepository.findByLoginOrEmail(createdUserLogin);
     const createdUserId: string = String(createdUserDB?._id);
 
@@ -647,16 +649,16 @@ describe('Auth Validation', () => {
     const testStatus_01: HttpStatuses = HttpStatuses.BadRequest_400;
     const testStatus_02: HttpStatuses = HttpStatuses.TooManyRequest_429;
 
-    await confirmUserByCode(app, validUserAgents.userAgent_01, confirmationCode);
-    await confirmUserByCode(app, validUserAgents.userAgent_01, confirmationCode, testStatus_01);
-    await confirmUserByCode(app, validUserAgents.userAgent_01, confirmationCode, testStatus_01);
-    await confirmUserByCode(app, validUserAgents.userAgent_01, confirmationCode, testStatus_01);
-    await confirmUserByCode(app, validUserAgents.userAgent_01, confirmationCode, testStatus_01);
-    await confirmUserByCode(app, validUserAgents.userAgent_01, confirmationCode, testStatus_02);
-    await confirmUserByCode(app, validUserAgents.userAgent_01, confirmationCode, testStatus_02);
+    await confirmUserByCode(app, testUserAgent, confirmationCode);
+    await confirmUserByCode(app, testUserAgent, confirmationCode, testStatus_01);
+    await confirmUserByCode(app, testUserAgent, confirmationCode, testStatus_01);
+    await confirmUserByCode(app, testUserAgent, confirmationCode, testStatus_01);
+    await confirmUserByCode(app, testUserAgent, confirmationCode, testStatus_01);
+    await confirmUserByCode(app, testUserAgent, confirmationCode, testStatus_02);
+    await confirmUserByCode(app, testUserAgent, confirmationCode, testStatus_02);
     await delay(5000);
     await setTimeout(5000);
-    await confirmUserByCode(app, validUserAgents.userAgent_01, confirmationCode, testStatus_01);
+    await confirmUserByCode(app, testUserAgent, confirmationCode, testStatus_01);
 
     const confirmedUserDB: UserDBType | null = await usersRepository.findByLoginOrEmail(createdUserLogin);
     expect(confirmedUserDB?.isConfirmed).toBeTruthy();

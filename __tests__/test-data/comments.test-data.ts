@@ -34,3 +34,16 @@ export const invalidCommentContents = {
   content_09: undefined,
   content_10: 1234567890,
 };
+
+export const invalidCommentLikesData = {
+  data_01: 'qwe123zxc',
+  data_02: '',
+  data_03: '   ',
+  data_04: 'ABC',
+  data_05: '1234567890',
+  data_06: [],
+  data_07: {},
+  data_08: null,
+  data_09: undefined,
+  data_10: 1234567890,
+};

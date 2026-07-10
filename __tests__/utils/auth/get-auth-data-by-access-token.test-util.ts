@@ -9,22 +9,36 @@ export const getAuthDataByAccessToken = async (
   userAgent: string | any,
   accessToken: string | any,
   expectedStatus?: HttpStatuses,
-  noUserAgent?: boolean
+  noUserAgent?: boolean,
+  noAccessToken?: boolean
 ): Promise<MeOutputDTO> => {
   const testStatus: HttpStatuses = expectedStatus ?? HttpStatuses.Ok_200;
   let getAuthDataByAccessTokenResponse;
 
   if (noUserAgent) {
-    getAuthDataByAccessTokenResponse = await request(app)
-      .get(`${SETTINGS.AUTH_PATH}${SETTINGS.GET_AUTH_DATA_BY_TOKEN_PATH}`)
-      .set('Authorization', `Bearer ${accessToken}`)
-      .expect(testStatus);
+    if (noAccessToken) {
+      getAuthDataByAccessTokenResponse = await request(app)
+        .get(`${SETTINGS.AUTH_PATH}${SETTINGS.GET_AUTH_DATA_BY_TOKEN_PATH}`)
+        .expect(testStatus);
+    } else {
+      getAuthDataByAccessTokenResponse = await request(app)
+        .get(`${SETTINGS.AUTH_PATH}${SETTINGS.GET_AUTH_DATA_BY_TOKEN_PATH}`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(testStatus);
+    }
   } else {
-    getAuthDataByAccessTokenResponse = await request(app)
-      .get(`${SETTINGS.AUTH_PATH}${SETTINGS.GET_AUTH_DATA_BY_TOKEN_PATH}`)
-      .set('Authorization', `Bearer ${accessToken}`)
-      .set('User-Agent', userAgent)
-      .expect(testStatus);
+    if (noAccessToken) {
+      getAuthDataByAccessTokenResponse = await request(app)
+        .get(`${SETTINGS.AUTH_PATH}${SETTINGS.GET_AUTH_DATA_BY_TOKEN_PATH}`)
+        .set('User-Agent', userAgent)
+        .expect(testStatus);
+    } else {
+      getAuthDataByAccessTokenResponse = await request(app)
+        .get(`${SETTINGS.AUTH_PATH}${SETTINGS.GET_AUTH_DATA_BY_TOKEN_PATH}`)
+        .set('User-Agent', userAgent)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .expect(testStatus);
+    }
   }
 
   return getAuthDataByAccessTokenResponse.body;

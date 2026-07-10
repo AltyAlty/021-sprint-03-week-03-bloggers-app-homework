@@ -296,7 +296,76 @@ describe('Auth API Validation', () => {
     expect(securityDevice).not.toBeUndefined();
   });
 
-  it('❌ 008 should not create new AT/RT when an invalid user agent passed; 006. POST /api/auth/refresh-token', async () => {
+  it('❌ 008 should not create new AT/RT when an refresh token not passed; 006. POST /api/auth/refresh-token', async () => {
+    const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
+    const createdUser: UserOutputDTO = await createUser(app, createUserData);
+    const createdUserId: string = createdUser.id;
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    const { refreshToken }: { refreshToken: string } = await loginUserReturnAccessAndRefreshTokens(app, testUserAgent, {
+      loginOrEmail: createUserData.login,
+      password: createUserData.password,
+    });
+
+    const decodedRefreshTokenPayload: { userId: string; deviceId: string; iat: number; exp: number } | null =
+      await jwtAdapter.decodeRefreshToken(refreshToken);
+
+    const decodedRefreshTokenPayloadUserId: string | undefined = decodedRefreshTokenPayload?.userId;
+    const decodedRefreshTokenPayloadDeviceId: string | undefined = decodedRefreshTokenPayload?.deviceId;
+    const decodedRefreshTokenPayloadIat: number | undefined = decodedRefreshTokenPayload?.iat;
+    const decodedRefreshTokenPayloadExp: number | undefined = decodedRefreshTokenPayload?.exp;
+    const decodedRefreshTokenPayloadIatDate: Date = new Date(decodedRefreshTokenPayloadIat! * 1000);
+    const decodedRefreshTokenPayloadExpDate: Date = new Date(decodedRefreshTokenPayloadExp! * 1000);
+
+    await refreshAccessAndRefreshTokens(
+      app,
+      testUserAgent,
+      refreshToken,
+      undefined,
+      HttpStatuses.Unauthorized_401,
+      false,
+      true
+    );
+
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
+    const session = sessions[0];
+    const sessionUserId: string = session.userId;
+    const sessionDeviceId: string = session.deviceId;
+    const sessionDeviceName: string = session.deviceName;
+    const sessionIp: string = session.ip;
+    const sessionIat: Date = session.iat;
+    const sessionExp: Date = session.exp;
+
+    const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
+      app,
+      testUserAgent,
+      refreshToken
+    );
+
+    const securityDevice: SecurityDeviceOutputDTO | undefined = getSecurityDeviceListResponse[0];
+    const securityDeviceId: string = securityDevice.deviceId;
+    const securityDeviceTitle: string = securityDevice.title;
+    const securityDeviceIp: string = securityDevice.ip;
+    const securityDeviceLastActiveDate: Date = new Date(securityDevice.lastActiveDate);
+    expect(sessions).toBeInstanceOf(Array);
+    expect(sessions.length).toBe(1);
+    expect(sessionUserId).toBe(createdUserId);
+    expect(sessionUserId).toBe(decodedRefreshTokenPayloadUserId);
+    expect(sessionDeviceId).toBe(decodedRefreshTokenPayloadDeviceId);
+    expect(sessionDeviceId).toBe(securityDeviceId);
+    expect(sessionDeviceId).toBe(securityDeviceId);
+    expect(sessionDeviceName).toBe(testUserAgent);
+    expect(sessionDeviceName).toBe(securityDeviceTitle);
+    expect(sessionIp).toBe(securityDeviceIp);
+    expect(sessionIat).toEqual(decodedRefreshTokenPayloadIatDate);
+    expect(sessionIat).toEqual(securityDeviceLastActiveDate);
+    expect(sessionExp).toEqual(decodedRefreshTokenPayloadExpDate);
+    expect(getSecurityDeviceListResponse).toBeInstanceOf(Array);
+    expect(getSecurityDeviceListResponse.length).toBe(1);
+    expect(securityDevice).not.toBeUndefined();
+  });
+
+  it('❌ 009 should not create new AT/RT when an invalid user agent passed; 006. POST /api/auth/refresh-token', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     const createdUser: UserOutputDTO = await createUser(app, createUserData);
     const createdUserId: string = createdUser.id;
@@ -359,7 +428,7 @@ describe('Auth API Validation', () => {
     expect(securityDevice).not.toBeUndefined();
   });
 
-  it('❌ 009 should not create new AT/RT when a user agent not passed; 006. POST /api/auth/refresh-token', async () => {
+  it('❌ 010 should not create new AT/RT when a user agent not passed; 006. POST /api/auth/refresh-token', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     const createdUser: UserOutputDTO = await createUser(app, createUserData);
     const createdUserId: string = createdUser.id;
@@ -427,7 +496,7 @@ describe('Auth API Validation', () => {
     expect(securityDevice).not.toBeUndefined();
   });
 
-  it('❌ 010 should not revoke a session when an invalid refresh token passed; 007. POST /api/auth/logout', async () => {
+  it('❌ 011 should not revoke a session when an invalid refresh token passed; 007. POST /api/auth/logout', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     const createdUser: UserOutputDTO = await createUser(app, createUserData);
     const createdUserId: string = createdUser.id;
@@ -497,7 +566,7 @@ describe('Auth API Validation', () => {
     expect(securityDevice).not.toBeUndefined();
   });
 
-  it('❌ 011 should not revoke a session when an incorrect refresh token passed; 007. POST /api/auth/logout', async () => {
+  it('❌ 012 should not revoke a session when an incorrect refresh token passed; 007. POST /api/auth/logout', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     const createdUser: UserOutputDTO = await createUser(app, createUserData);
     const createdUserId: string = createdUser.id;
@@ -558,7 +627,68 @@ describe('Auth API Validation', () => {
     expect(securityDevice).not.toBeUndefined();
   });
 
-  it('❌ 012 should not revoke a session when an invalid user agent passed; 007. POST /api/auth/logout', async () => {
+  it('❌ 013 should not revoke a session when an refresh token not passed; 007. POST /api/auth/logout', async () => {
+    const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
+    const createdUser: UserOutputDTO = await createUser(app, createUserData);
+    const createdUserId: string = createdUser.id;
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    const { refreshToken }: { refreshToken: string } = await loginUserReturnAccessAndRefreshTokens(app, testUserAgent, {
+      loginOrEmail: createUserData.login,
+      password: createUserData.password,
+    });
+
+    const decodedRefreshTokenPayload: { userId: string; deviceId: string; iat: number; exp: number } | null =
+      await jwtAdapter.decodeRefreshToken(refreshToken);
+
+    const decodedRefreshTokenPayloadUserId: string | undefined = decodedRefreshTokenPayload?.userId;
+    const decodedRefreshTokenPayloadDeviceId: string | undefined = decodedRefreshTokenPayload?.deviceId;
+    const decodedRefreshTokenPayloadIat: number | undefined = decodedRefreshTokenPayload?.iat;
+    const decodedRefreshTokenPayloadExp: number | undefined = decodedRefreshTokenPayload?.exp;
+    const decodedRefreshTokenPayloadIatDate: Date = new Date(decodedRefreshTokenPayloadIat! * 1000);
+    const decodedRefreshTokenPayloadExpDate: Date = new Date(decodedRefreshTokenPayloadExp! * 1000);
+
+    await revokeSession(app, testUserAgent, refreshToken, undefined, HttpStatuses.Unauthorized_401, false, true);
+
+    const sessions: SessionListDBType = await authRepository.findAllSessionsByUserId(createdUserId);
+    const session = sessions[0];
+    const sessionUserId: string = session.userId;
+    const sessionDeviceId: string = session.deviceId;
+    const sessionDeviceName: string = session.deviceName;
+    const sessionIp: string = session.ip;
+    const sessionIat: Date = session.iat;
+    const sessionExp: Date = session.exp;
+
+    const getSecurityDeviceListResponse: SecurityDeviceListOutputDTO = await getSecurityDeviceList(
+      app,
+      testUserAgent,
+      refreshToken
+    );
+
+    const securityDevice: SecurityDeviceOutputDTO | undefined = getSecurityDeviceListResponse[0];
+    const securityDeviceId: string = securityDevice.deviceId;
+    const securityDeviceTitle: string = securityDevice.title;
+    const securityDeviceIp: string = securityDevice.ip;
+    const securityDeviceLastActiveDate: Date = new Date(securityDevice.lastActiveDate);
+    expect(sessions).toBeInstanceOf(Array);
+    expect(sessions.length).toBe(1);
+    expect(sessionUserId).toBe(createdUserId);
+    expect(sessionUserId).toBe(decodedRefreshTokenPayloadUserId);
+    expect(sessionDeviceId).toBe(decodedRefreshTokenPayloadDeviceId);
+    expect(sessionDeviceId).toBe(securityDeviceId);
+    expect(sessionDeviceId).toBe(securityDeviceId);
+    expect(sessionDeviceName).toBe(testUserAgent);
+    expect(sessionDeviceName).toBe(securityDeviceTitle);
+    expect(sessionIp).toBe(securityDeviceIp);
+    expect(sessionIat).toEqual(decodedRefreshTokenPayloadIatDate);
+    expect(sessionIat).toEqual(securityDeviceLastActiveDate);
+    expect(sessionExp).toEqual(decodedRefreshTokenPayloadExpDate);
+    expect(getSecurityDeviceListResponse).toBeInstanceOf(Array);
+    expect(getSecurityDeviceListResponse.length).toBe(1);
+    expect(securityDevice).not.toBeUndefined();
+  });
+
+  it('❌ 014 should not revoke a session when an invalid user agent passed; 007. POST /api/auth/logout', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     const createdUser: UserOutputDTO = await createUser(app, createUserData);
     const createdUserId: string = createdUser.id;
@@ -621,7 +751,7 @@ describe('Auth API Validation', () => {
     expect(securityDevice).not.toBeUndefined();
   });
 
-  it('❌ 013 should not revoke a session when a user agent not passed; 007. POST /api/auth/logout', async () => {
+  it('❌ 015 should not revoke a session when a user agent not passed; 007. POST /api/auth/logout', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     const createdUser: UserOutputDTO = await createUser(app, createUserData);
     const createdUserId: string = createdUser.id;
@@ -682,7 +812,7 @@ describe('Auth API Validation', () => {
     expect(securityDevice).not.toBeUndefined();
   });
 
-  it('❌ 014 should not return user data when an invalid access token passed; 002. GET /api/auth/me', async () => {
+  it('❌ 016 should not return user data when an invalid access token passed; 002. GET /api/auth/me', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     await createUser(app, createUserData);
     await loginUserReturnAccessToken(app, { loginOrEmail: createUserData.login, password: createUserData.password });
@@ -700,7 +830,7 @@ describe('Auth API Validation', () => {
     await getAuthDataByAccessToken(app, testUserAgent, invalidAccessTokens.AT_09, testStatus);
   });
 
-  it('❌ 015 should not return user data when an incorrect access token passed; 002. GET /api/auth/me', async () => {
+  it('❌ 017 should not return user data when an incorrect access token passed; 002. GET /api/auth/me', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     await createUser(app, createUserData);
     await loginUserReturnAccessToken(app, { loginOrEmail: createUserData.login, password: createUserData.password });
@@ -713,7 +843,21 @@ describe('Auth API Validation', () => {
     );
   });
 
-  it('❌ 016 should not return user data when an invalid user agent passed; 002. GET /api/auth/me', async () => {
+  it('❌ 018 should not return user data when an access token not passed; 002. GET /api/auth/me', async () => {
+    const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
+    await createUser(app, createUserData);
+
+    const accessToken: string = await loginUserReturnAccessToken(app, {
+      loginOrEmail: createUserData.login,
+      password: createUserData.password,
+    });
+
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    await getAuthDataByAccessToken(app, testUserAgent, accessToken, HttpStatuses.Unauthorized_401, false, true);
+  });
+
+  it('❌ 019 should not return user data when an invalid user agent passed; 002. GET /api/auth/me', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     await createUser(app, createUserData);
 
@@ -728,7 +872,7 @@ describe('Auth API Validation', () => {
     await getAuthDataByAccessToken(app, invalidUserAgents.userAgent_02, accessToken, testStatus);
   });
 
-  it('❌ 017 should not return user data when a user agent not passed; 002. GET /api/auth/me', async () => {
+  it('❌ 020 should not return user data when a user agent not passed; 002. GET /api/auth/me', async () => {
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     await createUser(app, createUserData);
 

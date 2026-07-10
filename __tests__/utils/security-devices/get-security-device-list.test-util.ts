@@ -10,7 +10,8 @@ export const getSecurityDeviceList = async (
   refreshToken?: string | any,
   refreshTokenCookieString?: string | any,
   expectedStatus?: HttpStatuses,
-  noUserAgent?: boolean
+  noUserAgent?: boolean,
+  noRefreshToken?: boolean
 ): Promise<SecurityDeviceListOutputDTO> => {
   const testRefreshTokenCookieString: string =
     refreshTokenCookieString ?? `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure`;
@@ -19,16 +20,29 @@ export const getSecurityDeviceList = async (
   let getSecurityDeviceListResponse;
 
   if (noUserAgent) {
-    getSecurityDeviceListResponse = await request(app)
-      .get(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.GET_SECURITY_DEVICE_LIST_PATH}`)
-      .set('Cookie', testRefreshTokenCookieString)
-      .expect(testStatus);
+    if (noRefreshToken) {
+      getSecurityDeviceListResponse = await request(app)
+        .get(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.GET_SECURITY_DEVICE_LIST_PATH}`)
+        .expect(testStatus);
+    } else {
+      getSecurityDeviceListResponse = await request(app)
+        .get(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.GET_SECURITY_DEVICE_LIST_PATH}`)
+        .set('Cookie', testRefreshTokenCookieString)
+        .expect(testStatus);
+    }
   } else {
-    getSecurityDeviceListResponse = await request(app)
-      .get(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.GET_SECURITY_DEVICE_LIST_PATH}`)
-      .set('Cookie', testRefreshTokenCookieString)
-      .set('User-Agent', userAgent)
-      .expect(testStatus);
+    if (noRefreshToken) {
+      getSecurityDeviceListResponse = await request(app)
+        .get(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.GET_SECURITY_DEVICE_LIST_PATH}`)
+        .set('User-Agent', userAgent)
+        .expect(testStatus);
+    } else {
+      getSecurityDeviceListResponse = await request(app)
+        .get(`${SETTINGS.SECURITY_DEVICES_PATH}${SETTINGS.GET_SECURITY_DEVICE_LIST_PATH}`)
+        .set('User-Agent', userAgent)
+        .set('Cookie', testRefreshTokenCookieString)
+        .expect(testStatus);
+    }
   }
 
   return getSecurityDeviceListResponse.body;

@@ -10,7 +10,8 @@ export const revokeSessionByDeviceId = async (
   refreshToken?: string | any,
   refreshTokenCookieString?: string | any,
   expectedStatus?: HttpStatuses,
-  noUserAgent?: boolean
+  noUserAgent?: boolean,
+  noRefreshToken?: boolean
 ): Promise<any> => {
   const testRefreshTokenCookieString: string =
     refreshTokenCookieString ?? `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure`;
@@ -19,16 +20,29 @@ export const revokeSessionByDeviceId = async (
   let revokeSessionByDeviceIdResponse;
 
   if (noUserAgent) {
-    revokeSessionByDeviceIdResponse = await request(app)
-      .del(`${SETTINGS.SECURITY_DEVICES_PATH}/${deviceId}`)
-      .set('Cookie', testRefreshTokenCookieString)
-      .expect(testStatus);
+    if (noRefreshToken) {
+      revokeSessionByDeviceIdResponse = await request(app)
+        .del(`${SETTINGS.SECURITY_DEVICES_PATH}/${deviceId}`)
+        .expect(testStatus);
+    } else {
+      revokeSessionByDeviceIdResponse = await request(app)
+        .del(`${SETTINGS.SECURITY_DEVICES_PATH}/${deviceId}`)
+        .set('Cookie', testRefreshTokenCookieString)
+        .expect(testStatus);
+    }
   } else {
-    revokeSessionByDeviceIdResponse = await request(app)
-      .del(`${SETTINGS.SECURITY_DEVICES_PATH}/${deviceId}`)
-      .set('Cookie', testRefreshTokenCookieString)
-      .set('User-Agent', userAgent)
-      .expect(testStatus);
+    if (noRefreshToken) {
+      revokeSessionByDeviceIdResponse = await request(app)
+        .del(`${SETTINGS.SECURITY_DEVICES_PATH}/${deviceId}`)
+        .set('User-Agent', userAgent)
+        .expect(testStatus);
+    } else {
+      revokeSessionByDeviceIdResponse = await request(app)
+        .del(`${SETTINGS.SECURITY_DEVICES_PATH}/${deviceId}`)
+        .set('User-Agent', userAgent)
+        .set('Cookie', testRefreshTokenCookieString)
+        .expect(testStatus);
+    }
   }
 
   return revokeSessionByDeviceIdResponse.body;

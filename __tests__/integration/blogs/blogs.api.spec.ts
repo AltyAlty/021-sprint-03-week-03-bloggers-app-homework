@@ -26,6 +26,7 @@ import { PaginatedPostListOutputDTO } from '../../../src/posts/routes/output-dto
 import { validBlogNames, validBlogsPaginationSettings } from '../../test-data/blogs.test-data';
 import { validPostsPaginationSettings } from '../../test-data/posts.test-data';
 import { getUpdateBlogInputDTO } from '../../utils/blogs/input-dto-utils/get-update-blog-input-dto.test-util';
+import { validUserAgents } from '../../test-data/auth.test-data';
 
 describe('Blogs API', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -139,10 +140,36 @@ describe('Blogs API', () => {
       password: createUserData.password,
     });
 
-    const createdComment_01: CommentOutputDTO = await createCommentForPost(app, createdPostId_01, accessToken);
-    const createdComment_02: CommentOutputDTO = await createCommentForPost(app, createdPostId_01, accessToken);
-    const createdComment_03: CommentOutputDTO = await createCommentForPost(app, createdPostId_02, accessToken);
-    const createdComment_04: CommentOutputDTO = await createCommentForPost(app, createdPostId_02, accessToken);
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    const createdComment_01: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPostId_01,
+      accessToken
+    );
+
+    const createdComment_02: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPostId_01,
+      accessToken
+    );
+
+    const createdComment_03: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPostId_02,
+      accessToken
+    );
+
+    const createdComment_04: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPostId_02,
+      accessToken
+    );
+
     const testStatus: HttpStatuses = HttpStatuses.NotFound_404;
 
     await deleteBlogById(app, createdBlogId);
@@ -151,12 +178,12 @@ describe('Blogs API', () => {
     await getPostListByBlogId(app, createdBlogId, undefined, testStatus);
     await getPostById(app, createdPostId_01, testStatus);
     await getPostById(app, createdPostId_02, testStatus);
-    await getCommentListByPostId(app, createdPostId_01, undefined, testStatus);
-    await getCommentListByPostId(app, createdPostId_02, undefined, testStatus);
-    await getCommentById(app, createdComment_01.id, testStatus);
-    await getCommentById(app, createdComment_02.id, testStatus);
-    await getCommentById(app, createdComment_03.id, testStatus);
-    await getCommentById(app, createdComment_04.id, testStatus);
+    await getCommentListByPostId(app, testUserAgent, createdPostId_01, undefined, accessToken, testStatus);
+    await getCommentListByPostId(app, testUserAgent, createdPostId_02, undefined, accessToken, testStatus);
+    await getCommentById(app, testUserAgent, createdComment_01.id, accessToken, testStatus);
+    await getCommentById(app, testUserAgent, createdComment_02.id, accessToken, testStatus);
+    await getCommentById(app, testUserAgent, createdComment_03.id, accessToken, testStatus);
+    await getCommentById(app, testUserAgent, createdComment_04.id, accessToken, testStatus);
   });
 
   it('✅ 009 should create a post for a blog by a correct ID; 004. POST /api/blogs/:blogId/posts', async () => {

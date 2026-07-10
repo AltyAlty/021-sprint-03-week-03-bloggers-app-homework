@@ -9,7 +9,8 @@ export const refreshAccessAndRefreshTokens = async (
   refreshToken?: string | any,
   refreshTokenCookieString?: string | any,
   expectedStatus?: HttpStatuses,
-  noUserAgent?: boolean
+  noUserAgent?: boolean,
+  noRefreshToken?: boolean
 ): Promise<any> => {
   const testRefreshTokenCookieString: string =
     refreshTokenCookieString ?? `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure`;
@@ -18,17 +19,29 @@ export const refreshAccessAndRefreshTokens = async (
   let refreshAccessAndRefreshTokensResponse;
 
   if (noUserAgent) {
-    refreshAccessAndRefreshTokensResponse = await request(app)
-      .post(`${SETTINGS.AUTH_PATH}${SETTINGS.REFRESH_TOKEN_PATH}`)
-      .set('Cookie', testRefreshTokenCookieString)
-
-      .expect(testStatus);
+    if (noRefreshToken) {
+      refreshAccessAndRefreshTokensResponse = await request(app)
+        .post(`${SETTINGS.AUTH_PATH}${SETTINGS.REFRESH_TOKEN_PATH}`)
+        .expect(testStatus);
+    } else {
+      refreshAccessAndRefreshTokensResponse = await request(app)
+        .post(`${SETTINGS.AUTH_PATH}${SETTINGS.REFRESH_TOKEN_PATH}`)
+        .set('User-Agent', userAgent)
+        .expect(testStatus);
+    }
   } else {
-    refreshAccessAndRefreshTokensResponse = await request(app)
-      .post(`${SETTINGS.AUTH_PATH}${SETTINGS.REFRESH_TOKEN_PATH}`)
-      .set('Cookie', testRefreshTokenCookieString)
-      .set('User-Agent', userAgent)
-      .expect(testStatus);
+    if (noRefreshToken) {
+      refreshAccessAndRefreshTokensResponse = await request(app)
+        .post(`${SETTINGS.AUTH_PATH}${SETTINGS.REFRESH_TOKEN_PATH}`)
+        .set('User-Agent', userAgent)
+        .expect(testStatus);
+    } else {
+      refreshAccessAndRefreshTokensResponse = await request(app)
+        .post(`${SETTINGS.AUTH_PATH}${SETTINGS.REFRESH_TOKEN_PATH}`)
+        .set('User-Agent', userAgent)
+        .set('Cookie', testRefreshTokenCookieString)
+        .expect(testStatus);
+    }
   }
 
   const newAccessToken: string = refreshAccessAndRefreshTokensResponse.body.accessToken;

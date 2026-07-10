@@ -5,24 +5,50 @@ import { getCreateCommentForPostInputDTO } from '../comments/input-dto-utils/get
 import request from 'supertest';
 import { SETTINGS } from '../../../src/core/settings/settings';
 import { HttpStatuses } from '../../../src/core/types/http-statuses';
-import { validUserAgents } from '../../test-data/auth.test-data';
 
 export const createCommentForPost = async (
   app: Express,
+  userAgent: string | any,
   postId: string | any,
   accessToken: string | any,
   commentDTO?: CreateCommentForPostInputDTO | any,
-  expectedStatus?: HttpStatuses
+  expectedStatus?: HttpStatuses,
+  noUserAgent?: boolean,
+  noAccessToken?: boolean
 ): Promise<CommentOutputDTO> => {
   const testCreateCommentData: CreateCommentForPostInputDTO = { ...getCreateCommentForPostInputDTO(), ...commentDTO };
   const testStatus: HttpStatuses = expectedStatus ?? HttpStatuses.Created_201;
+  let createCommentForPostResponse;
 
-  const createCommentForPostResponse = await request(app)
-    .post(`${SETTINGS.POSTS_PATH}/${postId}/comments`)
-    .set('User-Agent', validUserAgents.userAgent_01)
-    .set('Authorization', `Bearer ${accessToken}`)
-    .send(testCreateCommentData)
-    .expect(testStatus);
+  if (noUserAgent) {
+    if (noAccessToken) {
+      createCommentForPostResponse = await request(app)
+        .post(`${SETTINGS.POSTS_PATH}/${postId}/comments`)
+        .send(testCreateCommentData)
+        .expect(testStatus);
+    } else {
+      createCommentForPostResponse = await request(app)
+        .post(`${SETTINGS.POSTS_PATH}/${postId}/comments`)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(testCreateCommentData)
+        .expect(testStatus);
+    }
+  } else {
+    if (noAccessToken) {
+      createCommentForPostResponse = await request(app)
+        .post(`${SETTINGS.POSTS_PATH}/${postId}/comments`)
+        .set('User-Agent', userAgent)
+        .send(testCreateCommentData)
+        .expect(testStatus);
+    } else {
+      createCommentForPostResponse = await request(app)
+        .post(`${SETTINGS.POSTS_PATH}/${postId}/comments`)
+        .set('User-Agent', userAgent)
+        .set('Authorization', `Bearer ${accessToken}`)
+        .send(testCreateCommentData)
+        .expect(testStatus);
+    }
+  }
 
   return createCommentForPostResponse.body;
 };

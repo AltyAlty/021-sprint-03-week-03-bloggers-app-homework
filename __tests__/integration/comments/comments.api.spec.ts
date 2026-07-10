@@ -13,6 +13,10 @@ import { CreateUserInputDTO } from '../../../src/users/routes/input-dto/create-u
 import { getCreateUserInputDTO } from '../../utils/users/input-dto-utils/get-create-user-input-dto.test-util';
 import { getUpdateCommentInputDTO } from '../../utils/comments/input-dto-utils/get-update-comment-input-dto.test-util';
 import { deleteCommentById } from '../../utils/comments/delete-comment-by-id.test-util';
+import { likeCommentById } from '../../utils/comments/like-comment-by-id.test-util';
+import { validUserAgents } from '../../test-data/auth.test-data';
+import { CommentLikeStatusInputDTO } from '../../../src/comments/routes/input-dto/like-comment-by-id.input-dto';
+import { validUserEmails, validUserLogins, validUserPasswords } from '../../test-data/users.test-data';
 
 describe('Comments API', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -27,9 +31,21 @@ describe('Comments API', () => {
       password: createUserData.password,
     });
 
-    const createdComment: CommentOutputDTO = await createCommentForPost(app, createdPost.id, accessToken);
+    const testUserAgent: string = validUserAgents.userAgent_01;
 
-    const getCommentByIdResponse: CommentOutputDTO = await getCommentById(app, createdComment.id);
+    const createdComment: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPost.id,
+      accessToken
+    );
+
+    const getCommentByIdResponse: CommentOutputDTO = await getCommentById(
+      app,
+      testUserAgent,
+      createdComment.id,
+      accessToken
+    );
 
     expect(getCommentByIdResponse).toEqual(createdComment);
   });
@@ -45,12 +61,25 @@ describe('Comments API', () => {
       password: createUserData.password,
     });
 
-    const createdComment: CommentOutputDTO = await createCommentForPost(app, createdPost.id, accessToken);
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    const createdComment: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPost.id,
+      accessToken
+    );
+
     const createdCommentId: string = createdComment.id;
 
-    await updateCommentById(app, createdCommentId, accessToken, updateCommentData);
+    await updateCommentById(app, testUserAgent, createdCommentId, accessToken, updateCommentData);
 
-    const getCommentByIdResponse: CommentOutputDTO = await getCommentById(app, createdCommentId);
+    const getCommentByIdResponse: CommentOutputDTO = await getCommentById(
+      app,
+      testUserAgent,
+      createdCommentId,
+      accessToken
+    );
 
     expect(getCommentByIdResponse).toEqual({
       id: createdCommentId,
@@ -61,7 +90,136 @@ describe('Comments API', () => {
     });
   });
 
-  it('✅ 003 should delete a comment by a correct ID when a valid access token passed; 002. DELETE /api/comments/:id', async () => {
+  it('✅ 003 should like a comment by a correct ID when a valid access token passed; 004. PUT /api/comments/:id', async () => {
+    const createdPost: PostOutputDTO = await createPost(app);
+    const createUserData_01: CreateUserInputDTO = getCreateUserInputDTO();
+
+    const createUserData_02: CreateUserInputDTO = {
+      login: validUserLogins.login_01,
+      password: validUserPasswords.password_01,
+      email: validUserEmails.email_01,
+    };
+
+    await createUser(app, createUserData_01);
+    await createUser(app, createUserData_02);
+
+    const accessToken_01: string = await loginUserReturnAccessToken(app, {
+      loginOrEmail: createUserData_01.login,
+      password: createUserData_01.password,
+    });
+
+    const accessToken_02: string = await loginUserReturnAccessToken(app, {
+      loginOrEmail: createUserData_02.login,
+      password: createUserData_02.password,
+    });
+
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    const createdComment: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPost.id,
+      accessToken_01
+    );
+
+    const createdCommentId: string = createdComment.id;
+
+    await likeCommentById(app, testUserAgent, accessToken_01, createdCommentId, {
+      likeStatus: CommentLikeStatusInputDTO.Like,
+    });
+
+    const getCommentByIdResponse_01: CommentOutputDTO = await getCommentById(
+      app,
+      testUserAgent,
+      createdCommentId,
+      accessToken_01
+    );
+
+    await likeCommentById(app, testUserAgent, accessToken_01, createdCommentId, {
+      likeStatus: CommentLikeStatusInputDTO.None,
+    });
+
+    const getCommentByIdResponse_02: CommentOutputDTO = await getCommentById(
+      app,
+      testUserAgent,
+      createdCommentId,
+      accessToken_01
+    );
+
+    await likeCommentById(app, testUserAgent, accessToken_01, createdCommentId, {
+      likeStatus: CommentLikeStatusInputDTO.Dislike,
+    });
+
+    const getCommentByIdResponse_03: CommentOutputDTO = await getCommentById(
+      app,
+      testUserAgent,
+      createdCommentId,
+      accessToken_01
+    );
+
+    await likeCommentById(app, testUserAgent, accessToken_01, createdCommentId, {
+      likeStatus: CommentLikeStatusInputDTO.None,
+    });
+
+    const getCommentByIdResponse_04: CommentOutputDTO = await getCommentById(
+      app,
+      testUserAgent,
+      createdCommentId,
+      accessToken_01
+    );
+
+    await likeCommentById(app, testUserAgent, accessToken_01, createdCommentId, {
+      likeStatus: CommentLikeStatusInputDTO.Like,
+    });
+
+    const getCommentByIdResponse_05: CommentOutputDTO = await getCommentById(
+      app,
+      testUserAgent,
+      createdCommentId,
+      accessToken_01
+    );
+
+    const getCommentByIdResponse_06: CommentOutputDTO = await getCommentById(
+      app,
+      testUserAgent,
+      createdCommentId,
+      accessToken_02
+    );
+
+    const getCommentByIdResponse_07: CommentOutputDTO = await getCommentById(
+      app,
+      testUserAgent,
+      createdCommentId,
+      undefined,
+      undefined,
+      false,
+      true
+    );
+
+    expect(getCommentByIdResponse_01.likesInfo.myStatus).toBe(CommentLikeStatusInputDTO.Like);
+    expect(getCommentByIdResponse_01.likesInfo.likesCount).toBe(1);
+    expect(getCommentByIdResponse_01.likesInfo.dislikesCount).toBe(0);
+    expect(getCommentByIdResponse_02.likesInfo.myStatus).toBe(CommentLikeStatusInputDTO.None);
+    expect(getCommentByIdResponse_02.likesInfo.likesCount).toBe(0);
+    expect(getCommentByIdResponse_02.likesInfo.dislikesCount).toBe(0);
+    expect(getCommentByIdResponse_03.likesInfo.myStatus).toBe(CommentLikeStatusInputDTO.Dislike);
+    expect(getCommentByIdResponse_03.likesInfo.likesCount).toBe(0);
+    expect(getCommentByIdResponse_03.likesInfo.dislikesCount).toBe(1);
+    expect(getCommentByIdResponse_04.likesInfo.myStatus).toBe(CommentLikeStatusInputDTO.None);
+    expect(getCommentByIdResponse_04.likesInfo.likesCount).toBe(0);
+    expect(getCommentByIdResponse_04.likesInfo.dislikesCount).toBe(0);
+    expect(getCommentByIdResponse_05.likesInfo.myStatus).toBe(CommentLikeStatusInputDTO.Like);
+    expect(getCommentByIdResponse_05.likesInfo.likesCount).toBe(1);
+    expect(getCommentByIdResponse_05.likesInfo.dislikesCount).toBe(0);
+    expect(getCommentByIdResponse_06.likesInfo.myStatus).toBe(CommentLikeStatusInputDTO.None);
+    expect(getCommentByIdResponse_06.likesInfo.likesCount).toBe(1);
+    expect(getCommentByIdResponse_06.likesInfo.dislikesCount).toBe(0);
+    expect(getCommentByIdResponse_07.likesInfo.myStatus).toBe(CommentLikeStatusInputDTO.None);
+    expect(getCommentByIdResponse_07.likesInfo.likesCount).toBe(1);
+    expect(getCommentByIdResponse_07.likesInfo.dislikesCount).toBe(0);
+  });
+
+  it('✅ 004 should delete a comment by a correct ID when a valid access token passed; 002. DELETE /api/comments/:id', async () => {
     const createdPost: PostOutputDTO = await createPost(app);
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     await createUser(app, createUserData);
@@ -71,11 +229,19 @@ describe('Comments API', () => {
       password: createUserData.password,
     });
 
-    const createdComment: CommentOutputDTO = await createCommentForPost(app, createdPost.id, accessToken);
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    const createdComment: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPost.id,
+      accessToken
+    );
+
     const createdCommentId: string = createdComment.id;
 
-    await deleteCommentById(app, createdCommentId, accessToken);
+    await deleteCommentById(app, testUserAgent, createdCommentId, accessToken);
 
-    await getCommentById(app, createdCommentId, HttpStatuses.NotFound_404);
+    await getCommentById(app, testUserAgent, createdCommentId, accessToken, HttpStatuses.NotFound_404);
   });
 });

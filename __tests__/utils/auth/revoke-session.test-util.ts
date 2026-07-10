@@ -9,7 +9,8 @@ export const revokeSession = async (
   refreshToken?: string | any,
   refreshTokenCookieString?: string | any,
   expectedStatus?: HttpStatuses,
-  noUserAgent?: boolean
+  noUserAgent?: boolean,
+  noRefreshToken?: boolean
 ): Promise<any> => {
   const testRefreshTokenCookieString: string =
     refreshTokenCookieString ?? `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure`;
@@ -18,16 +19,29 @@ export const revokeSession = async (
   let revokeRefreshTokenResponse;
 
   if (noUserAgent) {
-    revokeRefreshTokenResponse = await request(app)
-      .post(`${SETTINGS.AUTH_PATH}${SETTINGS.LOGOUT_PATH}`)
-      .set('Cookie', testRefreshTokenCookieString)
-      .expect(testStatus);
+    if (noRefreshToken) {
+      revokeRefreshTokenResponse = await request(app)
+        .post(`${SETTINGS.AUTH_PATH}${SETTINGS.LOGOUT_PATH}`)
+        .expect(testStatus);
+    } else {
+      revokeRefreshTokenResponse = await request(app)
+        .post(`${SETTINGS.AUTH_PATH}${SETTINGS.LOGOUT_PATH}`)
+        .set('Cookie', testRefreshTokenCookieString)
+        .expect(testStatus);
+    }
   } else {
-    revokeRefreshTokenResponse = await request(app)
-      .post(`${SETTINGS.AUTH_PATH}${SETTINGS.LOGOUT_PATH}`)
-      .set('Cookie', testRefreshTokenCookieString)
-      .set('User-Agent', userAgent)
-      .expect(testStatus);
+    if (noRefreshToken) {
+      revokeRefreshTokenResponse = await request(app)
+        .post(`${SETTINGS.AUTH_PATH}${SETTINGS.LOGOUT_PATH}`)
+        .set('User-Agent', userAgent)
+        .expect(testStatus);
+    } else {
+      revokeRefreshTokenResponse = await request(app)
+        .post(`${SETTINGS.AUTH_PATH}${SETTINGS.LOGOUT_PATH}`)
+        .set('User-Agent', userAgent)
+        .set('Cookie', testRefreshTokenCookieString)
+        .expect(testStatus);
+    }
   }
 
   return revokeRefreshTokenResponse.body;

@@ -22,6 +22,7 @@ import { PaginatedCommentListOutputDTO } from '../../../src/comments/routes/outp
 import { UserOutputDTO } from '../../../src/users/routes/output-dto/user.output-dto';
 import { validPostsPaginationSettings } from '../../test-data/posts.test-data';
 import { validCommentsPaginationSettings } from '../../test-data/comments.test-data';
+import { validUserAgents } from '../../test-data/auth.test-data';
 
 describe('Posts API', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -111,16 +112,30 @@ describe('Posts API', () => {
       password: createUserData.password,
     });
 
-    const createdComment_01: CommentOutputDTO = await createCommentForPost(app, createdPostId, accessToken);
-    const createdComment_02: CommentOutputDTO = await createCommentForPost(app, createdPostId, accessToken);
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    const createdComment_01: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPostId,
+      accessToken
+    );
+
+    const createdComment_02: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPostId,
+      accessToken
+    );
+
     const testStatus: HttpStatuses = HttpStatuses.NotFound_404;
 
     await deletePostById(app, createdPostId);
 
     await getPostById(app, createdPostId, testStatus);
-    await getCommentListByPostId(app, createdPostId, undefined, testStatus);
-    await getCommentById(app, createdComment_01.id, testStatus);
-    await getCommentById(app, createdComment_02.id, testStatus);
+    await getCommentListByPostId(app, testUserAgent, createdPostId, undefined, accessToken, testStatus);
+    await getCommentById(app, testUserAgent, createdComment_01.id, accessToken, testStatus);
+    await getCommentById(app, testUserAgent, createdComment_02.id, accessToken, testStatus);
   });
 
   it('✅ 008 should create a comment for a post by a correct ID; 002. POST /api/posts/:postId/comments', async () => {
@@ -133,9 +148,22 @@ describe('Posts API', () => {
       password: createUserData.password,
     });
 
-    const createdComment: CommentOutputDTO = await createCommentForPost(app, createdPost.id, accessToken);
+    const testUserAgent: string = validUserAgents.userAgent_01;
 
-    const getCommentByIdResponse: CommentOutputDTO = await getCommentById(app, createdComment.id);
+    const createdComment: CommentOutputDTO = await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPost.id,
+      accessToken
+    );
+
+    const getCommentByIdResponse: CommentOutputDTO = await getCommentById(
+      app,
+      testUserAgent,
+      createdComment.id,
+      accessToken
+    );
+
     expect(getCommentByIdResponse).toEqual(createdComment);
     expect(getCommentByIdResponse.commentatorInfo.userId).toBe(createdUser.id);
     expect(getCommentByIdResponse.commentatorInfo.userLogin).toBe(createdUser.login);
@@ -152,14 +180,19 @@ describe('Posts API', () => {
       password: createUserData.password,
     });
 
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
     await Promise.all([
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
     ]);
 
     const getCommentListByPostIdResponse: PaginatedCommentListOutputDTO = await getCommentListByPostId(
       app,
-      createdPostId
+      testUserAgent,
+      createdPostId,
+      undefined,
+      accessToken
     );
 
     expect(getCommentListByPostIdResponse.items).toBeInstanceOf(Array);
@@ -179,19 +212,23 @@ describe('Posts API', () => {
       password: createUserData.password,
     });
 
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
     await Promise.all([
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
     ]);
 
     const getCommentListByPostIdResponse: PaginatedCommentListOutputDTO = await getCommentListByPostId(
       app,
+      testUserAgent,
       createdPostId,
-      url
+      url,
+      accessToken
     );
 
     expect(getCommentListByPostIdResponse.items).toBeInstanceOf(Array);

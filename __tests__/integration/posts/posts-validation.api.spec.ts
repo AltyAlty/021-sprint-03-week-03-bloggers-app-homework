@@ -17,7 +17,13 @@ import { getCommentListByPostId } from '../../utils/posts/get-comment-list-by-po
 import { CreateUserInputDTO } from '../../../src/users/routes/input-dto/create-user.input-dto';
 import { getCreateUserInputDTO } from '../../utils/users/input-dto-utils/get-create-user-input-dto.test-util';
 import { PaginatedCommentListOutputDTO } from '../../../src/comments/routes/output-dto/paginated-comment-list.output-dto';
-import { invalidAccessTokens, invalidBasicAuthTokens } from '../../test-data/auth.test-data';
+import {
+  invalidAccessTokens,
+  invalidBasicAuthTokens,
+  invalidUserAgents,
+  validAccessTokens,
+  validUserAgents,
+} from '../../test-data/auth.test-data';
 import { invalidBlogIds } from '../../test-data/blogs.test-data';
 import {
   invalidPostContents,
@@ -527,21 +533,28 @@ describe('Posts API Validation', () => {
   it('❌ 013 should not create a comment for a post by a correct ID when an invalid access token passed; 002. POST /api/posts/:postId/comments', async () => {
     const createdPost: PostOutputDTO = await createPost(app);
     const createdPostId: string = createdPost.id;
+    const testUserAgent: string = validUserAgents.userAgent_01;
     const testStatus: HttpStatuses = HttpStatuses.Unauthorized_401;
 
-    await createCommentForPost(app, createdPostId, invalidAccessTokens.AT_01, undefined, testStatus);
-    await createCommentForPost(app, createdPostId, invalidAccessTokens.AT_02, undefined, testStatus);
-    await createCommentForPost(app, createdPostId, invalidAccessTokens.AT_03, undefined, testStatus);
-    await createCommentForPost(app, createdPostId, invalidAccessTokens.AT_04, undefined, testStatus);
-    await createCommentForPost(app, createdPostId, invalidAccessTokens.AT_05, undefined, testStatus);
-    await createCommentForPost(app, createdPostId, invalidAccessTokens.AT_06, undefined, testStatus);
-    await createCommentForPost(app, createdPostId, invalidAccessTokens.AT_07, undefined, testStatus);
-    await createCommentForPost(app, createdPostId, invalidAccessTokens.AT_08, undefined, testStatus);
-    await createCommentForPost(app, createdPostId, invalidAccessTokens.AT_09, undefined, testStatus);
+    await createCommentForPost(app, testUserAgent, createdPostId, invalidAccessTokens.AT_01, undefined, testStatus);
+    await createCommentForPost(app, testUserAgent, createdPostId, invalidAccessTokens.AT_02, undefined, testStatus);
+    await createCommentForPost(app, testUserAgent, createdPostId, invalidAccessTokens.AT_03, undefined, testStatus);
+    await createCommentForPost(app, testUserAgent, createdPostId, invalidAccessTokens.AT_04, undefined, testStatus);
+    await createCommentForPost(app, testUserAgent, createdPostId, invalidAccessTokens.AT_05, undefined, testStatus);
+    await createCommentForPost(app, testUserAgent, createdPostId, invalidAccessTokens.AT_06, undefined, testStatus);
+    await createCommentForPost(app, testUserAgent, createdPostId, invalidAccessTokens.AT_07, undefined, testStatus);
+    await createCommentForPost(app, testUserAgent, createdPostId, invalidAccessTokens.AT_08, undefined, testStatus);
+    await createCommentForPost(app, testUserAgent, createdPostId, invalidAccessTokens.AT_09, undefined, testStatus);
 
     const getCommentListByPostIdResponse: PaginatedCommentListOutputDTO = await getCommentListByPostId(
       app,
-      createdPostId
+      testUserAgent,
+      createdPostId,
+      undefined,
+      undefined,
+      undefined,
+      false,
+      true
     );
 
     expect(getCommentListByPostIdResponse.items).toBeInstanceOf(Array);
@@ -549,7 +562,77 @@ describe('Posts API Validation', () => {
     expect(getCommentListByPostIdResponse.totalCount).toBe(0);
   });
 
-  it('❌ 014 should not create a comment for a post by an invalid ID; 002. POST /api/posts/:postId/comments', async () => {
+  it('❌ 014 should not create a comment for a post by a correct ID when an incorrect access token passed; 002. POST /api/posts/:postId/comments', async () => {
+    const createdPost: PostOutputDTO = await createPost(app);
+    const createdPostId: string = createdPost.id;
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPostId,
+      validAccessTokens.AT_01,
+      undefined,
+      HttpStatuses.Unauthorized_401
+    );
+
+    const getCommentListByPostIdResponse: PaginatedCommentListOutputDTO = await getCommentListByPostId(
+      app,
+      testUserAgent,
+      createdPostId,
+      undefined,
+      undefined,
+      undefined,
+      false,
+      true
+    );
+
+    expect(getCommentListByPostIdResponse.items).toBeInstanceOf(Array);
+    expect(getCommentListByPostIdResponse.items.length).toBe(0);
+    expect(getCommentListByPostIdResponse.totalCount).toBe(0);
+  });
+
+  it('❌ 015 should not create a comment for a post by a correct ID when an access token not passed; 002. POST /api/posts/:postId/comments', async () => {
+    const createdPost: PostOutputDTO = await createPost(app);
+    const createdPostId: string = createdPost.id;
+    const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
+    await createUser(app, createUserData);
+
+    const accessToken: string = await loginUserReturnAccessToken(app, {
+      loginOrEmail: createUserData.login,
+      password: createUserData.password,
+    });
+
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPostId,
+      accessToken,
+      undefined,
+      HttpStatuses.Unauthorized_401,
+      false,
+      true
+    );
+
+    const getCommentListByPostIdResponse: PaginatedCommentListOutputDTO = await getCommentListByPostId(
+      app,
+      testUserAgent,
+      createdPostId,
+      undefined,
+      undefined,
+      undefined,
+      false,
+      true
+    );
+
+    expect(getCommentListByPostIdResponse.items).toBeInstanceOf(Array);
+    expect(getCommentListByPostIdResponse.items.length).toBe(0);
+    expect(getCommentListByPostIdResponse.totalCount).toBe(0);
+  });
+
+  it('❌ 016 should not create a comment for a post by an invalid ID; 002. POST /api/posts/:postId/comments', async () => {
     const createdPost: PostOutputDTO = await createPost(app);
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     await createUser(app, createUserData);
@@ -559,10 +642,12 @@ describe('Posts API Validation', () => {
       password: createUserData.password,
     });
 
+    const testUserAgent: string = validUserAgents.userAgent_01;
     const testStatus: HttpStatuses = HttpStatuses.BadRequest_400;
 
     const createCommentForPostResponse_01: any = await createCommentForPost(
       app,
+      testUserAgent,
       invalidPostIds.id_01,
       accessToken,
       undefined,
@@ -571,6 +656,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_02: any = await createCommentForPost(
       app,
+      testUserAgent,
       invalidPostIds.id_02,
       accessToken,
       undefined,
@@ -579,6 +665,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_03: any = await createCommentForPost(
       app,
+      testUserAgent,
       invalidPostIds.id_03,
       accessToken,
       undefined,
@@ -587,6 +674,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_04: any = await createCommentForPost(
       app,
+      testUserAgent,
       invalidPostIds.id_04,
       accessToken,
       undefined,
@@ -595,7 +683,10 @@ describe('Posts API Validation', () => {
 
     const getCommentListByPostIdResponse: PaginatedCommentListOutputDTO = await getCommentListByPostId(
       app,
-      createdPost.id
+      testUserAgent,
+      createdPost.id,
+      undefined,
+      accessToken
     );
 
     expect(getCommentListByPostIdResponse.items).toBeInstanceOf(Array);
@@ -611,7 +702,7 @@ describe('Posts API Validation', () => {
     expect(createCommentForPostResponse_04.errorsMessages[0].message).toBe('Field "postId" must not be empty');
   });
 
-  it('❌ 015 should not create a comment for a post by an incorrect ID; 002. POST /api/posts/:postId/comments', async () => {
+  it('❌ 017 should not create a comment for a post by an incorrect ID; 002. POST /api/posts/:postId/comments', async () => {
     const createdPost: PostOutputDTO = await createPost(app);
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
     await createUser(app, createUserData);
@@ -621,11 +712,23 @@ describe('Posts API Validation', () => {
       password: createUserData.password,
     });
 
-    await createCommentForPost(app, validPostIds.id_01, accessToken, undefined, HttpStatuses.NotFound_404);
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    await createCommentForPost(
+      app,
+      testUserAgent,
+      validPostIds.id_01,
+      accessToken,
+      undefined,
+      HttpStatuses.NotFound_404
+    );
 
     const getCommentListByPostIdResponse: PaginatedCommentListOutputDTO = await getCommentListByPostId(
       app,
-      createdPost.id
+      testUserAgent,
+      createdPost.id,
+      undefined,
+      accessToken
     );
 
     expect(getCommentListByPostIdResponse.items).toBeInstanceOf(Array);
@@ -633,7 +736,7 @@ describe('Posts API Validation', () => {
     expect(getCommentListByPostIdResponse.totalCount).toBe(0);
   });
 
-  it('❌ 016 should not create a comment for a post by a correct ID when an invalid body passed; 002. POST /api/posts/:postId/comments', async () => {
+  it('❌ 018 should not create a comment for a post by a correct ID when an invalid user agent passed; 002. POST /api/posts/:postId/comments', async () => {
     const createdPost: PostOutputDTO = await createPost(app);
     const createdPostId: string = createdPost.id;
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
@@ -644,10 +747,77 @@ describe('Posts API Validation', () => {
       password: createUserData.password,
     });
 
+    const testStatus: HttpStatuses = HttpStatuses.Unauthorized_401;
+
+    await createCommentForPost(app, invalidUserAgents.userAgent_01, createdPostId, accessToken, undefined, testStatus);
+    await createCommentForPost(app, invalidUserAgents.userAgent_01, createdPostId, accessToken, undefined, testStatus);
+
+    const getCommentListByPostIdResponse: PaginatedCommentListOutputDTO = await getCommentListByPostId(
+      app,
+      validUserAgents.userAgent_01,
+      createdPost.id,
+      undefined,
+      accessToken
+    );
+
+    expect(getCommentListByPostIdResponse.items).toBeInstanceOf(Array);
+    expect(getCommentListByPostIdResponse.items.length).toBe(0);
+    expect(getCommentListByPostIdResponse.totalCount).toBe(0);
+  });
+
+  it('❌ 019 should not create a comment for a post by a correct ID when a user agent not passed; 002. POST /api/posts/:postId/comments', async () => {
+    const createdPost: PostOutputDTO = await createPost(app);
+    const createdPostId: string = createdPost.id;
+    const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
+    await createUser(app, createUserData);
+
+    const accessToken: string = await loginUserReturnAccessToken(app, {
+      loginOrEmail: createUserData.login,
+      password: createUserData.password,
+    });
+
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    await createCommentForPost(
+      app,
+      testUserAgent,
+      createdPostId,
+      accessToken,
+      undefined,
+      HttpStatuses.Unauthorized_401,
+      true
+    );
+
+    const getCommentListByPostIdResponse: PaginatedCommentListOutputDTO = await getCommentListByPostId(
+      app,
+      testUserAgent,
+      createdPost.id,
+      undefined,
+      accessToken
+    );
+
+    expect(getCommentListByPostIdResponse.items).toBeInstanceOf(Array);
+    expect(getCommentListByPostIdResponse.items.length).toBe(0);
+    expect(getCommentListByPostIdResponse.totalCount).toBe(0);
+  });
+
+  it('❌ 020 should not create a comment for a post by a correct ID when an invalid body passed; 002. POST /api/posts/:postId/comments', async () => {
+    const createdPost: PostOutputDTO = await createPost(app);
+    const createdPostId: string = createdPost.id;
+    const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
+    await createUser(app, createUserData);
+
+    const accessToken: string = await loginUserReturnAccessToken(app, {
+      loginOrEmail: createUserData.login,
+      password: createUserData.password,
+    });
+
+    const testUserAgent: string = validUserAgents.userAgent_01;
     const testStatus: HttpStatuses = HttpStatuses.BadRequest_400;
 
     const createCommentForPostResponse_01: any = await createCommentForPost(
       app,
+      testUserAgent,
       createdPostId,
       accessToken,
       { content: invalidCommentContents.content_01 },
@@ -656,6 +826,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_02: any = await createCommentForPost(
       app,
+      testUserAgent,
       createdPostId,
       accessToken,
       { content: invalidCommentContents.content_02 },
@@ -664,6 +835,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_03: any = await createCommentForPost(
       app,
+      testUserAgent,
       createdPostId,
       accessToken,
       { content: invalidCommentContents.content_03 },
@@ -672,6 +844,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_04: any = await createCommentForPost(
       app,
+      testUserAgent,
       createdPostId,
       accessToken,
       { content: invalidCommentContents.content_04 },
@@ -680,6 +853,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_05: any = await createCommentForPost(
       app,
+      testUserAgent,
       createdPostId,
       accessToken,
       { content: invalidCommentContents.content_05 },
@@ -688,6 +862,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_06: any = await createCommentForPost(
       app,
+      testUserAgent,
       createdPostId,
       accessToken,
       { content: invalidCommentContents.content_06 },
@@ -696,6 +871,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_07: any = await createCommentForPost(
       app,
+      testUserAgent,
       createdPostId,
       accessToken,
       { content: invalidCommentContents.content_07 },
@@ -704,6 +880,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_08: any = await createCommentForPost(
       app,
+      testUserAgent,
       createdPostId,
       accessToken,
       { content: invalidCommentContents.content_08 },
@@ -712,6 +889,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_09: any = await createCommentForPost(
       app,
+      testUserAgent,
       createdPostId,
       accessToken,
       { content: invalidCommentContents.content_09 },
@@ -720,6 +898,7 @@ describe('Posts API Validation', () => {
 
     const createCommentForPostResponse_10: any = await createCommentForPost(
       app,
+      testUserAgent,
       createdPostId,
       accessToken,
       { content: invalidCommentContents.content_10 },
@@ -728,7 +907,10 @@ describe('Posts API Validation', () => {
 
     const getCommentListByPostIdResponse: PaginatedCommentListOutputDTO = await getCommentListByPostId(
       app,
-      createdPostId
+      testUserAgent,
+      createdPostId,
+      undefined,
+      accessToken
     );
 
     expect(getCommentListByPostIdResponse.items).toBeInstanceOf(Array);
@@ -768,7 +950,7 @@ describe('Posts API Validation', () => {
     expect(createCommentForPostResponse_10.errorsMessages[0].message).toBe('Field "content" must be a string');
   });
 
-  it('❌ 017 should not return a list of comments for a post by an invalid ID; 001. GET /api/posts/:postId/comments', async () => {
+  it('❌ 021 should not return a list of comments for a post by an invalid ID; 001. GET /api/posts/:postId/comments', async () => {
     const createdPost: PostOutputDTO = await createPost(app);
     const createdPostId: string = createdPost.id;
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
@@ -779,38 +961,48 @@ describe('Posts API Validation', () => {
       password: createUserData.password,
     });
 
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
     await Promise.all([
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
     ]);
 
     const testStatus: HttpStatuses = HttpStatuses.BadRequest_400;
 
     const getCommentListByPostIdResponse_01: any = await getCommentListByPostId(
       app,
+      testUserAgent,
       invalidPostIds.id_01,
       undefined,
+      accessToken,
       testStatus
     );
 
     const getCommentListByPostIdResponse_02: any = await getCommentListByPostId(
       app,
+      testUserAgent,
       invalidPostIds.id_02,
       undefined,
+      accessToken,
       testStatus
     );
 
     const getCommentListByPostIdResponse_03: any = await getCommentListByPostId(
       app,
+      testUserAgent,
       invalidPostIds.id_03,
       undefined,
+      accessToken,
       testStatus
     );
 
     const getCommentListByPostIdResponse_04: any = await getCommentListByPostId(
       app,
+      testUserAgent,
       invalidPostIds.id_04,
       undefined,
+      accessToken,
       testStatus
     );
 
@@ -824,7 +1016,7 @@ describe('Posts API Validation', () => {
     expect(getCommentListByPostIdResponse_04.errorsMessages[0].message).toBe('Field "postId" must not be empty');
   });
 
-  it('❌ 018 should not return a list of comments for a post by an incorrect ID; 001. GET /api/posts/:postId/comments', async () => {
+  it('❌ 022 should not return a list of comments for a post by an incorrect ID; 001. GET /api/posts/:postId/comments', async () => {
     const createdPost: PostOutputDTO = await createPost(app);
     const createdPostId: string = createdPost.id;
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
@@ -835,15 +1027,24 @@ describe('Posts API Validation', () => {
       password: createUserData.password,
     });
 
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
     await Promise.all([
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
     ]);
 
-    await getCommentListByPostId(app, validPostIds.id_01, undefined, HttpStatuses.NotFound_404);
+    await getCommentListByPostId(
+      app,
+      testUserAgent,
+      validPostIds.id_01,
+      undefined,
+      accessToken,
+      HttpStatuses.NotFound_404
+    );
   });
 
-  it('❌ 019 should not return a list of comments for a post by a correct ID when invalid pagination settings passed; 001. GET /api/posts/:postId/comments', async () => {
+  it('❌ 023 should not return a list of comments for a post by a correct ID when invalid pagination settings passed; 001. GET /api/posts/:postId/comments', async () => {
     const createdPost: PostOutputDTO = await createPost(app);
     const createdPostId: string = createdPost.id;
     const invalidUrl_01: string = `${SETTINGS.POSTS_PATH}/${createdPostId}/comments?pageSize=${invalidCommentsPaginationSettings.pageSize}&pageNumber=${validCommentsPaginationSettings.pageNumber}&sortDirection=${validCommentsPaginationSettings.sortDirection}&sortBy=${validCommentsPaginationSettings.sortBy}`;
@@ -858,42 +1059,51 @@ describe('Posts API Validation', () => {
       password: createUserData.password,
     });
 
-    await Promise.all([
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
-      createCommentForPost(app, createdPostId, accessToken),
-    ]);
+    const testUserAgent: string = validUserAgents.userAgent_01;
 
+    await Promise.all([
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+    ]);
     const testStatus: HttpStatuses = HttpStatuses.BadRequest_400;
 
     const getCommentListByPostIdResponse_01: any = await getCommentListByPostId(
       app,
+      testUserAgent,
       createdPostId,
       invalidUrl_01,
+      accessToken,
       testStatus
     );
 
     const getCommentListByPostIdResponse_02: any = await getCommentListByPostId(
       app,
+      testUserAgent,
       createdPostId,
       invalidUrl_02,
+      accessToken,
       testStatus
     );
 
     const getCommentListByPostIdResponse_03: any = await getCommentListByPostId(
       app,
+      testUserAgent,
       createdPostId,
       invalidUrl_03,
+      accessToken,
       testStatus
     );
 
     const getCommentListByPostIdResponse_04: any = await getCommentListByPostId(
       app,
+      testUserAgent,
       createdPostId,
       invalidUrl_04,
+      accessToken,
       testStatus
     );
 
@@ -919,6 +1129,73 @@ describe('Posts API Validation', () => {
 
     expect(getCommentListByPostIdResponse_04.errorsMessages[0].message).toBe(
       'Field "sortBy" must be: createdAt, postId, content, commentatorInfo'
+    );
+  });
+
+  it('❌ 024 should not return a list of comments for a post by a correct ID when an invalid user agent passed; 001. GET /api/posts/:postId/comments', async () => {
+    const createdPost: PostOutputDTO = await createPost(app);
+    const createdPostId: string = createdPost.id;
+    const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
+    await createUser(app, createUserData);
+
+    const accessToken: string = await loginUserReturnAccessToken(app, {
+      loginOrEmail: createUserData.login,
+      password: createUserData.password,
+    });
+
+    const testUserAgent: string = validUserAgents.userAgent_01;
+    const testStatus: HttpStatuses = HttpStatuses.Unauthorized_401;
+
+    await Promise.all([
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+    ]);
+
+    await getCommentListByPostId(
+      app,
+      invalidUserAgents.userAgent_01,
+      createdPostId,
+      undefined,
+      accessToken,
+      testStatus
+    );
+
+    await getCommentListByPostId(
+      app,
+      invalidUserAgents.userAgent_02,
+      createdPostId,
+      undefined,
+      accessToken,
+      testStatus
+    );
+  });
+
+  it('❌ 025 should not return a list of comments for a post by a correct ID when a user agent not passed; 001. GET /api/posts/:postId/comments', async () => {
+    const createdPost: PostOutputDTO = await createPost(app);
+    const createdPostId: string = createdPost.id;
+    const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
+    await createUser(app, createUserData);
+
+    const accessToken: string = await loginUserReturnAccessToken(app, {
+      loginOrEmail: createUserData.login,
+      password: createUserData.password,
+    });
+
+    const testUserAgent: string = validUserAgents.userAgent_01;
+
+    await Promise.all([
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+      createCommentForPost(app, testUserAgent, createdPostId, accessToken),
+    ]);
+
+    await getCommentListByPostId(
+      app,
+      testUserAgent,
+      createdPostId,
+      undefined,
+      accessToken,
+      HttpStatuses.Unauthorized_401,
+      true
     );
   });
 });
