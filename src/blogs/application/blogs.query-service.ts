@@ -17,7 +17,7 @@ export class BlogsQueryService {
   constructor(@inject(TYPES.BlogsQueryRepository) private readonly blogsQueryRepository: BlogsQueryRepository) {}
 
   /*Метод для поиска блога по ID.*/
-  async findById(id: string): Promise<Result<{ blogOutput: BlogOutputDTO } | null>> {
+  public async findById(id: string): Promise<Result<{ blogOutput: BlogOutputDTO } | null>> {
     /*Просим query-репозиторий "blogsQueryRepository" найти блог по ID в БД.*/
     const blogDB: BlogDBType | null = await this.blogsQueryRepository.findById(id);
 
@@ -38,7 +38,7 @@ export class BlogsQueryService {
   }
 
   /*Метод для поиска блогов.*/
-  async findAll(
+  public async findAll(
     queryDTO: GetBlogListQueryInputDTO
   ): Promise<Result<{ paginatedBlogListOutput: PaginatedBlogListOutputDTO }>> {
     /*Просим query-репозиторий "blogsQueryRepository" найти блоги в БД.*/

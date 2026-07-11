@@ -42,7 +42,7 @@ export class AuthService {
   ) {}
 
   /*Метод для аутентификации пользователя по логину/email и паролю.*/
-  async loginUser(
+  public async loginUser(
     loginOrEmail: string,
     password: string,
     deviceName: string,
@@ -107,7 +107,7 @@ export class AuthService {
   }
 
   /*Метод для регистрации пользователя.*/
-  async registerUser(dto: CreateUserInputDTO): Promise<Result<{ createdUserId: string }>> {
+  public async registerUser(dto: CreateUserInputDTO): Promise<Result<{ createdUserId: string }>> {
     /*Генерируем код подтверждения регистрации пользователя.*/
     const newUserConfirmationCode: string = randomUUID();
     /*Генерируем дату истечения кода подтверждения регистрации пользователя.*/
@@ -134,7 +134,7 @@ export class AuthService {
   }
 
   /*Метод для перевыпуска пары AT/RT.*/
-  async refreshAccessAndRefreshTokens(
+  public async refreshAccessAndRefreshTokens(
     userId: string,
     deviceId: string,
     ip: string,
@@ -209,7 +209,7 @@ export class AuthService {
   }
 
   /*Метод для создания данных о подтверждении регистрации пользователя.*/
-  async createEmailConfirmation(emailConfirmation: EmailConfirmationType): Promise<Result<{}>> {
+  public async createEmailConfirmation(emailConfirmation: EmailConfirmationType): Promise<Result<{}>> {
     /*Просим репозиторий "authRepository" создать данные о подтверждении регистрации пользователя в БД.*/
     await this.authRepository.createEmailConfirmation({
       userId: emailConfirmation.userId,
@@ -222,7 +222,7 @@ export class AuthService {
   }
 
   /*Метод для отправки письма с кодом восстановления пароля пользователя.*/
-  async sendRecoveryPasswordCode(email: string): Promise<Result<{}>> {
+  public async sendRecoveryPasswordCode(email: string): Promise<Result<{}>> {
     /*Просим сервис "usersService" найти пользователя по email.*/
     const userResult: Result<{ userOutput: UserOutputDTO } | null> = await this.usersService.findByEmail(email);
     /*Если пользователь не был найден, то возвращаем ResultObject с информацией об этом.*/
@@ -254,7 +254,7 @@ export class AuthService {
   }
 
   /*Метод для поиска сессий по ID пользователя.*/
-  async findAllSessionsByUserId(userId: string): Promise<Result<{ sessionListOutput: SessionListType }>> {
+  public async findAllSessionsByUserId(userId: string): Promise<Result<{ sessionListOutput: SessionListType }>> {
     /*Просим репозиторий "authRepository" найти сессии по ID пользователя в БД.*/
     const sessionsDB: SessionListDBType = await this.authRepository.findAllSessionsByUserId(userId);
     /*Преобразовываем сессии из БД в подготовленные для работы внутри приложения сессии.*/
@@ -264,7 +264,7 @@ export class AuthService {
   }
 
   /*Метод для поиска данных о подтверждении регистрации пользователя по коду подтверждения.*/
-  async findEmailConfirmationByCode(
+  public async findEmailConfirmationByCode(
     confirmationCode: string
   ): Promise<Result<{ emailConfirmationOutput: EmailConfirmationType } | null>> {
     /*Просим репозиторий "authRepository" найти данные о подтверждении регистрации пользователя по коду подтверждения в
@@ -292,7 +292,7 @@ export class AuthService {
   }
 
   /*Метод для поиска данных о коде восстановления пароля пользователя по коду.*/
-  async findRecoveryPasswordCodeDataByCode(
+  public async findRecoveryPasswordCodeDataByCode(
     recoveryCode: string
   ): Promise<Result<{ recoveryCodeDataOutput: RecoveryCodeDataType } | null>> {
     /*Просим репозиторий "authRepository" найти данные о коде восстановления пароля пользователя по коду в БД.*/
@@ -319,7 +319,7 @@ export class AuthService {
   }
 
   /*Метод для повторной отправки письма для подтверждения регистрации пользователя.*/
-  async resendConfirmationEmail(email: string): Promise<Result<{} | null>> {
+  public async resendConfirmationEmail(email: string): Promise<Result<{} | null>> {
     /*Генерируем код подтверждения регистрации пользователя.*/
     const newUserConfirmationCode: string = randomUUID();
     /*Генерируем дату истечения кода подтверждения регистрации пользователя.*/
@@ -362,7 +362,7 @@ export class AuthService {
   }
 
   /*Метод для изменения данных о подтверждении регистрации пользователя по ID пользователя.*/
-  async updateEmailConfirmationByUserId(emailConfirmation: EmailConfirmationType): Promise<Result<{}>> {
+  public async updateEmailConfirmationByUserId(emailConfirmation: EmailConfirmationType): Promise<Result<{}>> {
     /*Просим репозиторий "authRepository" изменить данные для подтверждения регистрации пользователя по ID пользователя
     в БД.*/
     const updatedEmailConfirmationCount: number = await this.authRepository.updateEmailConfirmationByUserId(
@@ -385,7 +385,7 @@ export class AuthService {
   }
 
   /*Метод для отзыва сессии.*/
-  async revokeSession(refreshToken: string): Promise<Result<{} | null>> {
+  public async revokeSession(refreshToken: string): Promise<Result<{} | null>> {
     /*Просим адаптер "jwtAdapter" декодировать RT.*/
     const refreshTokenPayload: { userId: string; deviceId: string; iat: number; exp: number } | null =
       await this.jwtAdapter.decodeRefreshToken(refreshToken);
@@ -410,7 +410,7 @@ export class AuthService {
   }
 
   /*Метод для отзыва всех сессий пользователя, кроме текущей.*/
-  async revokeSessionsExceptCurrentDevice(userId: string, deviceId: string): Promise<Result<{}>> {
+  public async revokeSessionsExceptCurrentDevice(userId: string, deviceId: string): Promise<Result<{}>> {
     /*Просим репозиторий "authRepository" удалить все сессии пользователя, кроме текущей, в БД.*/
     await this.authRepository.deleteSessionsExceptCurrentDevice(userId, deviceId);
     /*Просим сервис "securityDevicesService" удалить все устройства пользователя, кроме текущего.*/
@@ -420,7 +420,7 @@ export class AuthService {
   }
 
   /*Метод для отзыва сессии по ID пользователя и ID устройства пользователя.*/
-  async revokeSessionByUserIdAndDeviceId(userId: string, deviceId: string): Promise<Result<{} | null>> {
+  public async revokeSessionByUserIdAndDeviceId(userId: string, deviceId: string): Promise<Result<{} | null>> {
     /*Просим сервис "securityDevicesService" найти устройство пользователя по ID.*/
     const securityDeviceResult: Result<{ securityDeviceOutput: SecurityDeviceOutputDTO } | null> =
       await this.securityDevicesService.findById(deviceId);
@@ -459,7 +459,7 @@ export class AuthService {
   }
 
   /*Метод для отзыва всех сессий пользователя по ID пользователя.*/
-  async revokeAllSessionsByUserId(userId: string): Promise<Result<{}>> {
+  public async revokeAllSessionsByUserId(userId: string): Promise<Result<{}>> {
     /*Просим репозиторий "authRepository" удалить все сессии пользователя по ID пользователя в БД.*/
     await this.authRepository.deleteAllSessionsByUserId(userId);
     /*Просим сервис "securityDevicesService" удалить все устройства пользователя по ID пользователя.*/
@@ -469,7 +469,7 @@ export class AuthService {
   }
 
   /*Метод для удаления данных о подтверждении регистрации пользователя по ID пользователя.*/
-  async deleteEmailConfirmationByUserId(userId: string): Promise<Result<{}>> {
+  public async deleteEmailConfirmationByUserId(userId: string): Promise<Result<{}>> {
     /*Просим репозиторий "authRepository" удалить данные о подтверждении регистрации пользователя по ID пользователя в
     БД.*/
     await this.authRepository.deleteEmailConfirmationByUserId(userId);
@@ -478,7 +478,7 @@ export class AuthService {
   }
 
   /*Метод для удаления данных о коде восстановления пароля пользователя по коду.*/
-  async deleteRecoveryCodeDataByCode(recoveryCode: string): Promise<Result<{}>> {
+  public async deleteRecoveryCodeDataByCode(recoveryCode: string): Promise<Result<{}>> {
     /*Просим репозиторий "authRepository" удалить данные о коде восстановления пароля пользователя по коду в БД.*/
     await this.authRepository.deleteRecoveryCodeDataByCode(recoveryCode);
     /*Возвращаем ResultObject с информацией об удалении данных о коде восстановления пароля пользователя.*/
@@ -486,7 +486,7 @@ export class AuthService {
   }
 
   /*Метод для проверки подлинности логина/email и пароля пользователя.*/
-  async _checkUserCredentials(loginOrEmail: string, password: string): Promise<Result<{ id: string } | null>> {
+  public async _checkUserCredentials(loginOrEmail: string, password: string): Promise<Result<{ id: string } | null>> {
     /*Просим сервис "usersService" найти пользователя по логину/email.*/
     const userResult: Result<{
       userOutputWithIsConfirmedAndPasswordHash: UserOutputDTO & { isConfirmed: boolean; passwordHash: string };

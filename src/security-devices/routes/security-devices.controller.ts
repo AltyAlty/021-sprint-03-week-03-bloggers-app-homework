@@ -20,7 +20,7 @@ export class SecurityDevicesController {
   ) {}
 
   /*Метод-обработчик для GET-запросов по получению устройств пользователя в активных сессиях.*/
-  async getSecurityDeviceListHandler(
+  public async getSecurityDeviceListHandler(
     req: Request,
     res: Response<SecurityDeviceListOutputDTO>
   ): Promise<void | Response<SecurityDeviceListOutputDTO>> {
@@ -43,7 +43,7 @@ export class SecurityDevicesController {
   }
 
   /*Метод-обработчик для DELETE-запросов по отзыву всех сессий, кроме текущей.*/
-  async revokeSessionsExceptCurrentDeviceHandler(
+  public async revokeSessionsExceptCurrentDeviceHandler(
     req: Request<{}, {}, {}, {}, IdType>,
     res: Response
   ): Promise<void | Response> {
@@ -71,7 +71,7 @@ export class SecurityDevicesController {
   }
 
   /*Метод-обработчик для DELETE-запросов по отзыву сессии по ID устройства, используя URI-параметры.*/
-  async revokeSessionByDeviceIdHandler(
+  public async revokeSessionByDeviceIdHandler(
     req: Request<RevokeSessionByDeviceIdUriInputDTO, {}, {}, {}, IdType>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {

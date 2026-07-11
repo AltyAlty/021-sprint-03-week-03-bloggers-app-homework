@@ -23,7 +23,7 @@ export class PostsService {
   constructor(@inject(TYPES.PostsRepository) private readonly postsRepository: PostsRepository) {}
 
   /*Метод для добавления поста.*/
-  async create(dto: CreatePostInputDTO): Promise<Result<{ createdPostId: string } | null>> {
+  public async create(dto: CreatePostInputDTO): Promise<Result<{ createdPostId: string } | null>> {
     /*Просим сервис "blogsService" найти блог по ID.*/
     const blogResult: Result<{ blogOutput: BlogOutputDTO } | null> = await this.blogsService.findById(dto.blogId);
     /*Если блог не был найден, то возвращаем ResultObject с информацией об этом.*/
@@ -46,7 +46,7 @@ export class PostsService {
   }
 
   /*Метод для поиска поста по ID.*/
-  async findById(id: string): Promise<Result<{ postOutput: PostOutputDTO } | null>> {
+  public async findById(id: string): Promise<Result<{ postOutput: PostOutputDTO } | null>> {
     /*Просим репозиторий "postsRepository" найти пост по ID в БД.*/
     const postDB: PostDBType | null = await this.postsRepository.findById(id);
 
@@ -67,7 +67,7 @@ export class PostsService {
   }
 
   /*Метод для изменения поста по ID.*/
-  async updateById(id: string, dto: UpdatePostByIdInputDTO): Promise<Result<{} | null>> {
+  public async updateById(id: string, dto: UpdatePostByIdInputDTO): Promise<Result<{} | null>> {
     /*Просим репозиторий "postsRepository" изменить данные поста по ID в БД.*/
     const updatedPostCount: number = await this.postsRepository.updateById(id, dto);
 
@@ -86,7 +86,7 @@ export class PostsService {
   }
 
   /*Метод для удаления поста по ID.*/
-  async deleteById(id: string): Promise<Result<{} | null>> {
+  public async deleteById(id: string): Promise<Result<{} | null>> {
     /*Просим сервис "commentsService" удалить комментарии в посте по ID.*/
     await this.commentsService.deleteAllByPostId(id);
     /*Просим репозиторий "postsRepository" удалить пост по ID в БД.*/
@@ -107,7 +107,7 @@ export class PostsService {
   }
 
   /*Метод для удаления постов по ID блога.*/
-  async deleteAllByBlogId(blogId: string): Promise<Result<{ deletedPostsCount: number } | null>> {
+  public async deleteAllByBlogId(blogId: string): Promise<Result<{ deletedPostsCount: number } | null>> {
     /*Просим репозиторий "postsRepository" найти посты в блоге по ID в БД.*/
     const postsDB: PostListDBType | null = await this.postsRepository.findAllByBlogId(blogId);
 

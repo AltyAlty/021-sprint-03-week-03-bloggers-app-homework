@@ -17,7 +17,7 @@ export class UsersQueryService {
   constructor(@inject(TYPES.UsersQueryRepository) private readonly usersQueryRepository: UsersQueryRepository) {}
 
   /*Метод для поиска пользователя по ID.*/
-  async findById(id: string): Promise<Result<{ userOutput: UserOutputDTO } | null>> {
+  public async findById(id: string): Promise<Result<{ userOutput: UserOutputDTO } | null>> {
     /*Просим query-репозиторий "usersQueryRepository" найти пользователя по ID в БД.*/
     const userDB: UserDBType | null = await this.usersQueryRepository.findById(id);
 
@@ -38,7 +38,7 @@ export class UsersQueryService {
   }
 
   /*Метод для поиска пользователей.*/
-  async findAll(
+  public async findAll(
     queryDTO: GetUserListQueryInputDTO
   ): Promise<Result<{ paginatedUserListOutput: PaginatedUserListOutputDTO }>> {
     /*Просим query-репозиторий "usersQueryRepository" найти пользователей в БД.*/

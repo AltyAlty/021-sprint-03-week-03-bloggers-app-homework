@@ -39,7 +39,7 @@ export class PostsController {
 
   /*Метод-обработчик для GET-запросов по получению комментариев с пагинацией в посте по ID, используя URI-параметры и
   query-параметры.*/
-  async getCommentListByPostIdHandler(
+  public async getCommentListByPostIdHandler(
     req: Request<GetCommentListByPostIdUriInputDTO, {}, {}, GetCommentListByPostIdQueryInputDTO>,
     res: Response<PaginatedCommentListOutputDTO | ExtensionType[]>
   ): Promise<void | Response<PaginatedCommentListOutputDTO | ExtensionType[]>> {
@@ -84,7 +84,7 @@ export class PostsController {
   }
 
   /*Метод-обработчик для POST-запросов по добавлению нового комментария в пост по ID, используя URI-параметры.*/
-  async createCommentForPostHandler(
+  public async createCommentForPostHandler(
     req: Request<CreateCommentForPostUriInputDTO, {}, CreateCommentForPostInputDTO>,
     res: Response<CommentOutputDTO | ExtensionType[]>
   ): Promise<void | Response<CommentOutputDTO | ExtensionType[]>> {
@@ -128,7 +128,7 @@ export class PostsController {
   }
 
   /*Метод-обработчик для GET-запросов по получению постов с пагинацией, используя query-параметры.*/
-  async getPostListHandler(
+  public async getPostListHandler(
     req: Request<{}, {}, {}, GetPostListQueryInputDTO>,
     res: Response<PaginatedPostListOutputDTO | ExtensionType[]>
   ): Promise<void | Response<PaginatedPostListOutputDTO | ExtensionType[]>> {
@@ -160,7 +160,7 @@ export class PostsController {
   }
 
   /*Метод-обработчик для POST-запросов по добавлению поста.*/
-  async createPostHandler(
+  public async createPostHandler(
     req: Request<{}, {}, CreatePostInputDTO>,
     res: Response<PostOutputDTO | ExtensionType[]>
   ): Promise<void | Response<PostOutputDTO | ExtensionType[]>> {
@@ -192,7 +192,7 @@ export class PostsController {
   }
 
   /*Метод-обработчик для GET-запросов по получению поста по ID, используя URI-параметры.*/
-  async getPostByIdHandler(
+  public async getPostByIdHandler(
     req: Request<GetPostByIdUriInputDTO>,
     res: Response<PostOutputDTO | ExtensionType[]>
   ): Promise<void | Response<PostOutputDTO | ExtensionType[]>> {
@@ -218,7 +218,7 @@ export class PostsController {
   }
 
   /*Метод-обработчик для PUT-запросов по изменению поста по ID, используя URI-параметры.*/
-  async updatePostByIdHandler(
+  public async updatePostByIdHandler(
     req: Request<UpdatePostByIdUriInputDTO, {}, UpdatePostByIdInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {
@@ -244,7 +244,7 @@ export class PostsController {
   }
 
   /*Метод-обработчик для DELETE-запросов по удалению поста по ID, используя URI-параметры.*/
-  async deletePostByIdHandler(
+  public async deletePostByIdHandler(
     req: Request<DeletePostByIdUriInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {

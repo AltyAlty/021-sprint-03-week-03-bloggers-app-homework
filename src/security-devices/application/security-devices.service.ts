@@ -16,7 +16,7 @@ export class SecurityDevicesService {
   ) {}
 
   /*Метод для добавления устройства пользователя.*/
-  async create(securityDevice: SecurityDeviceType): Promise<Result<{ createdSecurityDeviceId: string }>> {
+  public async create(securityDevice: SecurityDeviceType): Promise<Result<{ createdSecurityDeviceId: string }>> {
     /*Просим репозиторий "securityDevicesRepository" добавить устройство пользователя в БД.*/
     const createdSecurityDeviceId: string = await this.securityDevicesRepository.create(securityDevice);
     /*Возвращаем ResultObject с ID созданного устройства пользователя.*/
@@ -24,7 +24,7 @@ export class SecurityDevicesService {
   }
 
   /*Метод для поиска устройства пользователя по ID.*/
-  async findById(id: string): Promise<Result<{ securityDeviceOutput: SecurityDeviceOutputDTO } | null>> {
+  public async findById(id: string): Promise<Result<{ securityDeviceOutput: SecurityDeviceOutputDTO } | null>> {
     /*Просим репозиторий "securityDevicesRepository" найти устройство пользователя по ID в БД.*/
     const securityDeviceDB: SecurityDeviceDBType | null = await this.securityDevicesRepository.findById(id);
 
@@ -46,7 +46,7 @@ export class SecurityDevicesService {
   }
 
   /*Метод для изменения устройства пользователя по ID.*/
-  async updateById(id: string, ip: string, lastActiveDate: Date): Promise<Result<{} | null>> {
+  public async updateById(id: string, ip: string, lastActiveDate: Date): Promise<Result<{} | null>> {
     /*Просим репозиторий "securityDevicesRepository" изменить устройство пользователя по ID в БД.*/
     const updatedSecurityDeviceCount: number = await this.securityDevicesRepository.updateById(id, ip, lastActiveDate);
 
@@ -65,7 +65,7 @@ export class SecurityDevicesService {
   }
 
   /*Метод для удаления устройства пользователя по ID устройства.*/
-  async deleteById(id: string): Promise<Result<{}>> {
+  public async deleteById(id: string): Promise<Result<{}>> {
     /*Просим репозиторий "securityDevicesRepository" удалить устройство пользователя по ID устройства в БД.*/
     await this.securityDevicesRepository.deleteById(id);
     /*Возвращаем ResultObject с информацией об удалении устройства пользователя.*/
@@ -73,7 +73,7 @@ export class SecurityDevicesService {
   }
 
   /*Метод для удаления всех устройств пользователя, кроме текущего.*/
-  async deleteAllExceptCurrentDevice(id: string): Promise<Result<{}>> {
+  public async deleteAllExceptCurrentDevice(id: string): Promise<Result<{}>> {
     /*Просим репозиторий "securityDevicesRepository" удалить все устройства пользователя, кроме текущего, в БД.*/
     await this.securityDevicesRepository.deleteAllExceptCurrentDevice(id);
     /*Возвращаем ResultObject с информацией об удалении устройств пользователя.*/
@@ -81,7 +81,7 @@ export class SecurityDevicesService {
   }
 
   /*Метод для удаления всех устройств пользователя по ID пользователя.*/
-  async deleteAllByUserId(userId: string): Promise<Result<{}>> {
+  public async deleteAllByUserId(userId: string): Promise<Result<{}>> {
     /*Просим репозиторий "securityDevicesRepository" удалить все устройства пользователя по ID пользователя в БД.*/
     await this.securityDevicesRepository.deleteAllByUserId(userId);
     /*Возвращаем ResultObject с информацией об удалении устройств пользователя.*/

@@ -12,7 +12,7 @@ import { PostModel } from './models/post.model';
 @injectable()
 export class PostsQueryRepository {
   /*Метод для поиска поста по ID в БД.*/
-  async findById(id: string): Promise<PostDBType | null> {
+  public async findById(id: string): Promise<PostDBType | null> {
     /*Просим модель "PostModel" найти пост по ID в БД.*/
     const post: PostDBType | null = await PostModel.findById(id).lean();
     /*Если пост был найден, то возвращаем его, иначе возвращаем null.*/
@@ -20,7 +20,7 @@ export class PostsQueryRepository {
   }
 
   /*Метод для поиска постов в БД.*/
-  async findAll(
+  public async findAll(
     queryDTO: GetPostListQueryInputDTO,
     blogId?: string
   ): Promise<{ items: PostListDBType; totalCount: number }> {

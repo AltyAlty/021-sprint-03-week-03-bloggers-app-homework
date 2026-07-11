@@ -10,7 +10,7 @@ import { DeleteResult } from 'mongodb';
 @injectable()
 export class BlogsRepository {
   /*Метод для добавления блога в БД.*/
-  async create(newBlog: BlogType): Promise<string> {
+  public async create(newBlog: BlogType): Promise<string> {
     /*Просим модель "BlogModel" создать блог в БД.*/
     const blog: HydratedDocument<BlogType> = new BlogModel(newBlog);
     await blog.save();
@@ -19,7 +19,7 @@ export class BlogsRepository {
   }
 
   /*Метод для поиска блога по ID в БД.*/
-  async findById(id: string): Promise<BlogDBType | null> {
+  public async findById(id: string): Promise<BlogDBType | null> {
     /*Просим модель "BlogModel" найти блог по ID в БД.*/
     const blog: BlogDBType | null = await BlogModel.findById(id).lean();
     /*Если блог был найден, то возвращаем его, иначе возвращаем null.*/
@@ -27,7 +27,7 @@ export class BlogsRepository {
   }
 
   /*Метод для изменения блога по ID в БД.*/
-  async updateById(id: string, dto: UpdateBlogByIdInputDTO): Promise<number> {
+  public async updateById(id: string, dto: UpdateBlogByIdInputDTO): Promise<number> {
     /*Просим модель "BlogModel" найти блог по ID в БД.*/
     const blog: HydratedDocument<BlogType> | null = await BlogModel.findById(id);
     /*Если блог не был найден, то сообщаем, что он не был изменен.*/
@@ -42,7 +42,7 @@ export class BlogsRepository {
   }
 
   /*Метод для удаления блога по ID в БД.*/
-  async deleteById(id: string): Promise<number> {
+  public async deleteById(id: string): Promise<number> {
     /*Просим модель "BlogModel" найти блог по ID в БД.*/
     const blog: HydratedDocument<BlogType> | null = await BlogModel.findById(id);
     /*Если блог не был найден, то сообщаем, что он не был удален.*/

@@ -24,7 +24,7 @@ export class CommentsController {
   ) {}
 
   /*Метод-обработчик для PUT-запросов по изменению комментария по ID, используя URI-параметры.*/
-  async updateCommentByIdHandler(
+  public async updateCommentByIdHandler(
     req: Request<UpdateCommentByIdUriInputDTO, {}, UpdateCommentByIdInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {
@@ -58,7 +58,7 @@ export class CommentsController {
   }
 
   /*Метод-обработчик для DELETE-запросов по удалению комментария по ID, используя URI-параметры.*/
-  async deleteCommentByIdHandler(
+  public async deleteCommentByIdHandler(
     req: Request<DeleteCommentByIdUriInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {
@@ -86,7 +86,7 @@ export class CommentsController {
   }
 
   /*Метод-обработчик для GET-запросов по получению комментария по ID, используя URI-параметры.*/
-  async getCommentByIdHandler(
+  public async getCommentByIdHandler(
     req: Request<GetCommentByIdUriInputDTO>,
     res: Response<CommentOutputDTO | ExtensionType[]>
   ): Promise<void | Response<CommentOutputDTO | ExtensionType[]>> {
@@ -117,7 +117,7 @@ export class CommentsController {
   }
 
   /*Метод-обработчик для PUT-запросов по лайку комментария по ID, используя URI-параметры.*/
-  async likeCommentByIdHandler(
+  public async likeCommentByIdHandler(
     req: Request<LikeCommentByIdUriInputDTO, {}, LikeCommentByIdInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {

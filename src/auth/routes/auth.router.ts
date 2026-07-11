@@ -16,7 +16,7 @@ import {
   requestRateLimitGuardMiddleware,
 } from '../../ioc/composition-root';
 
-/*Роутер из Express для работы с аутентификацией и авторизацией.*/
+/*Роутер из Express.js для работы с аутентификацией и авторизацией.*/
 export const authRouter: Router = Router({});
 
 /*Конфигурируем роутер "authRouter".*/

@@ -19,7 +19,9 @@ export class SecurityDevicesQueryService {
   ) {}
 
   /*Метод для поиска устройств пользователя по ID пользователя.*/
-  async findAllByUserId(userId: string): Promise<Result<{ securityDeviceListOutput: SecurityDeviceListOutputDTO }>> {
+  public async findAllByUserId(
+    userId: string
+  ): Promise<Result<{ securityDeviceListOutput: SecurityDeviceListOutputDTO }>> {
     /*Просим сервис "authService" найти сессии по ID пользователя.*/
     const sessionsResult: Result<{ sessionListOutput: SessionType[] }> =
       await this.authService.findAllSessionsByUserId(userId);

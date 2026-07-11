@@ -30,7 +30,7 @@ export class AuthController {
   ) {}
 
   /*Метод-обработчик для POST-запросов по аутентификации пользователя по логину/email.*/
-  async authByLoginOrEmailHandler(
+  public async authByLoginOrEmailHandler(
     req: Request<{}, {}, LoginDataInputDTO>,
     res: Response<LoginOutputDTO | ExtensionType[]>
   ): Promise<void | Response<LoginOutputDTO | ExtensionType[]>> {
@@ -66,7 +66,7 @@ export class AuthController {
   }
 
   /*Метод-обработчик для GET-запросов по получению данных пользователя по AT.*/
-  async getAuthDataByAccessTokenHandler(
+  public async getAuthDataByAccessTokenHandler(
     req: Request<{}, {}, {}, {}, IdType>,
     res: Response<MeOutputDTO | ExtensionType[]>
   ): Promise<void | Response<MeOutputDTO | ExtensionType[]>> {
@@ -96,7 +96,7 @@ export class AuthController {
   }
 
   /*Метод-обработчик для POST-запросов по регистрации пользователя.*/
-  async registerUserHandler(
+  public async registerUserHandler(
     req: Request<{}, {}, CreateUserInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {
@@ -123,7 +123,7 @@ export class AuthController {
   }
 
   /*Метод-обработчик для POST-запросов по подтверждению регистрации пользователя по коду.*/
-  async confirmUserByCodeHandler(
+  public async confirmUserByCodeHandler(
     req: Request<{}, {}, RegistrationConfirmationCodeInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {
@@ -149,7 +149,7 @@ export class AuthController {
   }
 
   /*Метод-обработчик для POST-запросов по повторной отправке письма для подтверждения регистрация пользователя.*/
-  async resendConfirmationEmailHandler(
+  public async resendConfirmationEmailHandler(
     req: Request<{}, {}, ResendConfirmationEmailInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {
@@ -180,7 +180,7 @@ export class AuthController {
   }
 
   /*Метод-обработчик для POST-запросов по получению новой пары AT/RT.*/
-  async refreshAccessAndRefreshTokensHandler(
+  public async refreshAccessAndRefreshTokensHandler(
     req: Request<{}, {}, {}, {}, IdType>,
     res: Response<RefreshAccessAndRefreshTokensOutputDTO | ExtensionType[]>
   ): Promise<void | Response<RefreshAccessAndRefreshTokensOutputDTO | ExtensionType[]>> {
@@ -222,7 +222,7 @@ export class AuthController {
   }
 
   /*Метод-обработчик для POST-запросов по отзыву сессии.*/
-  async revokeSessionHandler(
+  public async revokeSessionHandler(
     req: Request<{}, {}, {}, {}, IdType>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {
@@ -248,7 +248,7 @@ export class AuthController {
   }
 
   /*Метод-обработчик для POST-запросов по отправке письма с кодом восстановления пароля пользователя.*/
-  async sendRecoveryPasswordCodeHandler(
+  public async sendRecoveryPasswordCodeHandler(
     req: Request<{}, {}, PasswordRecoveryEmailInputDTO>,
     res: Response<void>
   ): Promise<void | Response<void>> {
@@ -272,7 +272,7 @@ export class AuthController {
   }
 
   /*Метод-обработчик для POST-запросов по установлению нового пароля пользователя по коду восстановления.*/
-  async setNewPasswordByRecoveryCodeHandler(
+  public async setNewPasswordByRecoveryCodeHandler(
     req: Request<{}, {}, settingNewPasswordByRecoveryCodeInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {

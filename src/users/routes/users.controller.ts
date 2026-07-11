@@ -24,7 +24,7 @@ export class UsersController {
   ) {}
 
   /*Метод-обработчик для GET-запросов по получению пользователей с пагинацией, используя query-параметры.*/
-  async getUserListHandler(
+  public async getUserListHandler(
     req: Request<{}, {}, {}, GetUserListQueryInputDTO>,
     res: Response<PaginatedUserListOutputDTO>
   ): Promise<void | Response<PaginatedUserListOutputDTO>> {
@@ -50,13 +50,13 @@ export class UsersController {
   }
 
   /*Метод-обработчик для POST-запросов по добавлению пользователя.*/
-  async createUserHandler(
+  public async createUserHandler(
     req: Request<{}, {}, CreateUserInputDTO>,
     res: Response<UserOutputDTO | ExtensionType[]>
   ): Promise<void | Response<UserOutputDTO | ExtensionType[]>> {
     try {
       /*Просим сервис "usersService" создать пользователя.*/
-      const createdUserResult: Result<{ createdUserId: string }> = await this.usersService.create(req.body);
+      const createdUserResult: Result<{ createdUserId: string }> = await this.usersService.create(req.body, false);
       /*Получаем HTTP-статус операции по созданию пользователя.*/
       const createdUserResultHttpStatus: HttpStatuses = mapResultCodeToHttpStatus(createdUserResult.status);
 
@@ -82,7 +82,7 @@ export class UsersController {
   }
 
   /*Метод-обработчик для DELETE-запросов по удалению пользователя по ID, используя URI-параметры.*/
-  async deleteUserByIdHandler(
+  public async deleteUserByIdHandler(
     req: Request<DeleteUSerByIdUriInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {

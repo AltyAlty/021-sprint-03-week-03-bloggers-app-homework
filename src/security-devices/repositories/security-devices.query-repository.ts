@@ -6,7 +6,7 @@ import { SecurityDeviceModel } from './models/security-device.model';
 @injectable()
 export class SecurityDevicesQueryRepository {
   /*Метод для поиска устройств пользователя по ID устройств пользователя в БД.*/
-  async findAllByIds(ids: string[]): Promise<SecurityDeviceListDBType> {
+  public async findAllByIds(ids: string[]): Promise<SecurityDeviceListDBType> {
     /*Просим модель "SecurityDeviceModel" найти устройства пользователя по ID устройств пользователя в БД.*/
     return await SecurityDeviceModel.find({ deviceId: { $in: ids } }).lean();
   }

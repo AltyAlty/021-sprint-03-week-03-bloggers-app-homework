@@ -12,7 +12,7 @@ import {
   optionalAccessTokenGuardMiddleware,
 } from '../../ioc/composition-root';
 
-/*Роутер из Express для работы с комментариями.*/
+/*Роутер из Express.js для работы с комментариями.*/
 export const commentsRouter: Router = Router({});
 
 /*Конфигурируем роутер "commentsRouter".*/

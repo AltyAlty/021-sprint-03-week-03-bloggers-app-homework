@@ -24,7 +24,7 @@ export class CommentsService {
   constructor(@inject(TYPES.CommentsRepository) private readonly commentsRepository: CommentsRepository) {}
 
   /*Метод для добавления комментария в пост.*/
-  async createForPost(
+  public async createForPost(
     postId: string,
     userId: string,
     dto: CreateCommentForPostInputDTO
@@ -57,7 +57,7 @@ export class CommentsService {
   }
 
   /*Метод для изменения комментария по ID.*/
-  async updateById(id: string, dto: UpdateCommentByIdInputDTO, userId?: string): Promise<Result<{} | null>> {
+  public async updateById(id: string, dto: UpdateCommentByIdInputDTO, userId?: string): Promise<Result<{} | null>> {
     /*Просим репозиторий "commentsRepository" найти комментарий по ID в БД.*/
     const commentDB: CommentDBType | null = await this.commentsRepository.findById(id);
 
@@ -91,7 +91,7 @@ export class CommentsService {
   }
 
   /*Метод для лайка комментария по ID.*/
-  async likeCommentById(
+  public async likeCommentById(
     commentId: string,
     userId: string,
     likeStatus: CommentLikeStatusInputDTO
@@ -210,7 +210,7 @@ export class CommentsService {
   }
 
   /*Метод для удаления комментария по ID.*/
-  async deleteById(id: string, userId?: string): Promise<Result<{} | null>> {
+  public async deleteById(id: string, userId?: string): Promise<Result<{} | null>> {
     /*Просим репозиторий "commentsRepository" найти комментарий по ID в БД.*/
     const commentDB: CommentDBType | null = await this.commentsRepository.findById(id);
 
@@ -243,7 +243,7 @@ export class CommentsService {
   }
 
   /*Метод для удаления комментариев по ID поста.*/
-  async deleteAllByPostId(postId: string): Promise<Result<{ deletedCommentsCount: number } | null>> {
+  public async deleteAllByPostId(postId: string): Promise<Result<{ deletedCommentsCount: number } | null>> {
     /*Просим сервис "postsService" найти пост по ID.*/
     const postResult: Result<{ postOutput: PostOutputDTO } | null> | null = await this.postsService.findById(postId);
     /*Если пост не был найден, то возвращаем ResultObject с информацией об этом.*/
@@ -255,7 +255,7 @@ export class CommentsService {
   }
 
   /*Метод для удаления комментариев по ID пользователя.*/
-  async deleteAllByUserId(userId: string): Promise<Result<{ deletedCommentsCount: number }>> {
+  public async deleteAllByUserId(userId: string): Promise<Result<{ deletedCommentsCount: number }>> {
     /*Просим репозиторий "commentsRepository" удалить комментарии по ID пользователя в БД.*/
     const deletedCommentsCount: number = await this.commentsRepository.deleteAllByUserId(userId);
     /*Возвращаем ResultObject с информацией об удалении комментариев.*/
@@ -263,7 +263,7 @@ export class CommentsService {
   }
 
   /*Метод для удаления комментариев по ID постов.*/
-  async deleteAllByPostIds(postIds: string[]): Promise<Result<{ deletedCommentsCount: number } | null>> {
+  public async deleteAllByPostIds(postIds: string[]): Promise<Result<{ deletedCommentsCount: number } | null>> {
     /*Просим репозиторий "commentsRepository" удалить комментарии по ID постов в БД.*/
     const deletedCommentsCount: number = await this.commentsRepository.deleteAllByPostIds(postIds);
     /*Возвращаем ResultObject с информацией об удалении комментариев.*/

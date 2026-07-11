@@ -12,7 +12,7 @@ import { UserModel } from './models/user.model';
 @injectable()
 export class UsersQueryRepository {
   /*Метод для поиска пользователя по ID в БД.*/
-  async findById(id: string): Promise<UserDBType | null> {
+  public async findById(id: string): Promise<UserDBType | null> {
     /*Просим модель "UserModel" найти пользователя по ID в БД.*/
     const user: UserDBType | null = await UserModel.findById(id).lean();
     /*Если пользователь был найден, то возвращаем его, иначе null.*/
@@ -20,7 +20,7 @@ export class UsersQueryRepository {
   }
 
   /*Метод для поиска пользователей в БД.*/
-  async findAll(queryDTO: GetUserListQueryInputDTO): Promise<{ items: UserListDBType; totalCount: number }> {
+  public async findAll(queryDTO: GetUserListQueryInputDTO): Promise<{ items: UserListDBType; totalCount: number }> {
     /*Создаем переменные на основе параметра "queryDTO" при помощи деструктуризации.*/
     const {
       pageNumber,

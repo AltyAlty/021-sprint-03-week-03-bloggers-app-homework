@@ -38,7 +38,7 @@ export class BlogsController {
   ) {}
 
   /*Метод-обработчик для GET-запросов по получению блогов, используя query-параметры.*/
-  async getBlogListHandler(
+  public async getBlogListHandler(
     req: Request<{}, {}, {}, GetBlogListQueryInputDTO>,
     res: Response<PaginatedBlogListOutputDTO>
   ): Promise<void | Response<PaginatedBlogListOutputDTO>> {
@@ -64,7 +64,7 @@ export class BlogsController {
   }
 
   /*Метод-обработчик для POST-запросов по добавлению блога.*/
-  async createBlogHandler(
+  public async createBlogHandler(
     req: Request<{}, {}, CreateBlogInputDTO>,
     res: Response<BlogOutputDTO | ExtensionType[]>
   ): Promise<void | Response<BlogOutputDTO | ExtensionType[]>> {
@@ -97,7 +97,7 @@ export class BlogsController {
 
   /*Метод-обработчик для GET-запросов по получению постов с пагинацией в блоге по ID, используя URI-параметры и
   query-параметры.*/
-  async getPostListByBlogIdHandler(
+  public async getPostListByBlogIdHandler(
     req: Request<GetPostListByBlogIdUriInputDTO, {}, {}, GetPostListByBlogIdQueryInputDTO>,
     res: Response<PaginatedPostListOutputDTO | ExtensionType[]>
   ): Promise<void | Response<PaginatedPostListOutputDTO | ExtensionType[]>> {
@@ -132,7 +132,7 @@ export class BlogsController {
   }
 
   /*Метод-обработчик для POST-запросов по добавлению поста в блог по ID, используя URI-параметры.*/
-  async createPostForBlogByBlogIdHandler(
+  public async createPostForBlogByBlogIdHandler(
     req: Request<CreatePostForBlogByBlogIdUriInputDTO, {}, CreatePostForBlogByBlogIdInputDTO>,
     res: Response<PostOutputDTO | ExtensionType[]>
   ): Promise<void | Response<PostOutputDTO | ExtensionType[]>> {
@@ -176,7 +176,7 @@ export class BlogsController {
   }
 
   /*Метод-обработчик для GET-запросов по получению блога по ID, используя URI-параметры.*/
-  async getBlogByIdHandler(
+  public async getBlogByIdHandler(
     req: Request<GetBlogByIdUriInputDTO>,
     res: Response<BlogOutputDTO | ExtensionType[]>
   ): Promise<void | Response<BlogOutputDTO | ExtensionType[]>> {
@@ -202,7 +202,7 @@ export class BlogsController {
   }
 
   /*Метод-обработчик для PUT-запросов по изменению блога по ID, используя URI-параметры.*/
-  async updateBlogByIdHandler(
+  public async updateBlogByIdHandler(
     req: Request<UpdateBlogByIdUriInputDTO, {}, UpdateBlogByIdInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {
@@ -228,7 +228,7 @@ export class BlogsController {
   }
 
   /*Метод-обработчик для DELETE-запросов по удалению блога по ID, используя URI-параметры.*/
-  async deleteBlogByIdHandler(
+  public async deleteBlogByIdHandler(
     req: Request<DeleteBlogByIdUriInputDTO>,
     res: Response<void | ExtensionType[]>
   ): Promise<void | Response<void | ExtensionType[]>> {

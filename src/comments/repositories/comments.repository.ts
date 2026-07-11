@@ -13,7 +13,7 @@ import { CommentLikeDataType, CommentLikeStatus } from '../application/types/com
 @injectable()
 export class CommentsRepository {
   /*Метод для добавления комментария в БД.*/
-  async create(newComment: CommentType): Promise<string> {
+  public async create(newComment: CommentType): Promise<string> {
     /*Просим модель "CommentModel" создать комментарий в БД.*/
     const comment: HydratedDocument<CommentType> = new CommentModel(newComment);
     await comment.save();
@@ -22,7 +22,7 @@ export class CommentsRepository {
   }
 
   /*Метод для добавления данных о лайке комментария в БД.*/
-  async createCommentLikeData(newCommentLikeData: CommentLikeDataType): Promise<string> {
+  public async createCommentLikeData(newCommentLikeData: CommentLikeDataType): Promise<string> {
     /*Просим модель "CommentLikeDataModel" создать данные о лайке комментария в БД.*/
     const commentLikeData: HydratedDocument<CommentLikeDataType> = new CommentLikeDataModel(newCommentLikeData);
     await commentLikeData.save();
@@ -31,7 +31,7 @@ export class CommentsRepository {
   }
 
   /*Метод для поиска комментария по ID в БД.*/
-  async findById(id: string): Promise<CommentDBType | null> {
+  public async findById(id: string): Promise<CommentDBType | null> {
     /*Просим модель "CommentModel" найти комментарий по ID в БД.*/
     const comment: CommentDBType | null = await CommentModel.findById(id).lean();
     /*Если комментарий был найден, то возвращаем его, иначе null.*/
@@ -39,7 +39,7 @@ export class CommentsRepository {
   }
 
   /*Метод для поиска данных о лайке комментария по ID комментария и ID пользователя в БД.*/
-  async findCommentLikeDataByCommentIdAndUserId(
+  public async findCommentLikeDataByCommentIdAndUserId(
     commentId: string,
     userId: string
   ): Promise<CommentLikeDataDBType | null> {
@@ -54,7 +54,7 @@ export class CommentsRepository {
   }
 
   /*Метод для изменения комментария по ID в БД.*/
-  async updateById(id: string, dto: UpdateCommentByIdInputDTO): Promise<number> {
+  public async updateById(id: string, dto: UpdateCommentByIdInputDTO): Promise<number> {
     /*Просим модель "CommentModel" найти комментарий по ID в БД.*/
     const comment: HydratedDocument<CommentType> | null = await CommentModel.findById(id);
     /*Если комментарий не был найден, то сообщаем, что он не был изменен.*/
@@ -67,7 +67,7 @@ export class CommentsRepository {
   }
 
   /*Метод для изменения количества лайков/дизлайков у комментария по ID в БД.*/
-  async updateCommentLikesById(id: string, likesCount: number, dislikesCount: number): Promise<number> {
+  public async updateCommentLikesById(id: string, likesCount: number, dislikesCount: number): Promise<number> {
     /*Просим модель "CommentModel" найти комментарий по ID в БД.*/
     const comment: HydratedDocument<CommentType> | null = await CommentModel.findById(id);
     /*Если комментарий не был найден, то сообщаем, что он не был изменен.*/
@@ -81,7 +81,7 @@ export class CommentsRepository {
   }
 
   /*Метод для изменения данных о лайке комментария по ID комментария и ID пользователя в БД.*/
-  async updateCommentLikeDataByCommentIdAndUserId(
+  public async updateCommentLikeDataByCommentIdAndUserId(
     commentId: string,
     userId: string,
     likeStatus: CommentLikeStatus
@@ -102,7 +102,7 @@ export class CommentsRepository {
   }
 
   /*Метод для удаления комментария по ID в БД.*/
-  async deleteById(id: string): Promise<number> {
+  public async deleteById(id: string): Promise<number> {
     /*Просим модель "CommentModel" найти комментарий по ID в БД.*/
     const comment: HydratedDocument<CommentType> | null = await CommentModel.findById(id);
     /*Если комментарий не был найден, то сообщаем, что он не был удален.*/
@@ -114,7 +114,7 @@ export class CommentsRepository {
   }
 
   /*Метод для удаления комментариев по ID поста в БД.*/
-  async deleteAllByPostId(postId: string): Promise<number> {
+  public async deleteAllByPostId(postId: string): Promise<number> {
     /*Просим модель "CommentModel" удалить комментарии по ID поста в БД.*/
     const result: DeleteResult = await CommentModel.deleteMany({ postId });
     /*Возвращаем количество удаленных комментариев.*/
@@ -122,7 +122,7 @@ export class CommentsRepository {
   }
 
   /*Метод для удаления комментариев по ID пользователя в БД.*/
-  async deleteAllByUserId(userId: string): Promise<number> {
+  public async deleteAllByUserId(userId: string): Promise<number> {
     /*Просим модель "CommentModel" удалить комментарии по ID пользователя в БД.*/
     const result: DeleteResult = await CommentModel.deleteMany({ 'commentatorInfo.userId': userId });
     /*Возвращаем количество удаленных комментариев.*/
@@ -130,7 +130,7 @@ export class CommentsRepository {
   }
 
   /*Метод для удаления комментариев по ID постов в БД.*/
-  async deleteAllByPostIds(postIds: string[]): Promise<number> {
+  public async deleteAllByPostIds(postIds: string[]): Promise<number> {
     /*Просим модель "CommentModel" удалить комментарии по ID постов в БД.*/
     const result: DeleteResult = await CommentModel.deleteMany({ postId: { $in: postIds } });
     /*Возвращаем количество удаленных комментариев.*/
@@ -138,7 +138,7 @@ export class CommentsRepository {
   }
 
   /*Метод для удаления данных о лайке комментария по ID комментария и ID пользователя в БД.*/
-  async deleteCommentLikeDataByCommentIdAndUserId(commentId: string, userId: string): Promise<number> {
+  public async deleteCommentLikeDataByCommentIdAndUserId(commentId: string, userId: string): Promise<number> {
     /*Просим модель "CommentLikeDataModel" найти данные о лайке комментария по ID комментария и ID пользователя в БД.*/
     const commentLikeData: HydratedDocument<CommentLikeDataType> | null = await CommentLikeDataModel.findOne({
       commentId,

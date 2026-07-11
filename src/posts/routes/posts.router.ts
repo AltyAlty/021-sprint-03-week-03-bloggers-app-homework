@@ -14,7 +14,7 @@ import {
   postsController,
 } from '../../ioc/composition-root';
 
-/*Роутер из Express для работы с постами.*/
+/*Роутер из Express.js для работы с постами.*/
 export const postsRouter: Router = Router({});
 
 /*Конфигурируем роутер "postsRouter".*/

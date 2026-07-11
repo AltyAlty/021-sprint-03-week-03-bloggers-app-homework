@@ -9,7 +9,7 @@ import { HydratedDocument } from 'mongoose';
 @injectable()
 export class SecurityDevicesRepository {
   /*Метод для добавления устройства пользователя в БД.*/
-  async create(newSecurityDevice: SecurityDeviceType): Promise<string> {
+  public async create(newSecurityDevice: SecurityDeviceType): Promise<string> {
     /*Просим модель "SecurityDeviceModel" создать устройство пользователя в БД.*/
     const securityDevice: HydratedDocument<SecurityDeviceType> = new SecurityDeviceModel(newSecurityDevice);
     await securityDevice.save();
@@ -18,7 +18,7 @@ export class SecurityDevicesRepository {
   }
 
   /*Метод для поиска устройства пользователя по ID в БД.*/
-  async findById(id: string): Promise<SecurityDeviceDBType | null> {
+  public async findById(id: string): Promise<SecurityDeviceDBType | null> {
     /*Просим модель "SecurityDeviceModel" найти устройство пользователя по ID в БД.*/
     const securityDevice: SecurityDeviceDBType | null = await SecurityDeviceModel.findOne({
       deviceId: id,
@@ -29,7 +29,7 @@ export class SecurityDevicesRepository {
   }
 
   /*Метод для изменения устройства пользователя по ID в БД.*/
-  async updateById(id: string, ip: string, lastActiveDate: Date): Promise<number> {
+  public async updateById(id: string, ip: string, lastActiveDate: Date): Promise<number> {
     /*Просим модель "SecurityDeviceModel" найти устройство пользователя по ID в БД.*/
     const securityDevice: HydratedDocument<SecurityDeviceType> | null = await SecurityDeviceModel.findOne({
       deviceId: id,
@@ -46,7 +46,7 @@ export class SecurityDevicesRepository {
   }
 
   /*Метод для удаления устройства пользователя по ID устройства в БД.*/
-  async deleteById(id: string): Promise<number> {
+  public async deleteById(id: string): Promise<number> {
     /*Просим модель "SecurityDeviceModel" найти устройство пользователя по ID в БД.*/
     const securityDevice: HydratedDocument<SecurityDeviceType> | null = await SecurityDeviceModel.findOne({
       deviceId: id,
@@ -61,7 +61,7 @@ export class SecurityDevicesRepository {
   }
 
   /*Метод для удаления всех устройств пользователя, кроме текущего, в БД.*/
-  async deleteAllExceptCurrentDevice(id: string): Promise<number> {
+  public async deleteAllExceptCurrentDevice(id: string): Promise<number> {
     /*Просим модель "SecurityDeviceModel" удалить все устройства пользователя, кроме текущего, в БД.*/
     const result: DeleteResult = await SecurityDeviceModel.deleteMany({ deviceId: { $ne: id } });
     /*Возвращаем количество удаленных устройств пользователя.*/
@@ -69,7 +69,7 @@ export class SecurityDevicesRepository {
   }
 
   /*Метод для удаления всех устройств пользователя по ID пользователя в БД.*/
-  async deleteAllByUserId(userId: string): Promise<number> {
+  public async deleteAllByUserId(userId: string): Promise<number> {
     /*Просим модель "SecurityDeviceModel" удалить все устройства пользователя по ID пользователя в БД.*/
     const result: DeleteResult = await SecurityDeviceModel.deleteMany({ userId });
     /*Возвращаем количество удаленных устройств пользователя.*/

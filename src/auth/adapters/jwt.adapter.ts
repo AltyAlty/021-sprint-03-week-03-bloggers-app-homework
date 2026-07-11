@@ -5,7 +5,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class JwtAdapter {
   /*Метод для создания AT.*/
-  async createAccessToken(userId: string, secret: string, time: string): Promise<string> {
+  public async createAccessToken(userId: string, secret: string, time: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const onSignComplete = (error: Error | null, token: string | undefined): void => {
         if (error) reject(error);
@@ -17,7 +17,7 @@ export class JwtAdapter {
   }
 
   /*Метод для создания RT.*/
-  async createRefreshToken(userId: string, deviceId: string, secret: string, time: string): Promise<string> {
+  public async createRefreshToken(userId: string, deviceId: string, secret: string, time: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const onSignComplete = (error: Error | null, token: string | undefined): void => {
         if (error) reject(error);
@@ -29,7 +29,7 @@ export class JwtAdapter {
   }
 
   /*Метод для верификации AT.*/
-  async verifyAccessToken(token: string, secret: string): Promise<{ userId: string } | null> {
+  public async verifyAccessToken(token: string, secret: string): Promise<{ userId: string } | null> {
     return new Promise(resolve => {
       const onVerifyComplete = (error: Error | null, decoded: unknown): void => {
         if (error) {
@@ -42,7 +42,7 @@ export class JwtAdapter {
   }
 
   /*Метод для верификации RT.*/
-  async verifyRefreshToken(token: string, secret: string): Promise<{ userId: string; deviceId: string } | null> {
+  public async verifyRefreshToken(token: string, secret: string): Promise<{ userId: string; deviceId: string } | null> {
     return new Promise(resolve => {
       const onVerifyComplete = (error: Error | null, decoded: unknown): void => {
         if (error) {
@@ -55,7 +55,7 @@ export class JwtAdapter {
   }
 
   /*Метод для декодирования AT.*/
-  async decodeAccessToken(token: string): Promise<{ userId: string; iat: number; exp: number } | null> {
+  public async decodeAccessToken(token: string): Promise<{ userId: string; iat: number; exp: number } | null> {
     try {
       const payload: jwt.JwtPayload | string | null = jwt.decode(token);
       if (!payload || typeof payload === 'string') return null;
@@ -74,7 +74,7 @@ export class JwtAdapter {
   }
 
   /*Метод для декодирования RT.*/
-  async decodeRefreshToken(
+  public async decodeRefreshToken(
     token: string
   ): Promise<{ userId: string; deviceId: string; iat: number; exp: number } | null> {
     try {
@@ -97,17 +97,17 @@ export class JwtAdapter {
   }
 
   /*Синхронный метод для создания AT.*/
-  createAccessTokenSync(userId: string, secret: string, time: string): string {
+  public createAccessTokenSync(userId: string, secret: string, time: string): string {
     return jwt.sign({ userId }, secret, { expiresIn: time as SignOptions['expiresIn'] });
   }
 
   /*Синхронный метод для создания RT.*/
-  createRefreshTokenSync(userId: string, deviceId: string, secret: string, time: string): string {
+  public createRefreshTokenSync(userId: string, deviceId: string, secret: string, time: string): string {
     return jwt.sign({ userId, deviceId }, secret, { expiresIn: time as SignOptions['expiresIn'] });
   }
 
   /*Синхронный метод для верификации AT.*/
-  verifyAccessTokenSync(token: string, secret: string): { userId: string } | null {
+  public verifyAccessTokenSync(token: string, secret: string): { userId: string } | null {
     try {
       return jwt.verify(token, secret) as { userId: string };
     } catch (error) {
@@ -116,7 +116,7 @@ export class JwtAdapter {
   }
 
   /*Синхронный метод для верификации RT.*/
-  verifyRefreshTokenSync(token: string, secret: string): { userId: string; deviceId: string } | null {
+  public verifyRefreshTokenSync(token: string, secret: string): { userId: string; deviceId: string } | null {
     try {
       return jwt.verify(token, secret) as { userId: string; deviceId: string };
     } catch (error) {

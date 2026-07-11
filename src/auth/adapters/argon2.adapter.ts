@@ -5,7 +5,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class Argon2Adapter {
   /*Метод для генерации хеша пароля.*/
-  async generatePasswordHash(password: string): Promise<string> {
+  public async generatePasswordHash(password: string): Promise<string> {
     return hash(password, {
       memoryCost: 65536,
       timeCost: 3,
@@ -17,7 +17,7 @@ export class Argon2Adapter {
   }
 
   /*Метод для проверки валидности пароля по хешу.*/
-  async checkPasswordByHash(password: string, hash: string): Promise<boolean> {
+  public async checkPasswordByHash(password: string, hash: string): Promise<boolean> {
     return verify(hash, password);
   }
 }

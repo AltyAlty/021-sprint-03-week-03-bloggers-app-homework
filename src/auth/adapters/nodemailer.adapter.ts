@@ -6,7 +6,12 @@ import { injectable } from 'inversify';
 @injectable()
 export class NodemailerAdapter {
   /*Метод для отправки писем.*/
-  async sendMail(emailTo: string, subject: string, code: string, template: (code: string) => string): Promise<boolean> {
+  public async sendMail(
+    emailTo: string,
+    subject: string,
+    code: string,
+    template: (code: string) => string
+  ): Promise<boolean> {
     try {
       /*Создаем транспортер - механизм для работы с почтой. В параметрах метода настраиваем создаваемый транспортер.*/
       const transporter = nodemailer.createTransport({

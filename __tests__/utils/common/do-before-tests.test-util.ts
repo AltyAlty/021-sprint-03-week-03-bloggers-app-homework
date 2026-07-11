@@ -7,7 +7,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 
 /*Функция для предварительных действий перед запуском тестов, используя моковый сервер.*/
 export const doBeforeTestsWithMongoMemoryServer = (): Express => {
-  /*Создаем экземпляр приложения Express.*/
+  /*Создаем экземпляр приложения Express.js.*/
   const app: Express = express();
   /*Настраиваем экземпляр приложения Express при помощи функции "setupApp()".*/
   setupApp(app);

@@ -7,11 +7,11 @@ import { db } from './db/mongodb/mongo.db';
 
 /*Функция для запуска приложения.*/
 const bootstrap = async (): Promise<Express> => {
-  /*Создаем экземпляр приложения Express.*/
+  /*Создаем экземпляр приложения Express.js.*/
   const app: Express = express();
-  /*Настраиваем экземпляр приложения Express.*/
+  /*Настраиваем экземпляр приложения Express.js.*/
   await setupApp(app);
-  /*Указываем порт для экземпляра приложения Express.*/
+  /*Указываем порт для экземпляра приложения Express.js.*/
   const PORT: string | number = SETTINGS.PORT || 5001;
 
   try {
@@ -24,7 +24,7 @@ const bootstrap = async (): Promise<Express> => {
     process.exit(1);
   }
 
-  /*Запускаем экземпляр приложения Express.*/
+  /*Запускаем экземпляр приложения Express.js.*/
   app.listen(PORT, () => console.log(`Example app listening on port ${PORT}`));
   return app;
 };

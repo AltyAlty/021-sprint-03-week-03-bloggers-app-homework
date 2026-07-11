@@ -11,7 +11,7 @@ import { HydratedDocument } from 'mongoose';
 @injectable()
 export class PostsRepository {
   /*Метод для добавления поста в БД.*/
-  async create(newPost: PostType): Promise<string> {
+  public async create(newPost: PostType): Promise<string> {
     /*Просим модель "PostModel" создать пост в БД.*/
     const post: HydratedDocument<PostType> = new PostModel(newPost);
     await post.save();
@@ -20,7 +20,7 @@ export class PostsRepository {
   }
 
   /*Метод для поиска поста по ID в БД.*/
-  async findById(id: string): Promise<PostDBType | null> {
+  public async findById(id: string): Promise<PostDBType | null> {
     /*Просим модель "PostModel" найти пост по ID в БД.*/
     const post: PostDBType | null = await PostModel.findById(id).lean();
     /*Если пост был найден, то возвращаем его, иначе возвращаем null.*/
@@ -28,7 +28,7 @@ export class PostsRepository {
   }
 
   /*Метод для поиска постов по ID блога в БД.*/
-  async findAllByBlogId(blogId: string): Promise<PostListDBType | null> {
+  public async findAllByBlogId(blogId: string): Promise<PostListDBType | null> {
     /*Просим модель "PostModel" найти посты по ID блога в БД.*/
     const posts: PostListDBType = await PostModel.find({ blogId }).lean();
     /*Если посты были найдены, то возвращаем их, иначе возвращаем null.*/
@@ -36,7 +36,7 @@ export class PostsRepository {
   }
 
   /*Метод для изменения поста по ID в БД.*/
-  async updateById(id: string, dto: UpdatePostByIdInputDTO): Promise<number> {
+  public async updateById(id: string, dto: UpdatePostByIdInputDTO): Promise<number> {
     /*Просим модель "PostModel" найти пост по ID в БД.*/
     const post: HydratedDocument<PostType> | null = await PostModel.findById(id);
     /*Если пост не был найден, то сообщаем, что он не был изменен.*/
@@ -52,7 +52,7 @@ export class PostsRepository {
   }
 
   /*Метод для удаления поста по ID в БД.*/
-  async deleteById(id: string): Promise<number> {
+  public async deleteById(id: string): Promise<number> {
     /*Просим модель "PostModel" найти пост по ID в БД.*/
     const post: HydratedDocument<PostType> | null = await PostModel.findById(id);
     /*Если пост не был найден, то сообщаем, что он не был удален.*/
@@ -64,7 +64,7 @@ export class PostsRepository {
   }
 
   /*Метод для удаления постов по ID блога в БД.*/
-  async deleteAllByBlogId(blogId: string): Promise<number> {
+  public async deleteAllByBlogId(blogId: string): Promise<number> {
     /*Просим модель "PostModel" удалить посты по ID блога в БД.*/
     const result: DeleteResult = await PostModel.deleteMany({ blogId });
     /*Возвращаем количество удаленных постов.*/

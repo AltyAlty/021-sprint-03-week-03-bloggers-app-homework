@@ -19,7 +19,7 @@ export class BlogsService {
   constructor(@inject(TYPES.BlogsRepository) private readonly blogsRepository: BlogsRepository) {}
 
   /*Метод для добавления блога.*/
-  async create(dto: CreateBlogInputDTO): Promise<Result<{ createdBlogId: string }>> {
+  public async create(dto: CreateBlogInputDTO): Promise<Result<{ createdBlogId: string }>> {
     /*Создаем объект с данными нового блога.*/
     const newBlog: BlogType = {
       name: dto.name,
@@ -36,7 +36,7 @@ export class BlogsService {
   }
 
   /*Метод для поиска блога по ID.*/
-  async findById(id: string): Promise<Result<{ blogOutput: BlogOutputDTO } | null>> {
+  public async findById(id: string): Promise<Result<{ blogOutput: BlogOutputDTO } | null>> {
     /*Просим репозиторий "blogsRepository" найти блог по ID в БД.*/
     const blogDB: BlogDBType | null = await this.blogsRepository.findById(id);
 
@@ -57,7 +57,7 @@ export class BlogsService {
   }
 
   /*Метод для изменения блога по ID.*/
-  async updateById(id: string, dto: UpdateBlogByIdInputDTO): Promise<Result<{} | null>> {
+  public async updateById(id: string, dto: UpdateBlogByIdInputDTO): Promise<Result<{} | null>> {
     /*Просим репозиторий "blogsRepository" изменить блог по ID в БД.*/
     const updatedBlogCount: number = await this.blogsRepository.updateById(id, dto);
 
@@ -76,7 +76,7 @@ export class BlogsService {
   }
 
   /*Метод для удаления блога по ID.*/
-  async deleteById(id: string): Promise<Result<{} | null>> {
+  public async deleteById(id: string): Promise<Result<{} | null>> {
     /*Просим репозиторий "blogsRepository" найти блог по ID в БД.*/
     const blogDB: BlogDBType | null = await this.blogsRepository.findById(id);
 

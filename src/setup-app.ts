@@ -12,7 +12,7 @@ import { commentsRouter } from './comments/routes/comments.router';
 import cookieParser from 'cookie-parser';
 import { securityDevicesRouter } from './security-devices/routes/security-devices.router';
 
-/*Функция для конфигурирования экземпляров приложения Express.*/
+/*Функция для конфигурирования экземпляров приложения Express.js.*/
 export const setupApp = async (app: Express): Promise<Express> => {
   /*Подключаем middleware, разрешающий кросс-доменные запросы.*/
   app.use(cors());

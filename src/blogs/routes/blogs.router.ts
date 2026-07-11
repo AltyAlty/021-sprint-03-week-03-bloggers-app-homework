@@ -9,7 +9,7 @@ import { PostSortFieldQueryInputDTO } from '../../posts/routes/input-dto/query/p
 import { SETTINGS } from '../../core/settings/settings';
 import { basicAuthGuardMiddleware, blogsController } from '../../ioc/composition-root';
 
-/*Роутер из Express для работы с блогами.*/
+/*Роутер из Express.js для работы с блогами.*/
 export const blogsRouter: Router = Router({});
 
 /*Конфигурируем роутер "blogsRouter".*/
@@ -46,7 +46,7 @@ blogsRouter
     inputValidationResultMiddleware,
     blogsController.createPostForBlogByBlogIdHandler.bind(blogsController)
   )
-  /*005. GET-запрос по получению блога по ID, используя URI-параметры. При помощи ":" Express позволяет указывать
+  /*005. GET-запрос по получению блога по ID, используя URI-параметры. При помощи ":" Express.js позволяет указывать
   переменные в пути. Такие переменные доступны через объект "req.params".*/
   .get(
     SETTINGS.GET_BLOG_BY_ID_PATH,

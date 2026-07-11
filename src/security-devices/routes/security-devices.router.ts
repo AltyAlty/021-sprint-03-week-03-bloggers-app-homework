@@ -4,7 +4,7 @@ import { idValidation } from '../../core/middlewares/validation/params-id-valida
 import { inputValidationResultMiddleware } from '../../core/middlewares/validation/input-validation-result.middleware';
 import { refreshTokenGuardMiddleware, securityDevicesController } from '../../ioc/composition-root';
 
-/*Роутер из Express для работы с устройствами пользователя.*/
+/*Роутер из Express.js для работы с устройствами пользователя.*/
 export const securityDevicesRouter: Router = Router({});
 
 /*Конфигурируем роутер "securityDevicesRouter".*/

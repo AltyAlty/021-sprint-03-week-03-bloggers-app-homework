@@ -14,7 +14,7 @@ import { CommentLikeDataModel } from './models/comment-like-data.model';
 @injectable()
 export class CommentsQueryRepository {
   /*Метод для поиска комментария по ID в БД.*/
-  async findById(id: string): Promise<CommentDBType | null> {
+  public async findById(id: string): Promise<CommentDBType | null> {
     /*Просим модель "CommentModel" найти комментарий по ID в БД.*/
     const comment: CommentDBType | null = await CommentModel.findById(id).lean();
     /*Если комментарий был найден, то возвращаем его, иначе null.*/
@@ -22,7 +22,7 @@ export class CommentsQueryRepository {
   }
 
   /*Метод для поиска комментариев по ID поста в БД.*/
-  async findAllByPostId(
+  public async findAllByPostId(
     postId: string,
     queryDTO: GetCommentListByPostIdQueryInputDTO
   ): Promise<{ items: CommentListDBType; totalCount: number }> {
@@ -63,7 +63,7 @@ export class CommentsQueryRepository {
   }
 
   /*Метод для поиска данных о лайке комментария по ID комментария и ID пользователя в БД.*/
-  async findCommentLikeDataByCommentIdAndUserId(
+  public async findCommentLikeDataByCommentIdAndUserId(
     commentId: string,
     userId: string
   ): Promise<CommentLikeDataDBType | null> {

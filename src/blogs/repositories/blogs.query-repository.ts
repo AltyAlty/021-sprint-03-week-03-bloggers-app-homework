@@ -12,7 +12,7 @@ import { BlogModel } from './models/blog.model';
 @injectable()
 export class BlogsQueryRepository {
   /*Метод для поиска блога по ID в БД.*/
-  async findById(id: string): Promise<BlogDBType | null> {
+  public async findById(id: string): Promise<BlogDBType | null> {
     /*Просим модель "BlogModel" найти блог по ID в БД.*/
     const blog: BlogDBType | null = await BlogModel.findById(id).lean();
     /*Если блог был найден, то возвращаем его, иначе возвращаем null.*/
@@ -20,7 +20,7 @@ export class BlogsQueryRepository {
   }
 
   /*Метод для поиска блогов в БД.*/
-  async findAll(queryDTO: GetBlogListQueryInputDTO): Promise<{ items: BlogListDBType; totalCount: number }> {
+  public async findAll(queryDTO: GetBlogListQueryInputDTO): Promise<{ items: BlogListDBType; totalCount: number }> {
     /*Создаем переменные на основе параметра "queryDTO" при помощи деструктуризации.*/
     const {
       pageNumber,

@@ -7,7 +7,7 @@ import { createUserInputValidation } from '../validation/users-input-validation.
 import { SETTINGS } from '../../core/settings/settings';
 import { basicAuthGuardMiddleware, usersController } from '../../ioc/composition-root';
 
-/*Роутер из Express для работы с пользователями.*/
+/*Роутер из Express.js для работы с пользователями.*/
 export const usersRouter: Router = Router({});
 /*Применяем middleware "basicAuthGuardMiddleware" ко всем маршрутам.*/
 usersRouter.use(basicAuthGuardMiddleware);

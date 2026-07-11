@@ -22,7 +22,7 @@ export class PostsQueryService {
   ) {}
 
   /*Метод для поиска поста по ID.*/
-  async findById(id: string): Promise<Result<{ postOutput: PostOutputDTO } | null>> {
+  public async findById(id: string): Promise<Result<{ postOutput: PostOutputDTO } | null>> {
     /*Просим query-репозиторий "postsQueryRepository" найти пост по ID в БД.*/
     const postDB: PostDBType | null = await this.postsQueryRepository.findById(id);
 
@@ -43,7 +43,7 @@ export class PostsQueryService {
   }
 
   /*Метод для поиска постов.*/
-  async findAll(
+  public async findAll(
     queryDTO: GetPostListQueryInputDTO,
     blogId?: string
   ): Promise<Result<{ paginatedPostListOutput: PaginatedPostListOutputDTO } | null>> {

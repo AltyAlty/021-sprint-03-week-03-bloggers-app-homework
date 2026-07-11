@@ -25,7 +25,7 @@ export class CommentsQueryService {
   ) {}
 
   /*Метод для поиска комментария по ID.*/
-  async findById(id: string, userId?: string): Promise<Result<{ commentOutput: CommentOutputDTO } | null>> {
+  public async findById(id: string, userId?: string): Promise<Result<{ commentOutput: CommentOutputDTO } | null>> {
     /*Просим query-репозиторий "commentsQueryRepository" найти комментарий по ID в БД.*/
     const commentDB: CommentDBType | null = await this.commentsQueryRepository.findById(id);
 
@@ -60,7 +60,7 @@ export class CommentsQueryService {
   }
 
   /*Метод для поиска комментариев по ID поста.*/
-  async findAllByPostId(
+  public async findAllByPostId(
     postId: string,
     queryDTO: GetCommentListByPostIdQueryInputDTO,
     userId?: string

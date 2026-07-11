@@ -8,7 +8,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class TestingController {
   /*Метод-обработчик для DELETE-запросов по очистке БД для целей тестирования.*/
-  async clearDBHandler(req: Request, res: Response): Promise<void | Response> {
+  public async clearDBHandler(req: Request, res: Response): Promise<void | Response> {
     try {
       /*Очищаем коллекции.*/
       await db.dropDB();

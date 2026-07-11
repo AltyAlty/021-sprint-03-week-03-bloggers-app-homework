@@ -28,7 +28,7 @@ export class UsersService {
   ) {}
 
   /*Метод для добавления пользователя.*/
-  async create(dto: CreateUserInputDTO, isUserRegistering?: boolean): Promise<Result<{ createdUserId: string }>> {
+  public async create(dto: CreateUserInputDTO, isUserRegistering: boolean): Promise<Result<{ createdUserId: string }>> {
     /*Создаем переменные на основе параметра "dto" при помощи деструктуризации.*/
     const { login, password, email }: { login: string; password: string; email: string } = dto;
     /*Просим адаптер "argon2Adapter" сгенерировать хеш для пароля.*/
@@ -51,7 +51,7 @@ export class UsersService {
   }
 
   /*Метод для поиска пользователя по ID.*/
-  async findById(id: string): Promise<Result<{ userOutput: UserOutputDTO } | null>> {
+  public async findById(id: string): Promise<Result<{ userOutput: UserOutputDTO } | null>> {
     /*Просим репозиторий "usersRepository" найти пользователя по ID в БД.*/
     const userDB: UserDBType | null = await this.usersRepository.findById(id);
 
@@ -72,7 +72,7 @@ export class UsersService {
   }
 
   /*Метод для поиска пользователя по email.*/
-  async findByEmail(email: string): Promise<Result<{ userOutput: UserOutputDTO } | null>> {
+  public async findByEmail(email: string): Promise<Result<{ userOutput: UserOutputDTO } | null>> {
     /*Просим репозиторий "usersRepository" найти пользователя по email в БД.*/
     const userDB: UserDBType | null = await this.usersRepository.findByEmail(normalizeEmail(email));
 
@@ -93,7 +93,7 @@ export class UsersService {
   }
 
   /*Метод для поиска пользователя по логину/email.*/
-  async findByLoginOrEmail(loginOrEmail: string): Promise<
+  public async findByLoginOrEmail(loginOrEmail: string): Promise<
     Result<{
       userOutputWithIsConfirmedAndPasswordHash: UserOutputDTO & { isConfirmed: boolean; passwordHash: string };
     } | null>
@@ -130,7 +130,7 @@ export class UsersService {
   }
 
   /*Метод для подтверждения регистрации пользователя по коду.*/
-  async confirmByCode(confirmationCode: string): Promise<Result<{} | null>> {
+  public async confirmByCode(confirmationCode: string): Promise<Result<{} | null>> {
     /*Просим сервис "authService" найти данные о подтверждении регистрации пользователя по коду подтверждения.*/
     const emailConfirmationResult: Result<{ emailConfirmationOutput: EmailConfirmationType } | null> =
       await this.authService.findEmailConfirmationByCode(confirmationCode);
@@ -161,7 +161,7 @@ export class UsersService {
   }
 
   /*Метод для изменения пароля пользователя по коду восстановления.*/
-  async updatePasswordByRecoveryCode(recoveryCode: string, password: string): Promise<Result<{} | null>> {
+  public async updatePasswordByRecoveryCode(recoveryCode: string, password: string): Promise<Result<{} | null>> {
     /*Просим сервис "authService" найти данные о коде восстановления пароля пользователя по коду.*/
     const recoveryCodeDataResult: Result<{ recoveryCodeDataOutput: RecoveryCodeDataType } | null> =
       await this.authService.findRecoveryPasswordCodeDataByCode(recoveryCode);
@@ -184,7 +184,7 @@ export class UsersService {
   }
 
   /*Метод для удаления пользователя по ID.*/
-  async deleteById(id: string): Promise<Result<{} | null>> {
+  public async deleteById(id: string): Promise<Result<{} | null>> {
     /*Просим сервис "commentsService" удалить комментарии пользователя по ID.*/
     await this.commentsService.deleteAllByUserId(id);
     /*Просим репозиторий "usersRepository" удалить пользователя по ID в БД.*/
