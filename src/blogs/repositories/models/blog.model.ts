@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { BlogType } from '../../application/types/blog.type';
+import { BlogDBType } from '../types/blog-db.type';
 
 /*Схема для блога в БД.*/
-const BlogSchema = new mongoose.Schema<BlogType>({
+const BlogSchema = new mongoose.Schema<BlogDBType>({
   name: {
     type: String,
     required: true,
@@ -40,4 +40,4 @@ const BlogSchema = new mongoose.Schema<BlogType>({
 });
 
 /*Модель для блога в БД.*/
-export const BlogModel = mongoose.model<BlogType>('Blog', BlogSchema, 'blogs');
+export const BlogModel = mongoose.model<BlogDBType>('Blog', BlogSchema, 'blogs');

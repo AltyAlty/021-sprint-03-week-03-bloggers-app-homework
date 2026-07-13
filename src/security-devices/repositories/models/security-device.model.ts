@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { SecurityDeviceType } from '../../application/types/security-device.type';
+import { SecurityDeviceDBType } from '../types/security-device-db.type';
 
 /*Схема для устройства пользователя из сессии в БД.*/
-const SecurityDeviceSchema = new mongoose.Schema<SecurityDeviceType>({
+const SecurityDeviceSchema = new mongoose.Schema<SecurityDeviceDBType>({
   deviceId: {
     type: String,
     required: true,
@@ -34,7 +34,7 @@ const SecurityDeviceSchema = new mongoose.Schema<SecurityDeviceType>({
 });
 
 /*Модель для устройства пользователя из сессии в БД.*/
-export const SecurityDeviceModel = mongoose.model<SecurityDeviceType>(
+export const SecurityDeviceModel = mongoose.model<SecurityDeviceDBType>(
   'SecurityDevice',
   SecurityDeviceSchema,
   'securityDevices'

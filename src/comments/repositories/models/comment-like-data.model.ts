@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
-import { CommentLikeDataType, CommentLikeStatus } from '../../application/types/comment-like-data.type';
+import { CommentLikeStatus } from '../../application/types/comment-like-data.type';
+import { CommentLikeDataDBType } from '../types/comment-like-data-db.type';
 
 /*Схема для данных о лайке комментария в БД.*/
-const CommentLikeDataSchema = new mongoose.Schema<CommentLikeDataType>({
+const CommentLikeDataSchema = new mongoose.Schema<CommentLikeDataDBType>({
   commentId: {
     type: String,
     required: true,
@@ -32,7 +33,7 @@ CommentLikeDataSchema.index({ commentId: 1, userId: 1 }, { unique: true });
 CommentLikeDataSchema.index({ commentId: 1 });
 
 /*Модель для данных о лайке комментария в БД.*/
-export const CommentLikeDataModel = mongoose.model<CommentLikeDataType>(
+export const CommentLikeDataModel = mongoose.model<CommentLikeDataDBType>(
   'CommentLikeData',
   CommentLikeDataSchema,
   'commentLikesData'

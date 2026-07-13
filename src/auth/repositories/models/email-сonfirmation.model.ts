@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import { SETTINGS } from '../../../core/settings/settings';
-import { EmailConfirmationType } from '../../application/types/email-сonfirmation.type';
+import { EmailConfirmationDBType } from '../types/email-сonfirmation-db.type';
 
 /*Схема для данных о подтверждении регистрации пользователя в БД.*/
-const EmailConfirmationSchema = new mongoose.Schema<EmailConfirmationType>({
+const EmailConfirmationSchema = new mongoose.Schema<EmailConfirmationDBType>({
   userId: {
     type: String,
     required: true,
@@ -29,7 +29,7 @@ const EmailConfirmationSchema = new mongoose.Schema<EmailConfirmationType>({
 });
 
 /*Модель для данных о подтверждении регистрации пользователя в БД.*/
-export const EmailConfirmationModel = mongoose.model<EmailConfirmationType>(
+export const EmailConfirmationModel = mongoose.model<EmailConfirmationDBType>(
   'EmailConfirmation',
   EmailConfirmationSchema,
   'emailConfirmations'

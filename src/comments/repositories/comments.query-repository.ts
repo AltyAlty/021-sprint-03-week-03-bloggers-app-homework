@@ -76,4 +76,17 @@ export class CommentsQueryRepository {
     /*Если данные о лайке комментария были найдены, то возвращаем их, иначе null.*/
     return commentLikeData ?? null;
   }
+
+  /*Метод для поиска данных о лайках комментариев по ID комментариев и ID пользователя в БД.*/
+  public async findCommentLikesDataByCommentIdsAndUserId(
+    commentIds: string[],
+    userId: string
+  ): Promise<CommentLikeDataDBType[]> {
+    /*Просим модель "CommentLikeDataModel" найти данные о лайках комментариев по ID комментариев и ID пользователя в
+    БД.*/
+    return await CommentLikeDataModel.find({
+      commentId: { $in: commentIds },
+      userId,
+    }).lean();
+  }
 }

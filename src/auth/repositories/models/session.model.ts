@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import { SETTINGS } from '../../../core/settings/settings';
-import { SessionType } from '../../application/types/session.type';
+import { SessionDBType } from '../types/session-db.type';
 
 /*Схема для сессии в БД.*/
-const SessionSchema = new mongoose.Schema<SessionType>({
+const SessionSchema = new mongoose.Schema<SessionDBType>({
   userId: {
     type: String,
     required: true,
@@ -49,4 +49,4 @@ const SessionSchema = new mongoose.Schema<SessionType>({
 });
 
 /*Модель для сессии в БД.*/
-export const SessionModel = mongoose.model<SessionType>('Session', SessionSchema, 'sessions');
+export const SessionModel = mongoose.model<SessionDBType>('Session', SessionSchema, 'sessions');

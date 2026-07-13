@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { UserType } from '../../application/types/user.type';
+import { UserDBType } from '../types/user-db.type';
 
 /*Схема для пользователя в БД.*/
-const UserSchema = new mongoose.Schema<UserType>({
+const UserSchema = new mongoose.Schema<UserDBType>({
   login: {
     type: String,
     required: true,
@@ -50,4 +50,4 @@ const UserSchema = new mongoose.Schema<UserType>({
 });
 
 /*Модель для пользователя в БД.*/
-export const UserModel = mongoose.model<UserType>('User', UserSchema, 'users');
+export const UserModel = mongoose.model<UserDBType>('User', UserSchema, 'users');

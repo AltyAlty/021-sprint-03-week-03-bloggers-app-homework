@@ -130,7 +130,7 @@ export class CommentsService {
       /*Просим репозиторий "commentsRepository" изменить количество лайков/дизлайков у комментария по ID в БД:
       1. Если уже стоял лайк, то уменьшить количество лайков на 1.
       2. Если уже стоял дизлайк, то уменьшить количество дизлайков на 1.*/
-      if ((commentLikeDB?.likeStatus as string) === (CommentLikeStatusInputDTO.Like as string)) {
+      if (commentLikeDB?.likeStatus === CommentLikeStatus.Like) {
         await this.commentsRepository.updateCommentLikesById(commentId, -1, 0);
       } else {
         await this.commentsRepository.updateCommentLikesById(commentId, 0, -1);
@@ -152,10 +152,8 @@ export class CommentsService {
         1. Увеличить количество лайков на 1.
         2. Не менять количество дизлайков.*/
         await this.commentsRepository.updateCommentLikesById(commentId, 1, 0);
-      }
-
-      /*Если уже стоял дизлайк.*/
-      if ((commentLikeDB?.likeStatus as string) === (CommentLikeStatusInputDTO.Dislike as string)) {
+        /*Если уже стоял дизлайк.*/
+      } else if (commentLikeDB.likeStatus === CommentLikeStatus.Dislike) {
         /*Просим репозиторий "commentsRepository" изменить данные о лайке комментария по ID комментария и ID
         пользователя в БД.*/
         await this.commentsRepository.updateCommentLikeDataByCommentIdAndUserId(
@@ -186,10 +184,8 @@ export class CommentsService {
         1. Не менять количество лайков.
         2. Увеличить количество дизлайков на 1.*/
         await this.commentsRepository.updateCommentLikesById(commentId, 0, 1);
-      }
-
-      /*Если уже стоял лайк.*/
-      if ((commentLikeDB?.likeStatus as string) === (CommentLikeStatusInputDTO.Like as string)) {
+        /*Если уже стоял лайк.*/
+      } else if (commentLikeDB?.likeStatus === CommentLikeStatus.Like) {
         /*Просим репозиторий "commentsRepository" изменить данные о лайке комментария по ID комментария и ID
         пользователя в БД.*/
         await this.commentsRepository.updateCommentLikeDataByCommentIdAndUserId(

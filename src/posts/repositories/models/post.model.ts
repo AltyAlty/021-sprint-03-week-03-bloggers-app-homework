@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { PostType } from '../../application/types/post.type';
+import { PostDBType } from '../types/post-db.type';
 
 /*Схема для поста в БД.*/
-const PostSchema = new mongoose.Schema<PostType>({
+const PostSchema = new mongoose.Schema<PostDBType>({
   title: {
     type: String,
     required: true,
@@ -51,4 +51,4 @@ const PostSchema = new mongoose.Schema<PostType>({
 });
 
 /*Модель для поста в БД.*/
-export const PostModel = mongoose.model<PostType>('Post', PostSchema, 'posts');
+export const PostModel = mongoose.model<PostDBType>('Post', PostSchema, 'posts');

@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import { SETTINGS } from '../../../core/settings/settings';
-import { RecoveryCodeDataType } from '../../application/types/recovery-code-data.type';
+import { RecoveryCodeDataDBType } from '../types/recovery-code-data-db.type';
 
 /*Схема для данных о коде восстановления пароля пользователя в БД.*/
-const RecoveryCodeDataSchema = new mongoose.Schema<RecoveryCodeDataType>({
+const RecoveryCodeDataSchema = new mongoose.Schema<RecoveryCodeDataDBType>({
   userId: {
     type: String,
     required: true,
@@ -29,7 +29,7 @@ const RecoveryCodeDataSchema = new mongoose.Schema<RecoveryCodeDataType>({
 });
 
 /*Модель для данных о коде восстановления пароля пользователя в БД.*/
-export const RecoveryCodeDataModel = mongoose.model<RecoveryCodeDataType>(
+export const RecoveryCodeDataModel = mongoose.model<RecoveryCodeDataDBType>(
   'RecoveryCodeData',
   RecoveryCodeDataSchema,
   'recoveryCodesData'

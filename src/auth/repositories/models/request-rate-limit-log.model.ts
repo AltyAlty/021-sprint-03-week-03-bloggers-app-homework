@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import { SETTINGS } from '../../../core/settings/settings';
-import { RequestRateLimitLogType } from '../../application/types/request-rate-limit-log.type';
+import { RequestRateLimitLogDBType } from '../types/request-rate-limit-log-db.type';
 
 /*Схема для записи в журнале лимитов запросов в БД.*/
-const RequestRateLimitLogSchema = new mongoose.Schema<RequestRateLimitLogType>({
+const RequestRateLimitLogSchema = new mongoose.Schema<RequestRateLimitLogDBType>({
   ip: {
     type: String,
     required: true,
@@ -32,7 +32,7 @@ const RequestRateLimitLogSchema = new mongoose.Schema<RequestRateLimitLogType>({
 RequestRateLimitLogSchema.index({ ip: 1, url: 1, timestamp: -1 });
 
 /*Модель для записи в журнале лимитов запросов в БД.*/
-export const RequestRateLimitLogModel = mongoose.model<RequestRateLimitLogType>(
+export const RequestRateLimitLogModel = mongoose.model<RequestRateLimitLogDBType>(
   'RequestRateLimitLog',
   RequestRateLimitLogSchema,
   'requestRateLimitLogs'

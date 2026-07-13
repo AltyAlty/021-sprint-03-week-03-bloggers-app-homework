@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
-import { CommentType } from '../../application/types/comment.type';
+import { CommentDBType } from '../types/comment-db.type';
 
 /*Схема для комментария в БД.*/
-const CommentSchema = new mongoose.Schema<CommentType>({
+const CommentSchema = new mongoose.Schema<CommentDBType>({
   content: {
     type: String,
     required: true,
@@ -64,4 +64,4 @@ const CommentSchema = new mongoose.Schema<CommentType>({
 CommentSchema.index({ postId: 1 });
 
 /*Модель для комментария в БД.*/
-export const CommentModel = mongoose.model<CommentType>('Comment', CommentSchema, 'comments');
+export const CommentModel = mongoose.model<CommentDBType>('Comment', CommentSchema, 'comments');
