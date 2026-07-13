@@ -19,7 +19,7 @@ export const mapToCommentListOutputDTO = async (
 
   if (userId) {
     const commentLikesDataDB: CommentLikeDataDBType[] =
-      await commentsQueryRepository.findCommentLikesDataByCommentIdsAndUserId(commentIds, userId);
+      await commentsQueryRepository.findAllCommentLikesDataByCommentIdsAndUserId(commentIds, userId);
 
     commentLikesDataMap = new Map(
       commentLikesDataDB.map((commentLikeDataDB: CommentLikeDataDBType): [string, commentLikeStatusOutputDTO] => [

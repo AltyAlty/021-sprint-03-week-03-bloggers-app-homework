@@ -53,13 +53,9 @@ export class PostsRepository {
 
   /*Метод для удаления поста по ID в БД.*/
   public async deleteById(id: string): Promise<number> {
-    /*Просим модель "PostModel" найти пост по ID в БД.*/
-    const post: HydratedDocument<PostType> | null = await PostModel.findById(id);
-    /*Если пост не был найден, то сообщаем, что он не был удален.*/
-    if (!post) return 0;
-    /*Если пост был найден, то удаляем его в БД.*/
-    const result: DeleteResult = await post.deleteOne();
-    /*Сообщаем, что пост был удален.*/
+    /*Просим модель "PostModel" удалить пост по ID в БД.*/
+    const result: DeleteResult = await PostModel.deleteOne({ _id: id });
+    /*Возвращаем количество удаленных постов.*/
     return result.deletedCount;
   }
 

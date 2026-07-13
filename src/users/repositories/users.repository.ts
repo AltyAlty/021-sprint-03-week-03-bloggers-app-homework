@@ -73,13 +73,9 @@ export class UsersRepository {
 
   /*Метод для удаления пользователя по ID в БД.*/
   public async deleteById(id: string): Promise<number> {
-    /*Просим модель "UserModel" найти пользователя по ID в БД.*/
-    const user: HydratedDocument<UserType> | null = await UserModel.findById(id);
-    /*Если пользователь не был найден, то сообщаем, что он не был удален.*/
-    if (!user) return 0;
-    /*Если пользователь был найден, то удаляем его в БД.*/
-    const result: DeleteResult = await user.deleteOne();
-    /*Сообщаем, что пользователь был удален.*/
+    /*Просим модель "UserModel" удалить пользователя по ID в БД.*/
+    const result: DeleteResult = await UserModel.deleteOne({ _id: id });
+    /*Возвращаем количество удаленных пользователей.*/
     return result.deletedCount;
   }
 }

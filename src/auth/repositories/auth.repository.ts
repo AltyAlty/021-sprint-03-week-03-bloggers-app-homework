@@ -173,25 +173,17 @@ export class AuthRepository {
 
   /*Метод для удаления сессии по дате создания RT в БД.*/
   public async deleteSessionByIat(iat: Date): Promise<number> {
-    /*Просим модель "SessionModel" найти сессию по дате создания RT в БД.*/
-    const session: HydratedDocument<SessionType> | null = await SessionModel.findOne({ iat });
-    /*Если сессия не была найдена, то сообщаем, что она не была удалена.*/
-    if (!session) return 0;
-    /*Если сессия была найдена, то удаляем ее в БД.*/
-    const result: DeleteResult = await session.deleteOne();
-    /*Сообщаем, что сессия была удалена.*/
+    /*Просим модель "SessionModel" удалить сессию по дате создания RT в БД.*/
+    const result: DeleteResult = await SessionModel.deleteOne({ iat });
+    /*Возвращаем количество удаленных сессий.*/
     return result.deletedCount;
   }
 
   /*Метод для удаления сессии по ID пользователя и ID устройства пользователя в БД.*/
   public async deleteSessionByUserIdAndDeviceId(userId: string, deviceId: string): Promise<number> {
-    /*Просим модель "SessionModel" найти сессию по ID пользователя и ID устройства пользователя RT в БД.*/
-    const session: HydratedDocument<SessionType> | null = await SessionModel.findOne({ userId, deviceId });
-    /*Если сессия не была найдена, то сообщаем, что она не была удалена.*/
-    if (!session) return 0;
-    /*Если сессия была найдена, то удаляем ее в БД.*/
-    const result: DeleteResult = await session.deleteOne();
-    /*Сообщаем, что сессия была удалена.*/
+    /*Просим модель "SessionModel" удалить сессию по ID пользователя и ID устройства пользователя RT в БД.*/
+    const result: DeleteResult = await SessionModel.deleteOne({ userId, deviceId });
+    /*Возвращаем количество удаленных сессий.*/
     return result.deletedCount;
   }
 
@@ -213,45 +205,27 @@ export class AuthRepository {
 
   /*Метод для удаления данных о подтверждении регистрации пользователя по ID пользователя в БД.*/
   public async deleteEmailConfirmationByUserId(userId: string): Promise<number> {
-    /*Просим модель "EmailConfirmationModel" найти данные о подтверждении регистрации пользователя по ID пользователя в
-    БД.*/
-    const emailConfirmation: HydratedDocument<SessionType> | null = await EmailConfirmationModel.findOne({ userId });
-    /*Если данные о подтверждении регистрации пользователя не были найдены, то сообщаем, что они не были удалены.*/
-    if (!emailConfirmation) return 0;
-    /*Если данные о подтверждении регистрации пользователя были найдены, то удаляем их в БД.*/
-    const result: DeleteResult = await emailConfirmation.deleteOne();
-    /*Сообщаем, что данные о подтверждении регистрации пользователя были удалены.*/
+    /*Просим модель "EmailConfirmationModel" удалить данные о подтверждении регистрации пользователя по ID пользователя
+    в БД.*/
+    const result: DeleteResult = await EmailConfirmationModel.deleteOne({ userId });
+    /*Возвращаем количество удаленных данных о подтверждении регистрации пользователя.*/
     return result.deletedCount;
   }
 
   /*Метод для удаления данных о коде восстановления пароля пользователя по коду в БД.*/
   public async deleteRecoveryCodeDataByCode(recoveryCode: string): Promise<number> {
-    /*Просим модель "RecoveryCodeDataModel" найти данные о коде восстановления пароля пользователя по коду в БД.*/
-    const recoveryCodeData: HydratedDocument<RecoveryCodeDataType> | null = await RecoveryCodeDataModel.findOne({
-      recoveryCode,
-    });
-
-    /*Если данные о коде восстановления пароля пользователя не были найдены, то сообщаем, что они не были удалены.*/
-    if (!recoveryCodeData) return 0;
-    /*Если данные о коде восстановления пароля пользователя были найдены, то удаляем их в БД.*/
-    const result: DeleteResult = await recoveryCodeData.deleteOne();
-    /*Сообщаем, что данные о коде восстановления пароля пользователя были удалены.*/
+    /*Просим модель "RecoveryCodeDataModel" удалить данные о коде восстановления пароля пользователя по коду в БД.*/
+    const result: DeleteResult = await RecoveryCodeDataModel.deleteOne({ recoveryCode });
+    /*Возвращаем количество удаленных данных о коде восстановления пароля пользователя.*/
     return result.deletedCount;
   }
 
   /*Метод для удаления данных о всех кодах восстановления пароля пользователя по ID пользователя в БД.*/
   public async deleteAllRecoveryCodesDataByUserId(userId: string): Promise<number> {
-    /*Просим модель "RecoveryCodeDataModel" найти данные о коде восстановления пароля пользователя по ID пользователя в
-    БД.*/
-    const recoveryCodeData: HydratedDocument<RecoveryCodeDataType> | null = await RecoveryCodeDataModel.findOne({
-      userId,
-    });
-
-    /*Если данные о коде восстановления пароля пользователя не были найдены, то сообщаем, что они не были удалены.*/
-    if (!recoveryCodeData) return 0;
-    /*Если данные о коде восстановления пароля пользователя были найдены, то удаляем их в БД.*/
-    const result: DeleteResult = await recoveryCodeData.deleteOne();
-    /*Сообщаем, что данные о коде восстановления пароля пользователя были удалены.*/
+    /*Просим модель "RecoveryCodeDataModel" удалить данные о коде восстановления пароля пользователя по ID пользователя
+    в БД.*/
+    const result: DeleteResult = await RecoveryCodeDataModel.deleteOne({ userId });
+    /*Возвращаем количество удаленных данных о коде восстановления пароля пользователя.*/
     return result.deletedCount;
   }
 }

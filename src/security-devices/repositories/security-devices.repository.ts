@@ -47,16 +47,9 @@ export class SecurityDevicesRepository {
 
   /*Метод для удаления устройства пользователя по ID устройства в БД.*/
   public async deleteById(id: string): Promise<number> {
-    /*Просим модель "SecurityDeviceModel" найти устройство пользователя по ID в БД.*/
-    const securityDevice: HydratedDocument<SecurityDeviceType> | null = await SecurityDeviceModel.findOne({
-      deviceId: id,
-    });
-
-    /*Если устройство пользователя не было найдено, то сообщаем, что оно не было удалено.*/
-    if (!securityDevice) return 0;
-    /*Если устройство пользователя было найдено, то удаляем его в БД.*/
-    const result: DeleteResult = await securityDevice.deleteOne();
-    /*Сообщаем, что устройство пользователя было удалено.*/
+    /*Просим модель "SecurityDeviceModel" удалить устройство пользователя по ID в БД.*/
+    const result: DeleteResult = await SecurityDeviceModel.deleteOne({ deviceId: id });
+    /*Возвращаем количество удаленных устройств пользователя.*/
     return result.deletedCount;
   }
 

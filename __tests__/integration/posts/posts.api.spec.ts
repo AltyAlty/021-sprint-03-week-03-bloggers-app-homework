@@ -23,6 +23,12 @@ import { UserOutputDTO } from '../../../src/users/routes/output-dto/user.output-
 import { validPostsPaginationSettings } from '../../test-data/posts.test-data';
 import { validCommentsPaginationSettings } from '../../test-data/comments.test-data';
 import { validUserAgents } from '../../test-data/auth.test-data';
+import { likeCommentById } from '../../utils/comments/like-comment-by-id.test-util';
+import { CommentLikeStatusInputDTO } from '../../../src/comments/routes/input-dto/like-comment-by-id.input-dto';
+import { CommentLikeDataDBType } from '../../../src/comments/repositories/types/comment-like-data-db.type';
+import { container } from '../../../src/ioc/container';
+import { CommentsRepository } from '../../../src/comments/repositories/comments.repository';
+import { TYPES } from '../../../src/ioc/types';
 
 describe('Posts API', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -101,11 +107,14 @@ describe('Posts API', () => {
     await getPostById(app, createdPostId, HttpStatuses.NotFound_404);
   });
 
-  it('✅ 007 should delete a post with its comments by a correct ID; 007. DELETE /api/posts/:id', async () => {
+  it(`✅ 007 should delete a post with its comments and comments' likes by a correct ID; 007. DELETE /api/posts/:id`, async () => {
+    const commentsRepository = container.get<CommentsRepository>(TYPES.CommentsRepository);
+
     const createdPost: PostOutputDTO = await createPost(app);
     const createdPostId: string = createdPost.id;
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
-    await createUser(app, createUserData);
+    const createdUser: UserOutputDTO = await createUser(app, createUserData);
+    const createdUserId: string = createdUser.id;
 
     const accessToken: string = await loginUserReturnAccessToken(app, {
       loginOrEmail: createUserData.login,
@@ -121,12 +130,20 @@ describe('Posts API', () => {
       accessToken
     );
 
+    await likeCommentById(app, testUserAgent, accessToken, createdComment_01.id, {
+      likeStatus: CommentLikeStatusInputDTO.Like,
+    });
+
     const createdComment_02: CommentOutputDTO = await createCommentForPost(
       app,
       testUserAgent,
       createdPostId,
       accessToken
     );
+
+    await likeCommentById(app, testUserAgent, accessToken, createdComment_02.id, {
+      likeStatus: CommentLikeStatusInputDTO.Dislike,
+    });
 
     const testStatus: HttpStatuses = HttpStatuses.NotFound_404;
 
@@ -136,6 +153,15 @@ describe('Posts API', () => {
     await getCommentListByPostId(app, testUserAgent, createdPostId, undefined, accessToken, testStatus);
     await getCommentById(app, testUserAgent, createdComment_01.id, accessToken, testStatus);
     await getCommentById(app, testUserAgent, createdComment_02.id, accessToken, testStatus);
+
+    const commentLikeData_01: CommentLikeDataDBType | null =
+      await commentsRepository.findCommentLikeDataByCommentIdAndUserId(createdComment_01.id, createdUserId);
+
+    const commentLikeData_02: CommentLikeDataDBType | null =
+      await commentsRepository.findCommentLikeDataByCommentIdAndUserId(createdComment_01.id, createdUserId);
+
+    expect(commentLikeData_01).toBeNull();
+    expect(commentLikeData_02).toBeNull();
   });
 
   it('✅ 008 should create a comment for a post by a correct ID; 002. POST /api/posts/:postId/comments', async () => {

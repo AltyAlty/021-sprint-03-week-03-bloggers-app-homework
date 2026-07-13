@@ -17,6 +17,11 @@ import { likeCommentById } from '../../utils/comments/like-comment-by-id.test-ut
 import { validUserAgents } from '../../test-data/auth.test-data';
 import { CommentLikeStatusInputDTO } from '../../../src/comments/routes/input-dto/like-comment-by-id.input-dto';
 import { validUserEmails, validUserLogins, validUserPasswords } from '../../test-data/users.test-data';
+import { CommentLikeDataDBType } from '../../../src/comments/repositories/types/comment-like-data-db.type';
+import { container } from '../../../src/ioc/container';
+import { CommentsRepository } from '../../../src/comments/repositories/comments.repository';
+import { TYPES } from '../../../src/ioc/types';
+import { UserOutputDTO } from '../../../src/users/routes/output-dto/user.output-dto';
 
 describe('Comments API', () => {
   const app = doBeforeTestsWithMongoMemoryServer();
@@ -219,10 +224,12 @@ describe('Comments API', () => {
     expect(getCommentByIdResponse_07.likesInfo.dislikesCount).toBe(0);
   });
 
-  it('✅ 004 should delete a comment by a correct ID when a valid access token passed; 002. DELETE /api/comments/:id', async () => {
+  it('✅ 004 should delete a comment and its likes by a correct ID when a valid access token passed; 002. DELETE /api/comments/:id', async () => {
+    const commentsRepository = container.get<CommentsRepository>(TYPES.CommentsRepository);
+
     const createdPost: PostOutputDTO = await createPost(app);
     const createUserData: CreateUserInputDTO = getCreateUserInputDTO();
-    await createUser(app, createUserData);
+    const createdUser: UserOutputDTO = await createUser(app, createUserData);
 
     const accessToken: string = await loginUserReturnAccessToken(app, {
       loginOrEmail: createUserData.login,
@@ -240,8 +247,17 @@ describe('Comments API', () => {
 
     const createdCommentId: string = createdComment.id;
 
+    await likeCommentById(app, testUserAgent, accessToken, createdCommentId, {
+      likeStatus: CommentLikeStatusInputDTO.Like,
+    });
+
     await deleteCommentById(app, testUserAgent, createdCommentId, accessToken);
 
     await getCommentById(app, testUserAgent, createdCommentId, accessToken, HttpStatuses.NotFound_404);
+
+    const commentLikeData_01: CommentLikeDataDBType | null =
+      await commentsRepository.findCommentLikeDataByCommentIdAndUserId(createdCommentId, createdUser.id);
+
+    expect(commentLikeData_01).toBeNull();
   });
 });

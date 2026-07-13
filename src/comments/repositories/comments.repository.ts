@@ -38,6 +38,18 @@ export class CommentsRepository {
     return comment ?? null;
   }
 
+  /*Метод для поиска комментариев по ID поста в БД.*/
+  public async findAllByPostId(postId: string): Promise<CommentDBType[]> {
+    /*Просим модель "CommentModel" найти комментарии по ID поста в БД.*/
+    return await CommentModel.find({ postId }).lean();
+  }
+
+  /*Метод для поиска комментариев по ID постов в БД.*/
+  public async findAllByPostIds(postIds: string[]): Promise<CommentDBType[]> {
+    /*Просим модель "CommentModel" найти комментарии по ID постов в БД.*/
+    return await CommentModel.find({ postId: { $in: postIds } }).lean();
+  }
+
   /*Метод для поиска данных о лайке комментария по ID комментария и ID пользователя в БД.*/
   public async findCommentLikeDataByCommentIdAndUserId(
     commentId: string,
@@ -103,13 +115,9 @@ export class CommentsRepository {
 
   /*Метод для удаления комментария по ID в БД.*/
   public async deleteById(id: string): Promise<number> {
-    /*Просим модель "CommentModel" найти комментарий по ID в БД.*/
-    const comment: HydratedDocument<CommentType> | null = await CommentModel.findById(id);
-    /*Если комментарий не был найден, то сообщаем, что он не был удален.*/
-    if (!comment) return 0;
-    /*Если комментарий был найден, то удаляем его в БД.*/
-    const result: DeleteResult = await comment.deleteOne();
-    /*Сообщаем, что комментарий был удален.*/
+    /*Просим модель "CommentModel" удалить комментарий по ID в БД.*/
+    const result: DeleteResult = await CommentModel.deleteOne({ _id: id });
+    /*Возвращаем количество удаленных комментариев.*/
     return result.deletedCount;
   }
 
@@ -139,17 +147,38 @@ export class CommentsRepository {
 
   /*Метод для удаления данных о лайке комментария по ID комментария и ID пользователя в БД.*/
   public async deleteCommentLikeDataByCommentIdAndUserId(commentId: string, userId: string): Promise<number> {
-    /*Просим модель "CommentLikeDataModel" найти данные о лайке комментария по ID комментария и ID пользователя в БД.*/
-    const commentLikeData: HydratedDocument<CommentLikeDataType> | null = await CommentLikeDataModel.findOne({
+    /*Просим модель "CommentLikeDataModel" удалить данные о лайке комментария по ID комментария и ID пользователя в
+    БД.*/
+    const result: DeleteResult = await CommentLikeDataModel.deleteOne({
       commentId,
       userId,
     });
 
-    /*Если данные о лайке комментария не были найдены, то сообщаем, что они не были удалены.*/
-    if (!commentLikeData) return 0;
-    /*Если данные о лайке комментария были найдены, то удаляем их в БД.*/
-    const result: DeleteResult = await commentLikeData.deleteOne();
-    /*Сообщаем, что комментарий был удален.*/
+    /*Возвращаем количество удаленных данных о лайке комментария.*/
+    return result.deletedCount;
+  }
+
+  /*Метод для удаления данных о лайках комментария по ID комментария в БД.*/
+  public async deleteAllCommentLikesDataByCommentId(commentId: string): Promise<number> {
+    /*Просим модель "CommentLikeDataModel" удалить данные о лайках комментария по ID комментария в БД.*/
+    const result: DeleteResult = await CommentLikeDataModel.deleteMany({ commentId });
+    /*Возвращаем количество удаленных данных о лайках комментария.*/
+    return result.deletedCount;
+  }
+
+  /*Метод для удаления данных о лайках комментариев по ID пользователя в БД.*/
+  public async deleteAllCommentLikesDataByUserId(userId: string): Promise<number> {
+    /*Просим модель "CommentLikeDataModel" удалить данные о лайках комментариев по ID пользователя в БД.*/
+    const result: DeleteResult = await CommentLikeDataModel.deleteMany({ userId });
+    /*Возвращаем количество удаленных данных о лайках комментария.*/
+    return result.deletedCount;
+  }
+
+  /*Метод для удаления данных о лайках комментариев по ID комментариев в БД.*/
+  public async deleteAllCommentLikesDataByCommentIds(commentIds: string[]): Promise<number> {
+    /*Просим модель "CommentLikeDataModel" удалить данные о лайках комментариев по ID комментариев в БД.*/
+    const result: DeleteResult = await CommentLikeDataModel.deleteMany({ commentId: { $in: commentIds } });
+    /*Возвращаем количество удаленных данных о лайках комментария.*/
     return result.deletedCount;
   }
 }

@@ -43,13 +43,9 @@ export class BlogsRepository {
 
   /*Метод для удаления блога по ID в БД.*/
   public async deleteById(id: string): Promise<number> {
-    /*Просим модель "BlogModel" найти блог по ID в БД.*/
-    const blog: HydratedDocument<BlogType> | null = await BlogModel.findById(id);
-    /*Если блог не был найден, то сообщаем, что он не был удален.*/
-    if (!blog) return 0;
-    /*Если блог был найден, то удаляем его в БД.*/
-    const result: DeleteResult = await blog.deleteOne();
-    /*Сообщаем, что блог был удален.*/
+    /*Просим модель "BlogModel" удалить блог по ID в БД.*/
+    const result: DeleteResult = await BlogModel.deleteOne({ _id: id });
+    /*Возращаем количество удаленных блогов.*/
     return result.deletedCount;
   }
 }

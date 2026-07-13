@@ -525,7 +525,7 @@ describe('Auth Validation', () => {
     const createdUserLogin: string = createUserData.login;
     await registerUser(app, createUserData);
     const createdUserDB: UserDBType | null = await usersRepository.findByLoginOrEmail(createdUserLogin);
-    const createdUserId: string = String(createdUserDB?._id);
+    const createdUserId: string = String(createdUserDB?._id.toString());
 
     const emailConfirmationDB_01: EmailConfirmationDBType | null =
       await authRepository.findEmailConfirmationByUserId(createdUserId);

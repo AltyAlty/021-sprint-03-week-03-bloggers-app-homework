@@ -114,7 +114,7 @@ export class PostsService {
     /*Если посты в блоге были найдены, то удаляем комментарии внутри постов.*/
     if (postsDB) {
       /*Получаем массив ID постов внутри блога.*/
-      const postIds: string[] = postsDB.map(post => String(post._id));
+      const postIds: string[] = postsDB.map(post => post._id.toString());
       /*Просим сервис "commentsService" удалить комментарии по ID постов.*/
       await this.commentsService.deleteAllByPostIds(postIds);
     }
